@@ -1,8 +1,0 @@
-CREATE TABLE player (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255),
-    password VARCHAR(255),
-    country VARCHAR(255),
-    victories INT DEFAULT 0,
-    losses INT DEFAULT 0
-);
