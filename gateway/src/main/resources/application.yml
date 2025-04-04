@@ -1,0 +1,23 @@
+server:
+  port: 8080  # Gateway listens on port 8080
+
+spring:
+  application:
+    name: gateway-service
+
+  cloud:
+    gateway:
+      routes:
+        - id: player-service
+          uri: lb://player-service
+          predicates:
+            - Path=/api/players/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    ip-address: 127.0.0.1
+    hostname: localhost
+    instance-id: ${spring.application.name}
