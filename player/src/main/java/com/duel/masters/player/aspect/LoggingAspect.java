@@ -1,19 +1,17 @@
 package com.duel.masters.player.aspect;
 
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 @Aspect
 public class LoggingAspect {
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
-
     @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
     public void pointcut() {
     }
@@ -35,7 +33,7 @@ public class LoggingAspect {
         log("Ended process");
     }
 
-    private void log(String message) {
+    private static void log(String message) {
         log.info("-".repeat(50));
         log.info(message);
         log.info("-".repeat(50));
