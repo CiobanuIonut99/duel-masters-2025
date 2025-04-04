@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class PlayerService {
-    private final PlayerRepository playerRepository;
+    private PlayerRepository playerRepository;
 
     public List<Player> getAll(){
         return playerRepository.findAll();

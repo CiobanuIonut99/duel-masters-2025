@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PlayerController {
 
-    private final PlayerService playerService;
+    private PlayerService playerService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)

@@ -12,6 +12,10 @@ spring:
           uri: lb://player-service
           predicates:
             - Path=/api/players/**
+        - id: card-service
+          uri: lb://card-service
+          predicates:
+            - Path=/api/cards/**
 
 eureka:
   client:
