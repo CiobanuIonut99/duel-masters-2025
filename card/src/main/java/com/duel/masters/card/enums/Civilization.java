@@ -4,6 +4,6 @@ public enum Civilization {
     FIRE,
     WATER,
     NATURE,
-    DARK,
+    DARKNESS,
     LIGHT
 }

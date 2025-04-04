@@ -10,16 +10,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
 @RestController
-@RequestMapping("/api/players")
+@RequestMapping("api/players")
 @AllArgsConstructor
+
 public class PlayerController {
 
     private PlayerService playerService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+
     public List<Player> getAll(){
         return playerService.getAll();
     }
