@@ -1,7 +1,8 @@
 package com.duel.masters.player.controller;
 
-import com.duel.masters.player.model.Player;
+import com.duel.masters.player.dto.PlayerDto;
 import com.duel.masters.player.service.PlayerService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,14 +19,14 @@ public class PlayerController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Player> getAll() {
+    public List<PlayerDto> getAll() {
         return playerService.getAll();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Void> create(@RequestBody Player player) {
-        playerService.create(player);
+    public ResponseEntity<Void> create(@Valid @RequestBody PlayerDto playerDto) {
+        playerService.create(playerDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

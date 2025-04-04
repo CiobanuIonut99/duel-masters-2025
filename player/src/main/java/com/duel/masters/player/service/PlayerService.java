@@ -1,9 +1,9 @@
 package com.duel.masters.player.service;
 
-import com.duel.masters.player.model.Player;
+import com.duel.masters.player.dto.PlayerDto;
+import com.duel.masters.player.mapper.PlayerMapper;
 import com.duel.masters.player.repository.PlayerRepository;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,11 +13,14 @@ import java.util.List;
 public class PlayerService {
     private PlayerRepository playerRepository;
 
-    public List<Player> getAll(){
-        return playerRepository.findAll();
+    public List<PlayerDto> getAll() {
+        return playerRepository.findAll()
+                .stream()
+                .map(PlayerMapper::toPlayerDto)
+                .toList();
     }
 
-    public void create(Player player){
-        playerRepository.save(player);
+    public void create(PlayerDto playerDto) {
+        playerRepository.save(PlayerMapper.toPlayer(playerDto));
     }
 }
