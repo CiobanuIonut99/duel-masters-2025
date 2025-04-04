@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Aspect
 public class LoggingAspect {
+
     @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
     public void pointcut() {
     }
