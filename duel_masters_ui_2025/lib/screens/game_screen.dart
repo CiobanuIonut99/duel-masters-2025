@@ -4,10 +4,10 @@ import '../models/card_model.dart';
 
 final mockGameStartResponse = {
   "hand": [
-    {"id": 79, "name": "Bolshack Dragon", "manaCost": 6},
+    {"id": 79, "name": "Bolshack Dragon", "manaCost": 1},
     {"id": 3, "name": "Aqua Sniper", "manaCost": 1},
-    {"id": 79, "name": "Bolshack Dragon", "manaCost": 6},
-    {"id": 3, "name": "Aqua Sniper", "manaCost": 1},
+    {"id": 5, "name": "Deathliger, Lion of Chaos", "manaCost": 1},
+    {"id": 8, "name": "Astrocomet Dragon", "manaCost":1},
     {"id": 3, "name": "Aqua Sniper", "manaCost": 1},
   ],
   "shields": List.generate(5, (index) => {"id": 0, "name": "Shield $index"}),
