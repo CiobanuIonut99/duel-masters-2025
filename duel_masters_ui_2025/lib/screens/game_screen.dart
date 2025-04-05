@@ -1,5 +1,6 @@
 // 📦 Imports
 import 'package:flutter/material.dart';
+
 import '../models/card_model.dart';
 
 // 🔧 Mock data simulating backend response
@@ -11,13 +12,15 @@ final mockGameStartResponse = {
     {"id": 3, "name": "Aqua Sniper", "manaCost": 1},
     {"id": 3, "name": "Aqua Sniper", "manaCost": 1},
   ],
-  "shields": List.generate(5, (index) => {
-    "id": 0, // use 0 for back image
-    "name": "Shield $index",
-  }),
-  "deckSize": 30
+  "shields": List.generate(
+    5,
+    (index) => {
+      "id": 0, // use 0 for back image
+      "name": "Shield $index",
+    },
+  ),
+  "deckSize": 30,
 };
-
 
 // 🖼️ Main Game UI Widget
 class GameScreen extends StatefulWidget {
@@ -26,22 +29,40 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  bool animateShieldToHand = false;
+  bool isTapped = false;
+  Offset shieldStartOffset = Offset.zero;
+  Offset shieldEndOffset = Offset.zero;
+  CardModel? brokenShieldCard;
 
-  final List<CardModel> hand = (mockGameStartResponse["hand"] as List<dynamic>)
-      .map((data) => CardModel(
-    id: data["id"],
-    name: data["name"],
-    manaCost: data["manaCost"] ?? 1,
-  ))
-      .toList();
+  final List<CardModel> opponentHandCards =List.generate(
+    5,
+        (_) => CardModel(id: 0, name: "Unknown", manaCost: 0),
+  );
 
-  final List<CardModel> shields = (mockGameStartResponse["shields"] as List<dynamic>)
-      .map((data) => CardModel(
-    id: data["id"],
-    name: data["name"],
-    manaCost: 0,
-  ))
-      .toList();
+  final List<CardModel> hand =
+      (mockGameStartResponse["hand"] as List<dynamic>)
+          .map(
+            (data) => CardModel(
+              id: data["id"],
+              name: data["name"],
+              manaCost: data["manaCost"] ?? 1,
+            ),
+          )
+          .toList();
+
+  final List<CardModel> shields =
+      (mockGameStartResponse["shields"] as List<dynamic>)
+          .map(
+            (data) =>
+                CardModel(id: data["id"], name: data["name"], manaCost: 0),
+          )
+          .toList();
+
+  List<CardModel> opponentShields = List.generate(
+    5,
+    (index) => CardModel(id: 0, name: "Shield $index", manaCost: 0),
+  );
 
   // 🔢 Player Deck Size
   final int deckSize = mockGameStartResponse["deckSize"] as int;
@@ -94,33 +115,128 @@ class _GameScreenState extends State<GameScreen> {
   void _showHandCardDialog(CardModel card) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(card.name),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                sendToMana(card);
-              },
-              child: Text("Send to Mana Zone"),
+      builder:
+          (context) => AlertDialog(
+            title: Text(card.name),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    sendToMana(card);
+                  },
+                  child: Text("Send to Mana Zone"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    summonCard(card);
+                  },
+                  child: Text("Summon to Battle Zone"),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel"),
+                ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                summonCard(card);
-              },
-              child: Text("Summon to Battle Zone"),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("Cancel"),
-            ),
-          ],
-        ),
-      ),
+          ),
     );
+  }
+
+  // 🧠 Show battle card options in battleground (attack, tap etc)
+  // void _showBattleCardOptions(CardModel card) {
+  //   showDialog(
+  //     context: context,
+  //     builder:
+  //         (context) => AlertDialog(
+  //           title: Text("Attack with ${card.name}?"),
+  //           content: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               ElevatedButton(
+  //                 onPressed: () {
+  //                   Navigator.pop(context);
+  //                   // This is where you'd call backend: attack opponent
+  //                   ScaffoldMessenger.of(context).showSnackBar(
+  //                     SnackBar(
+  //                       content: Text("${card.name} attacked opponent!"),
+  //                     ),
+  //                   );
+  //                 },
+  //                 child: Text("Attack Opponent"),
+  //               ),
+  //               ElevatedButton(
+  //                 onPressed: () {
+  //                   Navigator.pop(context);
+  //                   ScaffoldMessenger.of(context).showSnackBar(
+  //                     SnackBar(
+  //                       content: Text("${card.name} attacked a shield!"),
+  //                     ),
+  //                   );
+  //                 },
+  //                 child: Text("Attack Shield"),
+  //               ),
+  //               ElevatedButton(
+  //                 onPressed: () {
+  //                   Navigator.pop(context);
+  //                   ScaffoldMessenger.of(context).showSnackBar(
+  //                     SnackBar(
+  //                       content: Text("${card.name} attacked enemy creature!"),
+  //                     ),
+  //                   );
+  //                 },
+  //                 child: Text("Attack Creature"),
+  //               ),
+  //               ElevatedButton(
+  //                 onPressed: () => Navigator.pop(context),
+  //                 child: Text("Cancel"),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //   );
+  // }
+  void untapAll() {
+    setState(() {
+      // Untap all creatures in battle zone
+      for (var card in battleZoneCards) {
+        card.isTapped = false;
+      }
+
+      // Untap all mana cards
+      for (var card in manaZoneCards) {
+        card.isTapped = false;
+      }
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("All cards untapped for new turn")),
+    );
+  }
+
+  void attackShield(CardModel card) {
+    if (opponentShields.isEmpty) return;
+
+    final removedShield = opponentShields.first;
+
+    setState(() {
+      brokenShieldCard = removedShield;
+      animateShieldToHand = true;
+      shieldStartOffset = Offset(150, 200);
+      shieldEndOffset = Offset(20, 50);
+      card.isTapped = true;
+    });
+
+    Future.delayed(Duration(milliseconds: 800), () {
+      setState(() {
+        animateShieldToHand = false;
+        brokenShieldCard = null;
+        opponentShields.removeAt(0); // remove first shield
+        opponentHandCards.add(removedShield); // add it to opponent's hand
+      });
+    });
   }
 
   // 🧱 Build UI
@@ -128,26 +244,58 @@ class _GameScreenState extends State<GameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.green.shade900,
-      appBar: AppBar(title: Text("Duel Masters - Match Start")),
-      body: Padding(
-        padding: EdgeInsets.all(12),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildOpponentField(), // 🔼 Opponent field
-
-            // ⚔️ Battle Zones
-            Column(
+      appBar: AppBar(
+        title: Text("Duel Masters - Match Start"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            tooltip: "Untap All",
+            onPressed: untapAll,
+          )
+        ],
+      ),
+      body: Stack(
+        children: [
+          // Main content
+          Padding(
+            padding: EdgeInsets.all(12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Center(child: _buildCardRow([], cardWidth: 90, label: "Opponent Battle Zone")),
-                SizedBox(height: 12),
-                Center(child: _buildCardRow(battleZoneCards, cardWidth: 90, label: "Your Battle Zone")),
+                _buildOpponentField(),
+                Column(
+                  children: [
+                    Center(
+                      child: _buildCardRow(
+                        [],
+                        cardWidth: 90,
+                        label: "Opponent Battle Zone",
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Center(
+                      child: _buildCardRow(
+                        battleZoneCards,
+                        cardWidth: 90,
+                        label: "Your Battle Zone",
+                      ),
+                    ),
+                  ],
+                ),
+                _buildPlayerField(),
               ],
             ),
+          ),
 
-            _buildPlayerField(), // 🔽 Player field
-          ],
-        ),
+          // Animated shield movement
+          if (animateShieldToHand && brokenShieldCard != null)
+            AnimatedPositioned(
+              duration: Duration(milliseconds: 800),
+              left: shieldEndOffset.dx,
+              top: shieldEndOffset.dy,
+              child: Image.asset(brokenShieldCard!.imagePath, width: 60),
+            ),
+        ],
       ),
     );
   }
@@ -194,7 +342,6 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-
   // 🧙 Opponent Field (shields, mana, hand)
   Widget _buildOpponentField() {
     return Column(
@@ -205,13 +352,11 @@ class _GameScreenState extends State<GameScreen> {
           children: [
             // Opponent Hand
             _buildCardRow(
-              List.generate(
-                5,
-                    (_) => CardModel(id: 0, name: "Unknown", manaCost: 0),
-              ),
+              opponentHandCards,
               cardWidth: 50,
               label: "Opponent Hand",
             ),
+
             // Opponent Mana
             _buildManaZone(label: "Opponent Mana", cards: []),
             // Opponent Deck
@@ -224,10 +369,7 @@ class _GameScreenState extends State<GameScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildCardRow(
-              List.generate(
-                5,
-                    (_) => CardModel(id: 0, name: "Unknown", manaCost: 0),
-              ),
+              opponentShields,
               cardWidth: 60,
               label: "Opponent Shields",
             ),
@@ -236,10 +378,29 @@ class _GameScreenState extends State<GameScreen> {
       ],
     );
   }
-
+  void _showCardPreview(CardModel card) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          width: 250,
+          height: 360,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            image: DecorationImage(
+              image: AssetImage(card.imagePath),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   // 🧱 Generic row of cards
-  Widget _buildCardRow(List<CardModel> cards, {
+  Widget _buildCardRow(
+    List<CardModel> cards, {
     double cardWidth = 60,
     String? label,
     bool scrollable = false,
@@ -247,13 +408,27 @@ class _GameScreenState extends State<GameScreen> {
   }) {
     final row = Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: cards.map((card) => Padding(
-        padding: EdgeInsets.symmetric(horizontal: 4),
-        child: GestureDetector(
-          onTap: allowManaAction ? () => _showHandCardDialog(card) : null,
-          child: Image.asset(card.imagePath, width: cardWidth),
-        ),
-      )).toList(),
+      children:
+          cards
+              .map(
+                (card) => Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4),
+                  child: GestureDetector(
+                    onTap: () {
+                      if (allowManaAction) {
+                        _showHandCardDialog(card);
+                      } else if (label == "Your Battle Zone") {
+                        _showAttackOptionsDialog(card);
+                      }
+                    },
+                    child: Transform.rotate(
+                      angle: card.isTapped ? -1.57 : 0, // -90 degrees in radians
+                      child: Image.asset(card.imagePath, width: cardWidth),
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
     );
 
     return Column(
@@ -262,9 +437,38 @@ class _GameScreenState extends State<GameScreen> {
         if (label != null) Text(label, style: TextStyle(color: Colors.white)),
         SizedBox(height: 4),
         scrollable
-            ? SingleChildScrollView(scrollDirection: Axis.horizontal, child: row)
+            ? SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: row,
+            )
             : row,
       ],
+    );
+  }
+
+  void _showAttackOptionsDialog(CardModel card) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text("Attack with ${card.name}"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    attackShield(card);
+                  },
+                  child: Text("Attack Shield"),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel"),
+                ),
+              ],
+            ),
+          ),
     );
   }
 
@@ -280,16 +484,24 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   // 💠 Mana Zone UI
-  Widget _buildManaZone({required String label, required List<CardModel> cards}) {
+  Widget _buildManaZone({
+    required String label,
+    required List<CardModel> cards,
+  }) {
     return Column(
       children: [
         Text(label, style: TextStyle(color: Colors.white)),
         SizedBox(height: 4),
         Row(
-          children: cards.map((card) => Padding(
-            padding: EdgeInsets.symmetric(horizontal: 2),
-            child: Image.asset(card.imagePath, width: 40),
-          )).toList(),
+          children:
+              cards
+                  .map(
+                    (card) => Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 2),
+                      child: Image.asset(card.imagePath, width: 40),
+                    ),
+                  )
+                  .toList(),
         ),
       ],
     );
