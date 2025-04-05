@@ -23,6 +23,9 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  bool isSelectingAttackTarget = false;
+  CardModel? selectedAttacker;
+
   // Whether we are currently animating a broken shield
   bool animateShieldToHand = false;
 
@@ -180,58 +183,13 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
-  /// Displays dialog to choose what to attack
-  void _showAttackOptionsDialog(CardModel card) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text("Attack with ${card.name}"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          "${card.name} attacked opponent directly!",
-                        ),
-                      ),
-                    );
-                  },
-                  child: Text("Attack Opponent"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    attackShield(card);
-                  },
-                  child: Text("Attack Shield"),
-                ),
-                ...opponentBattleZone.map(
-                  (enemy) => ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("${card.name} attacked ${enemy.name}!"),
-                        ),
-                      );
-                    },
-                    child: Text("Attack ${enemy.name}"),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("Cancel"),
-                ),
-              ],
-            ),
-          ),
-    );
+  void _startAttackSelection(CardModel attacker) {
+    setState(() {
+      isSelectingAttackTarget = true;
+      selectedAttacker = attacker;
+    });
   }
+
 
   /// Untaps all cards for a new turn
   void untapAll() {
@@ -377,10 +335,36 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+
+
   Widget _buildOpponentField() {
     return Column(
       children: [
-        // Opponent Shields (should come before the battle zone)
+        // 🃏 Opponent Hand, Mana, and Deck (Top Row - Behind the Shields)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Left-aligned hand
+            Align(
+              alignment: Alignment.topLeft,
+              child: _buildCardRow(
+                opponentHandCards,
+                cardWidth: 50,
+                label: "Opponent Hand",
+                rotate180: true,
+              ),
+            ),
+            // Center-aligned mana
+            _buildManaZone(label: "Opponent Mana", cards: [], rotate180: true),
+            // Right-aligned deck
+            _buildDeckZone(deckSize: 30, label: "Opponent Deck", rotate180: true),
+          ],
+        ),
+
+        SizedBox(height: 12),
+
+        // 🛡️ Shields (Centered)
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -388,63 +372,85 @@ class _GameScreenState extends State<GameScreen> {
               opponentShields,
               cardWidth: 60,
               label: "Opponent Shields",
+              rotate180: true,
             ),
           ],
         ),
+
         SizedBox(height: 12),
 
-        // Opponent Battle Zone
+        // ⚔️ Opponent Battle Zone (Centered)
         Center(
-          child: _buildCardRow(opponentBattleZone, cardWidth: 90, label: "Opponent Battle Zone"),
-        ),
-
-        SizedBox(height: 12),
-
-        // Opponent Hand, Mana, and Deck (as a row)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildCardRow(opponentHandCards, cardWidth: 50, label: "Opponent Hand"),
-            _buildManaZone(label: "Opponent Mana", cards: []),
-            _buildDeckZone(deckSize: 30, label: "Opponent Deck"),
-          ],
+          child: _buildCardRow(
+            opponentBattleZone,
+            cardWidth: 90,
+            label: "Opponent Battle Zone",
+            rotate180: true,
+          ),
         ),
       ],
     );
   }
 
 
+
+
+
   /// Generic row for cards (used by all zones)
   Widget _buildCardRow(
-    List<CardModel> cards, {
-    double cardWidth = 60,
-    String? label,
-    bool scrollable = false,
-    bool allowManaAction = false,
-  }) {
+      List<CardModel> cards, {
+        double cardWidth = 60,
+        String? label,
+        bool scrollable = false,
+        bool allowManaAction = false,
+        bool rotate180 = false,
+      }) {
+    final isTargetZone =
+        (label == "Opponent Shields" || label == "Opponent Battle Zone") && isSelectingAttackTarget;
+
     final row = Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children:
-          cards
-              .map(
-                (card) => Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4),
-                  child: GestureDetector(
-                    onTap: () {
-                      if (allowManaAction) {
-                        _showHandCardDialog(card);
-                      } else if (label == "Your Battle Zone") {
-                        _showAttackOptionsDialog(card);
-                      }
-                    },
-                    child: Transform.rotate(
-                      angle: card.isTapped ? -1.57 : 0,
-                      child: Image.asset(card.imagePath, width: cardWidth),
-                    ),
-                  ),
-                ),
-              )
-              .toList(),
+      children: cards.map((card) {
+        final isGlowTarget = isTargetZone;
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4),
+          child: GestureDetector(
+            onTap: allowManaAction
+                ? () => _showHandCardDialog(card)
+                : isGlowTarget
+                ? () {
+              if (label == "Opponent Shields") {
+                attackShield(selectedAttacker!);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("${selectedAttacker!.name} attacked ${card.name}")),
+                );
+              }
+
+              setState(() {
+                isSelectingAttackTarget = false;
+                selectedAttacker = null;
+              });
+            }
+                : (label == "Your Battle Zone"
+                ? () => _startAttackSelection(card)
+                : null),
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              decoration: BoxDecoration(
+                boxShadow: isGlowTarget
+                    ? [BoxShadow(color: Colors.yellowAccent, blurRadius: 12)]
+                    : [],
+              ),
+              child: Transform.rotate(
+                angle: (card.isTapped ? -1.57 : 0) + (rotate180 ? 3.14 : 0),
+                child: Image.asset(card.imagePath, width: cardWidth),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
 
     return Column(
@@ -454,46 +460,56 @@ class _GameScreenState extends State<GameScreen> {
         SizedBox(height: 4),
         scrollable
             ? SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: row,
-            )
+          scrollDirection: Axis.horizontal,
+          child: row,
+        )
             : row,
       ],
     );
   }
 
+
+
+
   /// UI for deck zone
-  Widget _buildDeckZone({required int deckSize, required String label}) {
+  Widget _buildDeckZone({required int deckSize, required String label, bool rotate180 = false}) {
     return Column(
       children: [
-        Image.asset('assets/cards/0.jpg', width: 70),
+        Transform.rotate(
+          angle: rotate180 ? 3.14 : 0,
+          child: Image.asset('assets/cards/0.jpg', width: 70),
+        ),
         SizedBox(height: 4),
         Text('$label ($deckSize)', style: TextStyle(color: Colors.white)),
       ],
     );
   }
 
+
   /// UI for mana zone
   Widget _buildManaZone({
     required String label,
     required List<CardModel> cards,
+    bool rotate180 = false,
   }) {
     return Column(
       children: [
         Text(label, style: TextStyle(color: Colors.white)),
         SizedBox(height: 4),
         Row(
-          children:
-              cards
-                  .map(
-                    (card) => Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 2),
-                      child: Image.asset(card.imagePath, width: 40),
-                    ),
-                  )
-                  .toList(),
+          children: cards.map(
+                (card) => Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2),
+              child: Transform.rotate(
+                angle: rotate180 ? 3.14 : 0,
+                child: Image.asset(card.imagePath, width: 40),
+              ),
+            ),
+          ).toList(),
         ),
       ],
     );
   }
+
+
 }
