@@ -26,6 +26,7 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+
   final List<CardModel> hand = (mockGameStartResponse["hand"] as List<dynamic>)
       .map((data) => CardModel(
     id: data["id"],
@@ -41,7 +42,6 @@ class _GameScreenState extends State<GameScreen> {
     manaCost: 0,
   ))
       .toList();
-
 
   // 🔢 Player Deck Size
   final int deckSize = mockGameStartResponse["deckSize"] as int;
@@ -199,35 +199,44 @@ class _GameScreenState extends State<GameScreen> {
   Widget _buildOpponentField() {
     return Column(
       children: [
+        // Opponent Hand Row (Left), Mana (Right), Deck (Far Right)
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildDeckZone(deckSize: 30, label: "Opponent Deck"),
+            // Opponent Hand
             _buildCardRow(
               List.generate(
                 5,
-                    (_) => CardModel(id: 0, name: "Unknown", manaCost: 0)
-                ,
+                    (_) => CardModel(id: 0, name: "Unknown", manaCost: 0),
+              ),
+              cardWidth: 50,
+              label: "Opponent Hand",
+            ),
+            // Opponent Mana
+            _buildManaZone(label: "Opponent Mana", cards: []),
+            // Opponent Deck
+            _buildDeckZone(deckSize: 30, label: "Opponent Deck"),
+          ],
+        ),
+        SizedBox(height: 12),
+        // Opponent Shields Centered
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildCardRow(
+              List.generate(
+                5,
+                    (_) => CardModel(id: 0, name: "Unknown", manaCost: 0),
               ),
               cardWidth: 60,
               label: "Opponent Shields",
             ),
-            _buildManaZone(label: "Opponent Mana", cards: []),
           ],
-        ),
-        SizedBox(height: 12),
-        _buildCardRow(
-          List.generate(
-            5,
-                (_) => CardModel(id: 0, name: "Unknown", manaCost: 0)
-            ,
-          ),
-          cardWidth: 50,
-          label: "Opponent Hand",
         ),
       ],
     );
   }
+
 
   // 🧱 Generic row of cards
   Widget _buildCardRow(List<CardModel> cards, {
