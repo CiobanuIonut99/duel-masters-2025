@@ -26,6 +26,7 @@ public class CardController {
 
     @GetMapping("/deck")
     public List<DeckCardDTO> getDeckCards() {
-        return cardService.getNecessaryCards(cardService.getAll());
+        return cardService.getNecessaryCards();
     }
+
 }

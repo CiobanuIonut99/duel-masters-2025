@@ -30,7 +30,7 @@ public class Card {
     private int manaNumber;
     private int power;
     private String ability;
-    private String raritySymbol;
+//    private String raritySymbol;
     @Enumerated(EnumType.STRING)
     private SpecialAbility specialAbility;
 
