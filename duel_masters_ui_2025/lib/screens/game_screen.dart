@@ -1,9 +1,8 @@
 // 📦 Imports
 import 'package:flutter/material.dart';
-
 import '../models/card_model.dart';
 
-// 🔧 Mock data simulating backend response
+// 🔧 Mock data simulating a backend response for starting the game
 final mockGameStartResponse = {
   "hand": [
     {"id": 79, "name": "Bolshack Dragon", "manaCost": 6},
@@ -14,65 +13,75 @@ final mockGameStartResponse = {
   ],
   "shields": List.generate(
     5,
-    (index) => {
-      "id": 0, // use 0 for back image
+        (index) => {
+      "id": 0,
       "name": "Shield $index",
     },
   ),
   "deckSize": 30,
 };
 
-// 🖼️ Main Game UI Widget
+/// Main Game UI screen
 class GameScreen extends StatefulWidget {
   @override
   State<GameScreen> createState() => _GameScreenState();
 }
 
 class _GameScreenState extends State<GameScreen> {
+  // Whether we are currently animating a broken shield
   bool animateShieldToHand = false;
+
+  // Controls tapping of creatures after they attack
   bool isTapped = false;
+
+  // Coordinates for animating the shield move
   Offset shieldStartOffset = Offset.zero;
   Offset shieldEndOffset = Offset.zero;
+
+  // The shield being broken
   CardModel? brokenShieldCard;
 
-  final List<CardModel> opponentHandCards =List.generate(
+  // Initial mock hand for opponent (5 hidden cards)
+  final List<CardModel> opponentHandCards = List.generate(
     5,
         (_) => CardModel(id: 0, name: "Unknown", manaCost: 0),
   );
 
-  final List<CardModel> hand =
-      (mockGameStartResponse["hand"] as List<dynamic>)
-          .map(
-            (data) => CardModel(
-              id: data["id"],
-              name: data["name"],
-              manaCost: data["manaCost"] ?? 1,
-            ),
-          )
-          .toList();
+  // Initial hand from mock response
+  final List<CardModel> hand = (mockGameStartResponse["hand"] as List)
+      .map((data) => CardModel(
+    id: data["id"],
+    name: data["name"],
+    manaCost: data["manaCost"] ?? 1,
+  ))
+      .toList();
 
-  final List<CardModel> shields =
-      (mockGameStartResponse["shields"] as List<dynamic>)
-          .map(
-            (data) =>
-                CardModel(id: data["id"], name: data["name"], manaCost: 0),
-          )
-          .toList();
+  // Initial shield setup
+  final List<CardModel> shields = (mockGameStartResponse["shields"] as List)
+      .map((data) => CardModel(
+    id: data["id"],
+    name: data["name"],
+    manaCost: 0,
+  ))
+      .toList();
 
+  // Opponent shield row (all hidden cards)
   List<CardModel> opponentShields = List.generate(
     5,
-    (index) => CardModel(id: 0, name: "Shield $index", manaCost: 0),
+        (index) => CardModel(id: 0, name: "Shield $index", manaCost: 0),
   );
 
-  // 🔢 Player Deck Size
+  // Number of cards in deck
   final int deckSize = mockGameStartResponse["deckSize"] as int;
 
-  // ♻️ Game State
+  // Zones
   List<CardModel> battleZoneCards = [];
   List<CardModel> manaZoneCards = [];
+
+  // Ensures only one card is played to mana per turn
   bool hasPlayedManaThisTurn = false;
 
-  // 🔁 Send card to Mana Zone
+  /// Sends card to mana zone from hand
   void sendToMana(CardModel card) {
     if (hasPlayedManaThisTurn) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -87,18 +96,18 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
-  // 🔁 Reset turn logic
+  /// Resets mana turn limit
   void resetTurn() {
     setState(() {
       hasPlayedManaThisTurn = false;
     });
   }
 
-  // 🧙 Summon creature to battle zone
+  /// Summons a creature from hand to battle zone
   void summonCard(CardModel card) {
     if (manaZoneCards.length < card.manaCost) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Not enough mana to summon \${card.name}")),
+        SnackBar(content: Text("Not enough mana to summon ${card.name}")),
       );
       return;
     }
@@ -107,139 +116,124 @@ class _GameScreenState extends State<GameScreen> {
       battleZoneCards.add(card);
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("\${card.name} summoned to battle zone!")),
+      SnackBar(content: Text("${card.name} summoned to battle zone!")),
     );
   }
 
-  // 🧠 Show hand options (summon, mana)
+  /// Lets user pick action for a hand card
   void _showHandCardDialog(CardModel card) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(card.name),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    sendToMana(card);
-                  },
-                  child: Text("Send to Mana Zone"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    summonCard(card);
-                  },
-                  child: Text("Summon to Battle Zone"),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("Cancel"),
-                ),
-              ],
+      builder: (_) => AlertDialog(
+        title: Text(card.name),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                sendToMana(card);
+              },
+              child: Text("Send to Mana Zone"),
             ),
-          ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                summonCard(card);
+              },
+              child: Text("Summon to Battle Zone"),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  // 🧠 Show battle card options in battleground (attack, tap etc)
-  // void _showBattleCardOptions(CardModel card) {
-  //   showDialog(
-  //     context: context,
-  //     builder:
-  //         (context) => AlertDialog(
-  //           title: Text("Attack with ${card.name}?"),
-  //           content: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             children: [
-  //               ElevatedButton(
-  //                 onPressed: () {
-  //                   Navigator.pop(context);
-  //                   // This is where you'd call backend: attack opponent
-  //                   ScaffoldMessenger.of(context).showSnackBar(
-  //                     SnackBar(
-  //                       content: Text("${card.name} attacked opponent!"),
-  //                     ),
-  //                   );
-  //                 },
-  //                 child: Text("Attack Opponent"),
-  //               ),
-  //               ElevatedButton(
-  //                 onPressed: () {
-  //                   Navigator.pop(context);
-  //                   ScaffoldMessenger.of(context).showSnackBar(
-  //                     SnackBar(
-  //                       content: Text("${card.name} attacked a shield!"),
-  //                     ),
-  //                   );
-  //                 },
-  //                 child: Text("Attack Shield"),
-  //               ),
-  //               ElevatedButton(
-  //                 onPressed: () {
-  //                   Navigator.pop(context);
-  //                   ScaffoldMessenger.of(context).showSnackBar(
-  //                     SnackBar(
-  //                       content: Text("${card.name} attacked enemy creature!"),
-  //                     ),
-  //                   );
-  //                 },
-  //                 child: Text("Attack Creature"),
-  //               ),
-  //               ElevatedButton(
-  //                 onPressed: () => Navigator.pop(context),
-  //                 child: Text("Cancel"),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //   );
-  // }
-  void untapAll() {
-    setState(() {
-      // Untap all creatures in battle zone
-      for (var card in battleZoneCards) {
-        card.isTapped = false;
-      }
-
-      // Untap all mana cards
-      for (var card in manaZoneCards) {
-        card.isTapped = false;
-      }
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("All cards untapped for new turn")),
-    );
-  }
-
+  /// Attacks a shield and triggers its animation to opponent's hand
   void attackShield(CardModel card) {
     if (opponentShields.isEmpty) return;
-
     final removedShield = opponentShields.first;
-
     setState(() {
       brokenShieldCard = removedShield;
       animateShieldToHand = true;
-      shieldStartOffset = Offset(150, 200);
+      shieldStartOffset = Offset(150, 200); // Mock position
       shieldEndOffset = Offset(20, 50);
-      card.isTapped = true;
+      card.isTapped = true; // Visually tap attacker
     });
 
     Future.delayed(Duration(milliseconds: 800), () {
       setState(() {
         animateShieldToHand = false;
         brokenShieldCard = null;
-        opponentShields.removeAt(0); // remove first shield
-        opponentHandCards.add(removedShield); // add it to opponent's hand
+        opponentShields.removeAt(0);
+        opponentHandCards.add(removedShield);
       });
     });
   }
 
-  // 🧱 Build UI
+  /// Displays dialog to choose what to attack
+  void _showAttackOptionsDialog(CardModel card) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("Attack with ${card.name}"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                attackShield(card);
+              },
+              child: Text("Attack Shield"),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Untaps all cards for a new turn
+  void untapAll() {
+    setState(() {
+      for (var card in battleZoneCards) card.isTapped = false;
+      for (var card in manaZoneCards) card.isTapped = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("All cards untapped for new turn")),
+    );
+  }
+
+  /// Enlarges the card image in a modal
+  void _showCardPreview(CardModel card) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          width: 250,
+          height: 360,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            image: DecorationImage(
+              image: AssetImage(card.imagePath),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Main build method
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -256,7 +250,6 @@ class _GameScreenState extends State<GameScreen> {
       ),
       body: Stack(
         children: [
-          // Main content
           Padding(
             padding: EdgeInsets.all(12),
             child: Column(
@@ -286,8 +279,6 @@ class _GameScreenState extends State<GameScreen> {
               ],
             ),
           ),
-
-          // Animated shield movement
           if (animateShieldToHand && brokenShieldCard != null)
             AnimatedPositioned(
               duration: Duration(milliseconds: 800),
@@ -300,11 +291,10 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  // 🧙 Player Field (shields, mana, hand)
+  /// Builds all elements of the player's side
   Widget _buildPlayerField() {
     return Column(
       children: [
-        // 🔽 Shields Row Centered
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -312,12 +302,9 @@ class _GameScreenState extends State<GameScreen> {
           ],
         ),
         SizedBox(height: 12),
-
-        // 🔽 Mana & Deck Row
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // 🃏 Left aligned Hand
             Expanded(
               child: Align(
                 alignment: Alignment.centerLeft,
@@ -330,11 +317,7 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
             ),
-
-            // 🔋 Your Mana Zone
             _buildManaZone(label: "Your Mana", cards: manaZoneCards),
-
-            // 📦 Deck
             _buildDeckZone(deckSize: deckSize, label: "Your Deck"),
           ],
         ),
@@ -342,93 +325,55 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  // 🧙 Opponent Field (shields, mana, hand)
+  /// Builds opponent's field layout
   Widget _buildOpponentField() {
     return Column(
       children: [
-        // Opponent Hand Row (Left), Mana (Right), Deck (Far Right)
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Opponent Hand
-            _buildCardRow(
-              opponentHandCards,
-              cardWidth: 50,
-              label: "Opponent Hand",
-            ),
-
-            // Opponent Mana
+            _buildCardRow(opponentHandCards, cardWidth: 50, label: "Opponent Hand"),
             _buildManaZone(label: "Opponent Mana", cards: []),
-            // Opponent Deck
             _buildDeckZone(deckSize: 30, label: "Opponent Deck"),
           ],
         ),
         SizedBox(height: 12),
-        // Opponent Shields Centered
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildCardRow(
-              opponentShields,
-              cardWidth: 60,
-              label: "Opponent Shields",
-            ),
+            _buildCardRow(opponentShields, cardWidth: 60, label: "Opponent Shields"),
           ],
         ),
       ],
     );
   }
-  void _showCardPreview(CardModel card) {
-    showDialog(
-      context: context,
-      builder: (_) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          width: 250,
-          height: 360,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            image: DecorationImage(
-              image: AssetImage(card.imagePath),
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
-  // 🧱 Generic row of cards
+  /// Generic row for cards (used by all zones)
   Widget _buildCardRow(
-    List<CardModel> cards, {
-    double cardWidth = 60,
-    String? label,
-    bool scrollable = false,
-    bool allowManaAction = false,
-  }) {
+      List<CardModel> cards, {
+        double cardWidth = 60,
+        String? label,
+        bool scrollable = false,
+        bool allowManaAction = false,
+      }) {
     final row = Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children:
-          cards
-              .map(
-                (card) => Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4),
-                  child: GestureDetector(
-                    onTap: () {
-                      if (allowManaAction) {
-                        _showHandCardDialog(card);
-                      } else if (label == "Your Battle Zone") {
-                        _showAttackOptionsDialog(card);
-                      }
-                    },
-                    child: Transform.rotate(
-                      angle: card.isTapped ? -1.57 : 0, // -90 degrees in radians
-                      child: Image.asset(card.imagePath, width: cardWidth),
-                    ),
-                  ),
-                ),
-              )
-              .toList(),
+      children: cards.map((card) => Padding(
+        padding: EdgeInsets.symmetric(horizontal: 4),
+        child: GestureDetector(
+          onTap: () {
+            if (allowManaAction) {
+              _showHandCardDialog(card);
+            } else if (label == "Your Battle Zone") {
+              _showAttackOptionsDialog(card);
+            }
+          },
+          child: Transform.rotate(
+            angle: card.isTapped ? -1.57 : 0,
+            child: Image.asset(card.imagePath, width: cardWidth),
+          ),
+        ),
+      )).toList(),
     );
 
     return Column(
@@ -437,42 +382,13 @@ class _GameScreenState extends State<GameScreen> {
         if (label != null) Text(label, style: TextStyle(color: Colors.white)),
         SizedBox(height: 4),
         scrollable
-            ? SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: row,
-            )
+            ? SingleChildScrollView(scrollDirection: Axis.horizontal, child: row)
             : row,
       ],
     );
   }
 
-  void _showAttackOptionsDialog(CardModel card) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text("Attack with ${card.name}"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    attackShield(card);
-                  },
-                  child: Text("Attack Shield"),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("Cancel"),
-                ),
-              ],
-            ),
-          ),
-    );
-  }
-
-  // 📦 Deck UI Component
+  /// UI for deck zone
   Widget _buildDeckZone({required int deckSize, required String label}) {
     return Column(
       children: [
@@ -483,25 +399,17 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  // 💠 Mana Zone UI
-  Widget _buildManaZone({
-    required String label,
-    required List<CardModel> cards,
-  }) {
+  /// UI for mana zone
+  Widget _buildManaZone({required String label, required List<CardModel> cards}) {
     return Column(
       children: [
         Text(label, style: TextStyle(color: Colors.white)),
         SizedBox(height: 4),
         Row(
-          children:
-              cards
-                  .map(
-                    (card) => Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 2),
-                      child: Image.asset(card.imagePath, width: 40),
-                    ),
-                  )
-                  .toList(),
+          children: cards.map((card) => Padding(
+            padding: EdgeInsets.symmetric(horizontal: 2),
+            child: Image.asset(card.imagePath, width: 40),
+          )).toList(),
         ),
       ],
     );
