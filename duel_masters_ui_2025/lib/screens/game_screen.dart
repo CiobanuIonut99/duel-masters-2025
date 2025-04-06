@@ -23,12 +23,14 @@ class _GameScreenState extends State<GameScreen> {
   double hoverScale = 1.0; // Scale factor for hover effect
   CardModel? hoveredCard;
 
-  List<CardModel> hand = []; // This will be updated with data fetched from the backend
-  List<CardModel> shields = []; // This will be updated with data fetched from the backend
-  List<CardModel> deck = []; // This will be updated with data fetched from the backend
+  List<CardModel> hand =
+      []; // This will be updated with data fetched from the backend
+  List<CardModel> shields =
+      []; // This will be updated with data fetched from the backend
+  List<CardModel> deck =
+      []; // This will be updated with data fetched from the backend
 
-  int deckSize = 0;  // This will hold the deck size fetched from the backend
-
+  int deckSize = 0; // This will hold the deck size fetched from the backend
 
   @override
   void initState() {
@@ -39,7 +41,9 @@ class _GameScreenState extends State<GameScreen> {
   Future<void> fetchGameData() async {
     print("Fetching game data from the backend...");
 
-    final response = await http.get(Uri.parse('http://localhost:8080/api/cards/game-state'));
+    final response = await http.get(
+      Uri.parse('http://localhost:8080/api/cards/game-state'),
+    );
 
     if (response.statusCode == 200) {
       print("Data fetched successfully!");
@@ -55,35 +59,49 @@ class _GameScreenState extends State<GameScreen> {
         print("Decoded response as Map: $data");
 
         // If the response has 'deck', 'shields', and 'hand' as keys, proceed with mapping them
-        if (data.containsKey('deck') && data.containsKey('shields') && data.containsKey('hand')) {
-          List<CardModel> fetchedDeck = (data['deck'] as List).map((cardData) {
-            return CardModel(
-              id: cardData['cardID'],
-              name: "Card ${cardData['cardID']}", // Use actual names if available
-              manaCost: 0, // Adjust accordingly based on actual response
-            );
-          }).toList();
+        if (data.containsKey('deck') &&
+            data.containsKey('shields') &&
+            data.containsKey('hand')) {
+          List<CardModel> fetchedDeck =
+              (data['deck'] as List).map((cardData) {
+                return CardModel(
+                  id: cardData['cardID'],
+                  name: "Card ${cardData['cardID']}",
+                  // Use actual names if available
+                  manaCost: 0, // Adjust accordingly based on actual response
+                );
+              }).toList();
 
-          List<CardModel> fetchedShields = (data['shields'] as List).map((cardData) {
-            return CardModel(
-              id: cardData['cardID'],
-              name: "Shield ${cardData['cardID']}", // Use actual names if available
-              manaCost: 0, // Adjust accordingly
-            );
-          }).toList();
+          List<CardModel> fetchedShields =
+              (data['shields'] as List).map((cardData) {
+                return CardModel(
+                  id: cardData['cardID'],
+                  name: "Shield ${cardData['cardID']}",
+                  // Use actual names if available
+                  manaCost: 0, // Adjust accordingly
+                );
+              }).toList();
 
-          List<CardModel> fetchedHand = (data['hand'] as List).map((cardData) {
-            return CardModel(
-              id: cardData['cardID'],
-              name: "Hand ${cardData['cardID']}", // Use actual names if available
-              manaCost: 0, // Adjust accordingly
-            );
-          }).toList();
+          List<CardModel> fetchedHand =
+              (data['hand'] as List).map((cardData) {
+                return CardModel(
+                  id: cardData['cardID'],
+                  name: "Hand ${cardData['cardID']}",
+                  // Use actual names if available
+                  manaCost: 0, // Adjust accordingly
+                );
+              }).toList();
 
           // Log all the fetched data
-          print("Fetched deck: ${fetchedDeck.map((card) => card.name).toList()}");
-          print("Fetched shields: ${fetchedShields.map((card) => card.name).toList()}");
-          print("Fetched hand: ${fetchedHand.map((card) => card.name).toList()}");
+          print(
+            "Fetched deck: ${fetchedDeck.map((card) => card.name).toList()}",
+          );
+          print(
+            "Fetched shields: ${fetchedShields.map((card) => card.name).toList()}",
+          );
+          print(
+            "Fetched hand: ${fetchedHand.map((card) => card.name).toList()}",
+          );
 
           setState(() {
             shields = fetchedShields;
@@ -92,7 +110,9 @@ class _GameScreenState extends State<GameScreen> {
             deckSize = fetchedDeck.length; // Store the deck size
           });
         } else {
-          print("Expected keys 'deck', 'shields', and 'hand' not found in the response.");
+          print(
+            "Expected keys 'deck', 'shields', and 'hand' not found in the response.",
+          );
         }
       } catch (e) {
         print("Error decoding response as Map: $e");
@@ -111,15 +131,10 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-
-
-
-
   final List<CardModel> opponentHandCards = List.generate(
     5,
     (_) => CardModel(id: 0, name: "Unknown", manaCost: 0),
   );
-
 
   List<CardModel> opponentShields = List.generate(
     5,
@@ -207,7 +222,6 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-
   void attackShield(CardModel card) {
     if (card.isTapped) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -236,7 +250,6 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
-
   void _startAttackSelection(CardModel attacker) {
     setState(() {
       isSelectingAttackTarget = true;
@@ -253,11 +266,6 @@ class _GameScreenState extends State<GameScreen> {
       context,
     ).showSnackBar(SnackBar(content: Text("All cards untapped for new turn")));
   }
-
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -277,7 +285,9 @@ class _GameScreenState extends State<GameScreen> {
                     SizedBox(width: 4), // Space between the icon and text
                     Text(
                       'Untap All', // The text next to the icon
-                      style: TextStyle(fontSize: 16), // Optional: customize the text style
+                      style: TextStyle(
+                        fontSize: 16,
+                      ), // Optional: customize the text style
                     ),
                   ],
                 ),
@@ -344,10 +354,6 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-
-
-
-
   Widget _buildPlayerField() {
     return Column(
       children: [
@@ -373,8 +379,10 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
             ),
-            _buildGraveyardZone(label: "Graveyard", cards: graveyard),  // Graveyard section
+            _buildGraveyardZone(label: "Graveyard", cards: graveyard),
+            // Player's graveyard
             _buildManaZone(label: "Your Mana", cards: manaZoneCards),
+            // Player's mana
             _buildDeckZone(deckSize: deckSize, label: "Your Deck"),
           ],
         ),
@@ -382,16 +390,19 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-
-
-
-
-  Widget _buildDeckZone({required int deckSize, required String label, bool rotate180 = false}) {
+  Widget _buildDeckZone({
+    required int deckSize,
+    required String label,
+    bool rotate180 = false,
+  }) {
     return Column(
       children: [
         Transform.rotate(
           angle: rotate180 ? 3.14 : 0,
-          child: Image.asset('assets/cards/0.jpg', width: 70),  // Replace with your deck image asset
+          child: Image.asset(
+            'assets/cards/0.jpg',
+            width: 70,
+          ), // Replace with your deck image asset
         ),
         SizedBox(height: 4),
         Text('$label ($deckSize)', style: TextStyle(color: Colors.white)),
@@ -399,20 +410,19 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget _buildGraveyardZone({required String label, required List<CardModel> cards}) {
+  Widget _buildGraveyardZone({
+    required String label,
+    required List<CardModel> cards,
+  }) {
     return Column(
       children: [
         Text(label, style: TextStyle(color: Colors.white)),
         SizedBox(height: 4),
-        _buildCardRow(cards, cardWidth: 60, label: label),  // Show graveyard cards here
+        _buildCardRow(cards, cardWidth: 60, label: label),
+        // Show graveyard cards here
       ],
     );
   }
-
-
-
-
-
 
   Widget _buildOpponentField() {
     return Column(
@@ -463,84 +473,132 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-
-
-
-
   Widget _buildCardRow(
-      List<CardModel> cards, {
-        double cardWidth = 60,
-        String? label,
-        bool scrollable = false,
-        bool allowManaAction = false,
-        bool rotate180 = false,
-      }) {
-    final isTargetZone = (label == "Opponent Shields" || label == "Opponent Battle Zone") && isSelectingAttackTarget;
+    List<CardModel> cards, {
+    double cardWidth = 60,
+    String? label,
+    bool scrollable = false,
+    bool allowManaAction = false,
+    bool rotate180 = false,
+  }) {
+    final isTargetZone =
+        (label == "Opponent Shields" || label == "Opponent Battle Zone") &&
+        isSelectingAttackTarget;
 
     final row = Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: cards.map((card) {
-        final isGlowTarget = isTargetZone;
+      children:
+          cards.map((card) {
+            final isGlowTarget = isTargetZone;
 
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4),
-          child: MouseRegion(
-            onEnter: (_) {
-              setState(() {
-                hoveredCard = card;
-              });
-            },
-            onExit: (_) {
-              setState(() {
-                hoveredCard = null;
-              });
-            },
-            child: GestureDetector(
-              onTap: () {
-                // Left-click (tap) behavior to show the enlarged card image
-                _showFullScreenCardPreview(card);
-              },
-              onSecondaryTap: allowManaAction
-                  ? () => _showHandCardDialog(card)
-                  : isGlowTarget
-                  ? () {
-                if (label == "Opponent Shields") {
-                  attackShield(selectedAttacker!);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("${selectedAttacker!.name} attacked ${card.name}")),
-                  );
-                }
-                setState(() {
-                  isSelectingAttackTarget = false;
-                  selectedAttacker = null;
-                });
-              }
-                  : (label == "Your Battle Zone" ? () => _startAttackSelection(card) : null),
-              child: AnimatedContainer(
-                duration: Duration(milliseconds: 300),
-                decoration: BoxDecoration(
-                  boxShadow: isGlowTarget ? [BoxShadow(color: Colors.yellowAccent, blurRadius: 12)] : [],
-                ),
-                child: Transform.rotate(
-                  angle: (card.isTapped ? -1.57 : 0) + (rotate180 ? 3.14 : 0),
-                  child: Transform.scale(
-                    scale: hoveredCard == card ? 1.2 : 1.0, // Only enlarge the hovered card
-                    child: Image.asset(
-                      // Check if the card is a shield
-                      (label == "Your Shields" || label == "Opponent Shields")
-                          ? 'assets/cards/0.jpg'  // Use card back for shields
-                          : card.imagePath,  // Use the normal card face otherwise
-                      width: cardWidth,
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4),
+              child: MouseRegion(
+                onEnter: (_) {
+                  setState(() {
+                    hoveredCard = card;
+                  });
+                },
+                onExit: (_) {
+                  setState(() {
+                    hoveredCard = null;
+                  });
+                },
+                child: GestureDetector(
+                  onTap: () {
+                    if (!card.name.startsWith("Shield") && !opponentHandCards.contains(card)) {
+                      _showFullScreenCardPreview(card);
+                    }
+                    if (card.isTapped) {
+                      // Do nothing if the card is tapped
+                      return;
+                    } else {
+                      setState(() {
+                        hoveredCard = card;
+                      });
+                    }
+                  },
+                  onSecondaryTap:
+                      allowManaAction
+                          ? () => _showHandCardDialog(card)
+                          : isGlowTarget
+                          ? () {
+                            if (label == "Opponent Shields") {
+                              attackShield(selectedAttacker!);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "${selectedAttacker!.name} attacked ${card.name}",
+                                  ),
+                                ),
+                              );
+                            }
+                            setState(() {
+                              isSelectingAttackTarget = false;
+                              selectedAttacker = null;
+                            });
+                          }
+                          : (label == "Your Battle Zone" && !card.isTapped
+                              ? () => _startAttackSelection(card)
+                              : null),
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    decoration: BoxDecoration(
+                      boxShadow:
+                          isGlowTarget
+                              ? [
+                                BoxShadow(
+                                  color: Colors.yellowAccent,
+                                  blurRadius: 12,
+                                ),
+                              ]
+                              : [],
+                    ),
+                    child: Transform.rotate(
+                      angle:
+                          (card.isTapped ? -1.57 : 0) + (rotate180 ? 3.14 : 0),
+                      child: Transform.scale(
+                        scale: hoveredCard == card ? 1.2 : 1.0,
+                        // Only enlarge the hovered card
+                        child: Stack(
+                          children: [
+                            Image.asset(
+                              (label == "Your Shields" ||
+                                      label == "Opponent Shields")
+                                  ? 'assets/cards/0.jpg' // Use card back for shields
+                                  : card.imagePath,
+                              // Use the normal card face otherwise
+                              width: cardWidth,
+                            ),
+                            if (card.isTapped &&
+                                hoveredCard ==
+                                    card) // Show text only if the card is tapped and hovered
+                              Positioned(
+                                bottom: 10,
+                                left: 0,
+                                right: 0,
+                                child: Container(
+                                  color: Colors.black.withOpacity(0.7),
+                                  child: Text(
+                                    "Tapped / Cannot Attack",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            )
-
-          ),
-        );
-      }).toList(),
+            );
+          }).toList(),
     );
 
     return Column(
@@ -550,42 +608,41 @@ class _GameScreenState extends State<GameScreen> {
         SizedBox(height: 4),
         scrollable
             ? SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: row,
-        )
+              scrollDirection: Axis.horizontal,
+              child: row,
+            )
             : row,
       ],
     );
   }
 
-
-
   void _showFullScreenCardPreview(CardModel card) {
     showDialog(
       context: context,
-      builder: (_) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Center(
-          child: GestureDetector(
-            onTap: () {
-              // Close the preview when tapped
-              Navigator.pop(context);
-            },
-            child: Image.asset(
-              card.imagePath,
-              fit: BoxFit.contain,
-              height: MediaQuery.of(context).size.height * 0.8, // 80% of screen height
-              width: MediaQuery.of(context).size.width * 0.8, // 80% of screen width
+      builder:
+          (_) => Dialog(
+            backgroundColor: Colors.transparent,
+            child: Center(
+              child: GestureDetector(
+                onTap: () {
+                  // Close the preview when tapped
+                  Navigator.pop(context);
+                },
+                child: Image.asset(
+                  card.imagePath,
+                  fit: BoxFit.contain,
+                  height:
+                      MediaQuery.of(context).size.height *
+                      0.8, // 80% of screen height
+                  width:
+                      MediaQuery.of(context).size.width *
+                      0.8, // 80% of screen width
+                ),
+              ),
             ),
           ),
-        ),
-      ),
     );
   }
-
-
-
-
 
   Widget _buildManaZone({
     required String label,
@@ -613,9 +670,4 @@ class _GameScreenState extends State<GameScreen> {
       ],
     );
   }
-
-
-
-
-
 }
