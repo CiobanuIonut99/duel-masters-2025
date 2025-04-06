@@ -205,6 +205,7 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+
   void attackShield(CardModel card) {
     if (opponentShields.isEmpty) return;
     final removedShield = opponentShields.first;
@@ -477,7 +478,11 @@ class _GameScreenState extends State<GameScreen> {
               });
             },
             child: GestureDetector(
-              onTap: allowManaAction
+              onTap: () {
+                // Left-click (tap) behavior to show the enlarged card image
+                _showFullScreenCardPreview(card);
+              },
+              onSecondaryTap: allowManaAction
                   ? () => _showHandCardDialog(card)
                   : isGlowTarget
                   ? () {
@@ -513,7 +518,8 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                 ),
               ),
-            ),
+            )
+
           ),
         );
       }).toList(),
@@ -533,6 +539,32 @@ class _GameScreenState extends State<GameScreen> {
       ],
     );
   }
+
+
+
+  void _showFullScreenCardPreview(CardModel card) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Center(
+          child: GestureDetector(
+            onTap: () {
+              // Close the preview when tapped
+              Navigator.pop(context);
+            },
+            child: Image.asset(
+              card.imagePath,
+              fit: BoxFit.contain,
+              height: MediaQuery.of(context).size.height * 0.8, // 80% of screen height
+              width: MediaQuery.of(context).size.width * 0.8, // 80% of screen width
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
 
 
 
@@ -563,6 +595,7 @@ class _GameScreenState extends State<GameScreen> {
       ],
     );
   }
+
 
 
 
