@@ -1,9 +1,12 @@
 import 'dart:convert';
+import '../animations/fx_game.dart';
 
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/card_model.dart';
+
 
 class GameScreen extends StatefulWidget {
   @override
@@ -11,6 +14,8 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  late FxGame fxGame;
+
   bool isSelectingAttackTarget = false;
   CardModel? selectedAttacker;
   bool animateShieldToHand = false;
@@ -35,6 +40,7 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
+    fxGame = FxGame();
     fetchGameData();
   }
 
@@ -235,10 +241,15 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {
       brokenShieldCard = removedShield;
       animateShieldToHand = true;
-      shieldStartOffset = Offset(150, 200); // Mock position
+      shieldStartOffset = Offset(150, 200); // You can adjust this
       shieldEndOffset = Offset(20, 50);
-      card.isTapped = true; // Visually tap attacker
+      card.isTapped = true;
     });
+
+// Trigger the shield break animation
+    fxGame.triggerShieldBreak();
+
+    // fxGame.triggerShieldBreak(Vector2(shieldStartOffset.dx, shieldStartOffset.dy));
 
     Future.delayed(Duration(milliseconds: 800), () {
       setState(() {
@@ -267,6 +278,7 @@ class _GameScreenState extends State<GameScreen> {
       if (deck.isNotEmpty) {
         CardModel drawnCard = deck.removeLast();  // Remove the top card from the deck
         hand.add(drawnCard);  // Add the drawn card to the hand
+        deckSize = deckSize - 1;
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Drew a card: ${drawnCard.name}")));
@@ -298,13 +310,11 @@ class _GameScreenState extends State<GameScreen> {
                 icon: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.refresh), // The icon
-                    SizedBox(width: 4), // Space between the icon and text
+                    Icon(Icons.refresh),
+                    SizedBox(width: 4),
                     Text(
-                      'End turn', // The text next to the icon
-                      style: TextStyle(
-                        fontSize: 16,
-                      ), // Optional: customize the text style
+                      'End turn',
+                      style: TextStyle(fontSize: 16),
                     ),
                   ],
                 ),
@@ -318,6 +328,12 @@ class _GameScreenState extends State<GameScreen> {
 
       body: Stack(
         children: [
+          // 🔥 Flame animation FX layer (shield breaking, etc.)
+          Positioned.fill(
+            child: GameWidget(game: fxGame),
+          ),
+
+          // 🎴 Main game board UI
           SingleChildScrollView(
             child: ConstrainedBox(
               constraints: BoxConstraints(
@@ -359,6 +375,8 @@ class _GameScreenState extends State<GameScreen> {
               ),
             ),
           ),
+
+          // 🛡️ Shield flying to hand animation
           if (animateShieldToHand && brokenShieldCard != null)
             AnimatedPositioned(
               duration: Duration(milliseconds: 800),
@@ -370,6 +388,7 @@ class _GameScreenState extends State<GameScreen> {
       ),
     );
   }
+
 
   Widget _buildPlayerField() {
     return Column(
