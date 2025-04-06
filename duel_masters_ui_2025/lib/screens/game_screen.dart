@@ -257,15 +257,32 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
-  void untapAll() {
+  void endTurn() {
     setState(() {
+      hasPlayedManaThisTurn = false;
+      // Untap all cards in the battle zone
       for (var card in battleZoneCards) card.isTapped = false;
-      for (var card in manaZoneCards) card.isTapped = false;
+
+      // Draw a card from the deck (if available)
+      if (deck.isNotEmpty) {
+        CardModel drawnCard = deck.removeLast();  // Remove the top card from the deck
+        hand.add(drawnCard);  // Add the drawn card to the hand
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Drew a card: ${drawnCard.name}")));
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Deck is empty!")));
+      }
     });
+
+    // Show a message that the turn has ended
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text("All cards untapped for new turn")));
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -284,7 +301,7 @@ class _GameScreenState extends State<GameScreen> {
                     Icon(Icons.refresh), // The icon
                     SizedBox(width: 4), // Space between the icon and text
                     Text(
-                      'Untap All', // The text next to the icon
+                      'End turn', // The text next to the icon
                       style: TextStyle(
                         fontSize: 16,
                       ), // Optional: customize the text style
@@ -292,7 +309,7 @@ class _GameScreenState extends State<GameScreen> {
                   ],
                 ),
                 tooltip: "Untap All",
-                onPressed: untapAll,
+                onPressed: endTurn,
               ),
             ),
           ),
@@ -506,7 +523,8 @@ class _GameScreenState extends State<GameScreen> {
                 },
                 child: GestureDetector(
                   onTap: () {
-                    if (!card.name.startsWith("Shield") && !opponentHandCards.contains(card)) {
+                    if (!card.name.startsWith("Shield") &&
+                        !opponentHandCards.contains(card)) {
                       _showFullScreenCardPreview(card);
                     }
                     if (card.isTapped) {
