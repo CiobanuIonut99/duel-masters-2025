@@ -1,18 +1,9 @@
-// 📦 Imports
-import 'package:flutter/material.dart';
-import '../models/card_model.dart';
+import 'dart:convert';
 
-final mockGameStartResponse = {
-  "hand": [
-    {"id": 79, "name": "Bolshack Dragon", "manaCost": 1},
-    {"id": 3, "name": "Aqua Sniper", "manaCost": 1},
-    {"id": 5, "name": "Deathliger, Lion of Chaos", "manaCost": 1},
-    {"id": 8, "name": "Astrocomet Dragon", "manaCost":1},
-    {"id": 3, "name": "Aqua Sniper", "manaCost": 1},
-  ],
-  "shields": List.generate(5, (index) => {"id": 0, "name": "Shield $index"}),
-  "deckSize": 30,
-};
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import '../models/card_model.dart';
 
 class GameScreen extends StatefulWidget {
   @override
@@ -32,36 +23,108 @@ class _GameScreenState extends State<GameScreen> {
   double hoverScale = 1.0; // Scale factor for hover effect
   CardModel? hoveredCard;
 
+  List<CardModel> hand = []; // This will be updated with data fetched from the backend
+  List<CardModel> shields = []; // This will be updated with data fetched from the backend
+  List<CardModel> deck = []; // This will be updated with data fetched from the backend
+
+  int deckSize = 0;  // This will hold the deck size fetched from the backend
+
+
+  @override
+  void initState() {
+    super.initState();
+    fetchGameData();
+  }
+
+  Future<void> fetchGameData() async {
+    print("Fetching game data from the backend...");
+
+    final response = await http.get(Uri.parse('http://localhost:8080/api/cards/game-state'));
+
+    if (response.statusCode == 200) {
+      print("Data fetched successfully!");
+
+      // Log the raw response body for debugging
+      print("Response body: ${response.body}");
+
+      // Try decoding as Map<String, dynamic> first (expecting a JSON object structure)
+      try {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        // Log the structure after decoding
+        print("Decoded response as Map: $data");
+
+        // If the response has 'deck', 'shields', and 'hand' as keys, proceed with mapping them
+        if (data.containsKey('deck') && data.containsKey('shields') && data.containsKey('hand')) {
+          List<CardModel> fetchedDeck = (data['deck'] as List).map((cardData) {
+            return CardModel(
+              id: cardData['cardID'],
+              name: "Card ${cardData['cardID']}", // Use actual names if available
+              manaCost: 0, // Adjust accordingly based on actual response
+            );
+          }).toList();
+
+          List<CardModel> fetchedShields = (data['shields'] as List).map((cardData) {
+            return CardModel(
+              id: cardData['cardID'],
+              name: "Shield ${cardData['cardID']}", // Use actual names if available
+              manaCost: 0, // Adjust accordingly
+            );
+          }).toList();
+
+          List<CardModel> fetchedHand = (data['hand'] as List).map((cardData) {
+            return CardModel(
+              id: cardData['cardID'],
+              name: "Hand ${cardData['cardID']}", // Use actual names if available
+              manaCost: 0, // Adjust accordingly
+            );
+          }).toList();
+
+          // Log all the fetched data
+          print("Fetched deck: ${fetchedDeck.map((card) => card.name).toList()}");
+          print("Fetched shields: ${fetchedShields.map((card) => card.name).toList()}");
+          print("Fetched hand: ${fetchedHand.map((card) => card.name).toList()}");
+
+          setState(() {
+            shields = fetchedShields;
+            hand = fetchedHand;
+            deck = fetchedDeck;
+            deckSize = fetchedDeck.length; // Store the deck size
+          });
+        } else {
+          print("Expected keys 'deck', 'shields', and 'hand' not found in the response.");
+        }
+      } catch (e) {
+        print("Error decoding response as Map: $e");
+
+        // Attempt to handle as a list if it's not a Map
+        try {
+          final List<dynamic> dataList = json.decode(response.body);
+          print("Decoded response as List: $dataList");
+        } catch (e) {
+          print("Error decoding response as List: $e");
+        }
+      }
+    } else {
+      print("Failed to fetch game data. Status code: ${response.statusCode}");
+      throw Exception('Failed to load game data');
+    }
+  }
+
+
+
+
+
   final List<CardModel> opponentHandCards = List.generate(
     5,
-        (_) => CardModel(id: 0, name: "Unknown", manaCost: 0),
+    (_) => CardModel(id: 0, name: "Unknown", manaCost: 0),
   );
 
-  final List<CardModel> hand =
-  (mockGameStartResponse["hand"] as List)
-      .map(
-        (data) => CardModel(
-      id: data["id"],
-      name: data["name"],
-      manaCost: data["manaCost"] ?? 1,
-    ),
-  )
-      .toList();
-
-  final List<CardModel> shields =
-  (mockGameStartResponse["shields"] as List)
-      .map(
-        (data) =>
-        CardModel(id: data["id"], name: data["name"], manaCost: 0),
-  )
-      .toList();
 
   List<CardModel> opponentShields = List.generate(
     5,
-        (index) => CardModel(id: 0, name: "Shield $index", manaCost: 0),
+    (index) => CardModel(id: 0, name: "Shield $index", manaCost: 0),
   );
-
-  final int deckSize = mockGameStartResponse["deckSize"] as int;
 
   List<CardModel> battleZoneCards = [];
   List<CardModel> manaZoneCards = [];
@@ -112,32 +175,33 @@ class _GameScreenState extends State<GameScreen> {
   void _showHandCardDialog(CardModel card) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text(card.name),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                sendToMana(card);
-              },
-              child: Text("Send to Mana Zone"),
+      builder:
+          (_) => AlertDialog(
+            title: Text(card.name),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    sendToMana(card);
+                  },
+                  child: Text("Send to Mana Zone"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    summonCard(card);
+                  },
+                  child: Text("Summon to Battle Zone"),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel"),
+                ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                summonCard(card);
-              },
-              child: Text("Summon to Battle Zone"),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("Cancel"),
-            ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -182,22 +246,28 @@ class _GameScreenState extends State<GameScreen> {
   void _showCardPreview(CardModel card) {
     showDialog(
       context: context,
-      builder: (_) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          width: 250,
-          height: 360,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            image: DecorationImage(
-              image: AssetImage(card.imagePath),
-              fit: BoxFit.cover,
+      builder:
+          (_) => Dialog(
+            backgroundColor: Colors.transparent,
+            child: Container(
+              width: 250,
+              height: 360,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                image: DecorationImage(
+                  image: AssetImage(card.imagePath),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
-        ),
-      ),
     );
   }
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -268,6 +338,10 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+
+
+
+
   Widget _buildPlayerField() {
     return Column(
       children: [
@@ -301,6 +375,26 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+
+
+
+  Widget _buildDeckZone({required int deckSize, required String label, bool rotate180 = false}) {
+    return Column(
+      children: [
+        Transform.rotate(
+          angle: rotate180 ? 3.14 : 0,
+          child: Image.asset('assets/cards/0.jpg', width: 70),  // Replace with your deck image asset
+        ),
+        SizedBox(height: 4),
+        Text('$label ($deckSize)', style: TextStyle(color: Colors.white)),
+      ],
+    );
+  }
+
+
+
+
+
   Widget _buildOpponentField() {
     return Column(
       children: [
@@ -318,7 +412,11 @@ class _GameScreenState extends State<GameScreen> {
               ),
             ),
             _buildManaZone(label: "Opponent Mana", cards: [], rotate180: true),
-            _buildDeckZone(deckSize: 30, label: "Opponent Deck", rotate180: true),
+            _buildDeckZone(
+              deckSize: 30,
+              label: "Opponent Deck",
+              rotate180: true,
+            ),
           ],
         ),
         SizedBox(height: 12),
@@ -346,6 +444,10 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+
+
+
+
   Widget _buildCardRow(
       List<CardModel> cards, {
         double cardWidth = 60,
@@ -354,8 +456,7 @@ class _GameScreenState extends State<GameScreen> {
         bool allowManaAction = false,
         bool rotate180 = false,
       }) {
-    final isTargetZone =
-        (label == "Opponent Shields" || label == "Opponent Battle Zone") && isSelectingAttackTarget;
+    final isTargetZone = (label == "Opponent Shields" || label == "Opponent Battle Zone") && isSelectingAttackTarget;
 
     final row = Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -387,7 +488,6 @@ class _GameScreenState extends State<GameScreen> {
                     SnackBar(content: Text("${selectedAttacker!.name} attacked ${card.name}")),
                   );
                 }
-
                 setState(() {
                   isSelectingAttackTarget = false;
                   selectedAttacker = null;
@@ -402,8 +502,14 @@ class _GameScreenState extends State<GameScreen> {
                 child: Transform.rotate(
                   angle: (card.isTapped ? -1.57 : 0) + (rotate180 ? 3.14 : 0),
                   child: Transform.scale(
-                    scale: hoveredCard == card ? 1.2 : 1.0,  // Only enlarge the hovered card
-                    child: Image.asset(card.imagePath, width: cardWidth),
+                    scale: hoveredCard == card ? 1.2 : 1.0, // Only enlarge the hovered card
+                    child: Image.asset(
+                      // Check if the card is a shield
+                      (label == "Your Shields" || label == "Opponent Shields")
+                          ? 'assets/cards/0.jpg'  // Use card back for shields
+                          : card.imagePath,  // Use the normal card face otherwise
+                      width: cardWidth,
+                    ),
                   ),
                 ),
               ),
@@ -429,36 +535,36 @@ class _GameScreenState extends State<GameScreen> {
   }
 
 
-  Widget _buildDeckZone({required int deckSize, required String label, bool rotate180 = false}) {
-    return Column(
-      children: [
-        Transform.rotate(
-          angle: rotate180 ? 3.14 : 0,
-          child: Image.asset('assets/cards/0.jpg', width: 70),
-        ),
-        SizedBox(height: 4),
-        Text('$label ($deckSize)', style: TextStyle(color: Colors.white)),
-      ],
-    );
-  }
 
-  Widget _buildManaZone({required String label, required List<CardModel> cards, bool rotate180 = false}) {
+
+  Widget _buildManaZone({
+    required String label,
+    required List<CardModel> cards,
+    bool rotate180 = false,
+  }) {
     return Column(
       children: [
         Text(label, style: TextStyle(color: Colors.white)),
         SizedBox(height: 4),
         Row(
-          children: cards.map(
-                (card) => Padding(
-              padding: EdgeInsets.symmetric(horizontal: 2),
-              child: Transform.rotate(
-                angle: rotate180 ? 3.14 : 0,
-                child: Image.asset(card.imagePath, width: 40),
-              ),
-            ),
-          ).toList(),
+          children:
+              cards
+                  .map(
+                    (card) => Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 2),
+                      child: Transform.rotate(
+                        angle: rotate180 ? 3.14 : 0,
+                        child: Image.asset(card.imagePath, width: 40),
+                      ),
+                    ),
+                  )
+                  .toList(),
         ),
       ],
     );
   }
+
+
+
+
 }
