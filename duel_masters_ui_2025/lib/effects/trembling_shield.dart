@@ -11,8 +11,8 @@ class TremblingShield extends StatefulWidget {
   const TremblingShield({
     required this.card,
     required this.onCompleted,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<TremblingShield> createState() => _TremblingShieldState();

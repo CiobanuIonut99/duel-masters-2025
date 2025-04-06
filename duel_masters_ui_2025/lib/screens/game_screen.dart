@@ -1,28 +1,34 @@
 import 'dart:convert';
-import '../animations/fx_game.dart';
 
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../animations/fx_game.dart';
 import '../models/card_model.dart';
-
 
 class GameScreen extends StatefulWidget {
   @override
   State<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
+  CardModel? redGlowShield;
   late FxGame fxGame;
+  late AnimationController shieldMoveController;
+  late Animation<Offset> shieldOffsetAnimation;
+  late Animation<double> trembleAnimation;
+  late Animation<double> scaleAnimation;
+  final GlobalKey _shieldKey = GlobalKey();
+  final GlobalKey _opponentHandKey = GlobalKey();
+  Offset? opponentHandTarget;
+  Offset? shieldOriginGlobal;
+  Offset centerScreen = Offset.zero;
 
   bool isSelectingAttackTarget = false;
   CardModel? selectedAttacker;
   bool animateShieldToHand = false;
   bool isTapped = false;
-
-  Offset shieldStartOffset = Offset.zero;
-  Offset shieldEndOffset = Offset.zero;
 
   CardModel? brokenShieldCard;
   double hoverScale = 1.0; // Scale factor for hover effect
@@ -42,6 +48,55 @@ class _GameScreenState extends State<GameScreen> {
     super.initState();
     fxGame = FxGame();
     fetchGameData();
+
+    shieldMoveController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 5),
+    );
+
+    trembleAnimation = Tween<double>(
+      begin: 0,
+      end: 48,
+    ).chain(CurveTween(curve: Curves.elasticIn)).animate(shieldMoveController);
+
+    scaleAnimation = TweenSequence([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.2), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.2), weight: 1),
+    ]).animate(
+      CurvedAnimation(
+        parent: shieldMoveController,
+        curve: Interval(0.0, 0.3), // scale pulse only in the early phase
+      ),
+    );
+
+    shieldOffsetAnimation = Tween<Offset>(
+      begin: Offset.zero,
+      end: Offset(-2, -2), // adjust to where opponent's hand is
+    ).animate(
+      CurvedAnimation(
+        parent: shieldMoveController,
+        curve: Interval(0.4, 1.0, curve: Curves.easeOut),
+      ),
+    );
+
+    shieldMoveController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          animateShieldToHand = false;
+          opponentShields.remove(redGlowShield);
+          opponentHandCards.add(brokenShieldCard!);
+          brokenShieldCard = null;
+          redGlowShield = null;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    shieldMoveController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchGameData() async {
@@ -114,6 +169,10 @@ class _GameScreenState extends State<GameScreen> {
             hand = fetchedHand;
             deck = fetchedDeck;
             deckSize = fetchedDeck.length; // Store the deck size
+
+            opponentShields = setOpShields();
+            opponentHandCards = setOpHand();
+            opponentBattleZone = setOpBattleZOne();
           });
         } else {
           print(
@@ -137,26 +196,57 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  final List<CardModel> opponentHandCards = List.generate(
-    5,
-    (_) => CardModel(id: 0, name: "Unknown", manaCost: 0),
-  );
-
-  List<CardModel> opponentShields = List.generate(
-    5,
-    (index) => CardModel(id: 0, name: "Shield $index", manaCost: 0),
-  );
-
   List<CardModel> battleZoneCards = [];
   List<CardModel> manaZoneCards = [];
   List<CardModel> graveyard = [];
 
   bool hasPlayedManaThisTurn = false;
 
-  List<CardModel> opponentBattleZone = [
-    CardModel(id: 3, name: "Aqua Sniper", manaCost: 3),
-    CardModel(id: 3, name: "Aqua Sniper", manaCost: 7),
-  ];
+  List<CardModel> setOpBattleZOne() {
+    List<CardModel> opponentBattleZoneCards = [];
+    for (CardModel cardModel in battleZoneCards) {
+      opponentBattleZoneCards.add(
+        CardModel(
+          id: cardModel.id,
+          name: cardModel.name,
+          manaCost: cardModel.manaCost,
+        ),
+      );
+    }
+    return opponentBattleZoneCards;
+  }
+
+  List<CardModel> setOpHand() {
+    List<CardModel> opHand = [];
+    for (CardModel cardModel in hand) {
+      opHand.add(
+        CardModel(
+          id: cardModel.id,
+          name: cardModel.name,
+          manaCost: cardModel.manaCost,
+        ),
+      );
+    }
+    return opHand;
+  }
+
+  List<CardModel> setOpShields() {
+    List<CardModel> opShields = [];
+    for (CardModel cardModel in shields) {
+      opShields.add(
+        CardModel(
+          id: cardModel.id,
+          name: cardModel.name,
+          manaCost: cardModel.manaCost,
+        ),
+      );
+    }
+    return opShields;
+  }
+
+  List<CardModel> opponentBattleZone = [];
+  List<CardModel> opponentHandCards = [];
+  List<CardModel> opponentShields = [];
 
   void sendToMana(CardModel card) {
     if (hasPlayedManaThisTurn) {
@@ -228,38 +318,43 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  void attackShield(CardModel card) {
-    if (card.isTapped) {
+  void attackShield(CardModel attacker, CardModel targetShield) {
+    if (attacker.isTapped) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("${card.name} is tapped and cannot attack!")),
+        SnackBar(content: Text("${attacker.name} is tapped and cannot attack!")),
       );
       return;
     }
 
-    if (opponentShields.isEmpty) return;
-    final removedShield = opponentShields.first;
-    setState(() {
-      brokenShieldCard = removedShield;
-      animateShieldToHand = true;
-      shieldStartOffset = Offset(150, 200); // You can adjust this
-      shieldEndOffset = Offset(20, 50);
-      card.isTapped = true;
-    });
+    // Get the real reference from the list
+    final actualShield = opponentShields.firstWhere((c) => identical(c, targetShield));
 
-// Trigger the shield break animation
-    fxGame.triggerShieldBreak();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final renderBox = _shieldKey.currentContext?.findRenderObject() as RenderBox?;
+      final position = renderBox?.localToGlobal(Offset.zero) ?? Offset(150, 200);
 
-    // fxGame.triggerShieldBreak(Vector2(shieldStartOffset.dx, shieldStartOffset.dy));
+      final opponentHandBox = _opponentHandKey.currentContext?.findRenderObject() as RenderBox?;
+      final handPos = opponentHandBox?.localToGlobal(Offset.zero) ?? Offset(50, 50);
 
-    Future.delayed(Duration(milliseconds: 800), () {
       setState(() {
-        animateShieldToHand = false;
-        brokenShieldCard = null;
-        opponentShields.removeAt(0);
-        opponentHandCards.add(removedShield);
+        shieldOriginGlobal = position;
+        opponentHandTarget = handPos;
+        centerScreen = Offset(
+          MediaQuery.of(context).size.width / 2 - 50,
+          MediaQuery.of(context).size.height / 2 - 75,
+        );
+
+        brokenShieldCard = actualShield;
+        redGlowShield = actualShield;
+        animateShieldToHand = true;
+        attacker.isTapped = true;
       });
+
+      shieldMoveController.reset();
+      shieldMoveController.forward();
     });
   }
+
 
   void _startAttackSelection(CardModel attacker) {
     setState(() {
@@ -276,12 +371,13 @@ class _GameScreenState extends State<GameScreen> {
 
       // Draw a card from the deck (if available)
       if (deck.isNotEmpty) {
-        CardModel drawnCard = deck.removeLast();  // Remove the top card from the deck
-        hand.add(drawnCard);  // Add the drawn card to the hand
+        CardModel drawnCard =
+            deck.removeLast(); // Remove the top card from the deck
+        hand.add(drawnCard); // Add the drawn card to the hand
         deckSize = deckSize - 1;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Drew a card: ${drawnCard.name}")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Drew a card: ${drawnCard.name}")),
+        );
       } else {
         ScaffoldMessenger.of(
           context,
@@ -294,7 +390,6 @@ class _GameScreenState extends State<GameScreen> {
       context,
     ).showSnackBar(SnackBar(content: Text("All cards untapped for new turn")));
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -312,10 +407,7 @@ class _GameScreenState extends State<GameScreen> {
                   children: [
                     Icon(Icons.refresh),
                     SizedBox(width: 4),
-                    Text(
-                      'End turn',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    Text('End turn', style: TextStyle(fontSize: 16)),
                   ],
                 ),
                 tooltip: "Untap All",
@@ -329,9 +421,7 @@ class _GameScreenState extends State<GameScreen> {
       body: Stack(
         children: [
           // 🔥 Flame animation FX layer (shield breaking, etc.)
-          Positioned.fill(
-            child: GameWidget(game: fxGame),
-          ),
+          Positioned.fill(child: GameWidget(game: fxGame)),
 
           // 🎴 Main game board UI
           SingleChildScrollView(
@@ -378,17 +468,93 @@ class _GameScreenState extends State<GameScreen> {
 
           // 🛡️ Shield flying to hand animation
           if (animateShieldToHand && brokenShieldCard != null)
-            AnimatedPositioned(
-              duration: Duration(milliseconds: 800),
-              left: shieldEndOffset.dx,
-              top: shieldEndOffset.dy,
-              child: Image.asset(brokenShieldCard!.imagePath, width: 60),
-            ),
+            _buildShieldBreakAnimation(),
         ],
       ),
     );
   }
 
+  // 🛡️ Shield card flies to opponent hand after trembling
+  Widget _buildShieldBreakAnimation() {
+    if (!animateShieldToHand ||
+        brokenShieldCard == null ||
+        shieldOriginGlobal == null ||
+        opponentHandTarget == null) {
+      return SizedBox.shrink();
+    }
+
+    return AnimatedBuilder(
+      animation: shieldMoveController,
+      builder: (context, child) {
+        final progress = shieldMoveController.value;
+
+        Offset currentOffset;
+        double scale = 1.0;
+        double rotation = 0;
+
+        if (progress < 0.3) {
+          // Move from shield to center
+          currentOffset =
+              Offset.lerp(shieldOriginGlobal, centerScreen, progress / 0.3)!;
+        } else if (progress < 0.6) {
+          // Stay in center and animate
+          currentOffset = centerScreen;
+
+          final innerProgress = (progress - 0.3) / 0.3;
+          scale = 1.0 - (0.2 * (0.5 - (innerProgress - 0.5).abs()) * 2);
+          rotation = 6.28 * innerProgress; // full 360°
+        } else {
+          // Fly to opponent's hand
+          currentOffset =
+              Offset.lerp(
+                centerScreen,
+                opponentHandTarget!,
+                (progress - 0.6) / 0.4,
+              )!;
+          rotation = 6.28; // final rotation
+        }
+
+        return Positioned(
+          left: currentOffset.dx,
+          top: currentOffset.dy,
+          child: Transform.rotate(
+            angle: rotation,
+            child: Transform.scale(
+              scale: scale,
+              child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.cyanAccent.withValues(),
+                      blurRadius: 20,
+                      spreadRadius: 4,
+                      offset: Offset(-10, -10),
+                    ),
+                    BoxShadow(
+                      color: Colors.blueAccent.withValues(),
+                      blurRadius: 20,
+                      spreadRadius: 4,
+                      offset: Offset(10, 10),
+                    ),
+                    BoxShadow(
+                      color: Colors.white.withValues(),
+                      blurRadius: 20,
+                      spreadRadius: 4,
+                    ),
+                  ],
+                ),
+                child: Image.asset(
+                  'assets/cards/0.jpg',
+                  width: 100,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   Widget _buildPlayerField() {
     return Column(
@@ -469,13 +635,17 @@ class _GameScreenState extends State<GameScreen> {
           children: [
             Align(
               alignment: Alignment.topLeft,
-              child: _buildCardRow(
-                opponentHandCards,
-                cardWidth: 50,
-                label: "Opponent Hand",
-                rotate180: true,
+              child: Container(
+                key: _opponentHandKey,
+                child: _buildCardRow(
+                  opponentHandCards,
+                  cardWidth: 50,
+                  label: "Opponent Hand",
+                  rotate180: true,
+                ),
               ),
             ),
+
             _buildManaZone(label: "Opponent Mana", cards: [], rotate180: true),
             _buildDeckZone(
               deckSize: 30,
@@ -526,7 +696,7 @@ class _GameScreenState extends State<GameScreen> {
       children:
           cards.map((card) {
             final isGlowTarget = isTargetZone;
-
+            bool isRedGlow = brokenShieldCard != null && card.instanceId == brokenShieldCard!.instanceId;
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 4),
               child: MouseRegion(
@@ -546,14 +716,10 @@ class _GameScreenState extends State<GameScreen> {
                         !opponentHandCards.contains(card)) {
                       _showFullScreenCardPreview(card);
                     }
-                    if (card.isTapped) {
-                      // Do nothing if the card is tapped
-                      return;
-                    } else {
-                      setState(() {
-                        hoveredCard = card;
-                      });
-                    }
+                    if (card.isTapped) return;
+                    setState(() {
+                      hoveredCard = card;
+                    });
                   },
                   onSecondaryTap:
                       allowManaAction
@@ -561,7 +727,7 @@ class _GameScreenState extends State<GameScreen> {
                           : isGlowTarget
                           ? () {
                             if (label == "Opponent Shields") {
-                              attackShield(selectedAttacker!);
+                              attackShield(selectedAttacker!, card);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -580,54 +746,70 @@ class _GameScreenState extends State<GameScreen> {
                               ? () => _startAttackSelection(card)
                               : null),
                   child: AnimatedContainer(
-                    duration: Duration(milliseconds: 300),
+                    duration: Duration(milliseconds: 1),
                     decoration: BoxDecoration(
-                      boxShadow:
-                          isGlowTarget
-                              ? [
-                                BoxShadow(
-                                  color: Colors.yellowAccent,
-                                  blurRadius: 12,
-                                ),
-                              ]
-                              : [],
+                      boxShadow: [
+                        if (isRedGlow)
+                          BoxShadow(
+                            color: Colors.redAccent,
+                            blurRadius: 20,
+                            spreadRadius: 4,
+                          )
+                        else if (isTargetZone)
+                          BoxShadow(
+                            color: Colors.greenAccent,
+                            blurRadius: 20,
+                            spreadRadius: 4,
+                          )
+                        else if ((label?.contains("Shields") ?? false))
+                          BoxShadow(
+                            color: Colors.blueAccent.withOpacity(0.5),
+                            blurRadius: 20,
+                            spreadRadius: 4,
+                          ),
+                      ],
                     ),
-                    child: Transform.rotate(
-                      angle:
-                          (card.isTapped ? -1.57 : 0) + (rotate180 ? 3.14 : 0),
-                      child: Transform.scale(
-                        scale: hoveredCard == card ? 1.2 : 1.0,
-                        // Only enlarge the hovered card
-                        child: Stack(
-                          children: [
-                            Image.asset(
-                              (label == "Your Shields" ||
-                                      label == "Opponent Shields")
-                                  ? 'assets/cards/0.jpg' // Use card back for shields
-                                  : card.imagePath,
-                              // Use the normal card face otherwise
-                              width: cardWidth,
-                            ),
-                            if (card.isTapped &&
-                                hoveredCard ==
-                                    card) // Show text only if the card is tapped and hovered
-                              Positioned(
-                                bottom: 10,
-                                left: 0,
-                                right: 0,
-                                child: Container(
-                                  color: Colors.black.withOpacity(0.7),
-                                  child: Text(
-                                    "Tapped / Cannot Attack",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
+
+                    child: Container(
+                      key:
+                          label == "Opponent Shields" &&
+                                  card == opponentShields.first
+                              ? _shieldKey
+                              : null,
+                      child: Transform.rotate(
+                        angle:
+                            (card.isTapped ? -1.57 : 0) +
+                            (rotate180 ? 3.14 : 0),
+                        child: Transform.scale(
+                          scale: hoveredCard == card ? 1.2 : 1.0,
+                          child: Stack(
+                            children: [
+                              Image.asset(
+                                (label == "Your Shields" ||
+                                        label == "Opponent Shields")
+                                    ? 'assets/cards/0.jpg'
+                                    : card.imagePath,
+                                width: cardWidth,
+                              ),
+                              if (card.isTapped && hoveredCard == card)
+                                Positioned(
+                                  bottom: 10,
+                                  left: 0,
+                                  right: 0,
+                                  child: Container(
+                                    color: Colors.black.withOpacity(0.7),
+                                    child: Text(
+                                      "Tapped / Cannot Attack",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
