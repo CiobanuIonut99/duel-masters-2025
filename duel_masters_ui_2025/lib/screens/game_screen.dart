@@ -128,6 +128,7 @@ class _GameScreenState extends State<GameScreen> {
 
   List<CardModel> battleZoneCards = [];
   List<CardModel> manaZoneCards = [];
+  List<CardModel> graveyard = [];
 
   bool hasPlayedManaThisTurn = false;
 
@@ -164,6 +165,7 @@ class _GameScreenState extends State<GameScreen> {
       return;
     }
     setState(() {
+      card.isTapped = true;
       hand.remove(card);
       battleZoneCards.add(card);
     });
@@ -207,6 +209,13 @@ class _GameScreenState extends State<GameScreen> {
 
 
   void attackShield(CardModel card) {
+    if (card.isTapped) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${card.name} is tapped and cannot attack!")),
+      );
+      return;
+    }
+
     if (opponentShields.isEmpty) return;
     final removedShield = opponentShields.first;
     setState(() {
@@ -227,6 +236,7 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
+
   void _startAttackSelection(CardModel attacker) {
     setState(() {
       isSelectingAttackTarget = true;
@@ -244,27 +254,6 @@ class _GameScreenState extends State<GameScreen> {
     ).showSnackBar(SnackBar(content: Text("All cards untapped for new turn")));
   }
 
-  void _showCardPreview(CardModel card) {
-    showDialog(
-      context: context,
-      builder:
-          (_) => Dialog(
-            backgroundColor: Colors.transparent,
-            child: Container(
-              width: 250,
-              height: 360,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                image: DecorationImage(
-                  image: AssetImage(card.imagePath),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-    );
-  }
-
 
 
 
@@ -277,13 +266,29 @@ class _GameScreenState extends State<GameScreen> {
       appBar: AppBar(
         title: Text("Duel Masters - Match Start"),
         actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            tooltip: "Untap All",
-            onPressed: untapAll,
+          Expanded(
+            child: Align(
+              alignment: Alignment.center,
+              child: IconButton(
+                icon: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.refresh), // The icon
+                    SizedBox(width: 4), // Space between the icon and text
+                    Text(
+                      'Untap All', // The text next to the icon
+                      style: TextStyle(fontSize: 16), // Optional: customize the text style
+                    ),
+                  ],
+                ),
+                tooltip: "Untap All",
+                onPressed: untapAll,
+              ),
+            ),
           ),
         ],
       ),
+
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -368,6 +373,7 @@ class _GameScreenState extends State<GameScreen> {
                 ),
               ),
             ),
+            _buildGraveyardZone(label: "Graveyard", cards: graveyard),  // Graveyard section
             _buildManaZone(label: "Your Mana", cards: manaZoneCards),
             _buildDeckZone(deckSize: deckSize, label: "Your Deck"),
           ],
@@ -375,6 +381,7 @@ class _GameScreenState extends State<GameScreen> {
       ],
     );
   }
+
 
 
 
@@ -391,6 +398,17 @@ class _GameScreenState extends State<GameScreen> {
       ],
     );
   }
+
+  Widget _buildGraveyardZone({required String label, required List<CardModel> cards}) {
+    return Column(
+      children: [
+        Text(label, style: TextStyle(color: Colors.white)),
+        SizedBox(height: 4),
+        _buildCardRow(cards, cardWidth: 60, label: label),  // Show graveyard cards here
+      ],
+    );
+  }
+
 
 
 
