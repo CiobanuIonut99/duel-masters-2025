@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/decks")
 @AllArgsConstructor
-@CrossOrigin("*")
+//@CrossOrigin("*")
 public class DeckController {
 
     private final DeckService deckService;

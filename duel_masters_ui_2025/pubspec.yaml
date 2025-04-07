@@ -23,6 +23,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/animations/shield/
+    - assets/backgrounds/forest_board.png
     - assets/cards/0.jpg
     - assets/cards/1.jpg
     - assets/cards/2.jpg
