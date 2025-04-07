@@ -877,7 +877,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                             children: [
                               Image.asset(
                                 label == "Your Shields" || label == "Opponent Shields"
-                                    ? 'assets/shield/999.png'
+                                    ? 'assets/shield/shield_0.png'
                                     : (label == "Opponent Hand"
                                     ? 'assets/cards/0.jpg'
                                     : card.imagePath),
