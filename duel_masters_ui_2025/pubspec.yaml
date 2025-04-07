@@ -1,0 +1,147 @@
+name: duel_masters_ui_2025
+description: "A new Flutter project."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.0-265.0.dev
+dependencies:
+  uuid: ^4.0.0
+  flame: ^1.13.1
+  http: ^0.13.3
+  flutter:
+    sdk: flutter
+  js: ^0.6.3 # Add this line
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/animations/shield/
+    - assets/cards/0.jpg
+    - assets/cards/1.jpg
+    - assets/cards/2.jpg
+    - assets/cards/3.jpg
+    - assets/cards/4.jpg
+    - assets/cards/5.jpg
+    - assets/cards/6.jpg
+    - assets/cards/7.jpg
+    - assets/cards/8.jpg
+    - assets/cards/9.jpg
+    - assets/cards/10.jpg
+    - assets/cards/11.jpg
+    - assets/cards/12.jpg
+    - assets/cards/13.jpg
+    - assets/cards/14.jpg
+    - assets/cards/15.jpg
+    - assets/cards/16.jpg
+    - assets/cards/17.jpg
+    - assets/cards/18.jpg
+    - assets/cards/19.jpg
+    - assets/cards/20.jpg
+    - assets/cards/21.jpg
+    - assets/cards/22.jpg
+    - assets/cards/23.jpg
+    - assets/cards/24.jpg
+    - assets/cards/25.jpg
+    - assets/cards/26.jpg
+    - assets/cards/27.jpg
+    - assets/cards/28.jpg
+    - assets/cards/29.jpg
+    - assets/cards/30.jpg
+    - assets/cards/31.jpg
+    - assets/cards/32.jpg
+    - assets/cards/33.jpg
+    - assets/cards/34.jpg
+    - assets/cards/35.jpg
+    - assets/cards/36.jpg
+    - assets/cards/37.jpg
+    - assets/cards/38.jpg
+    - assets/cards/39.jpg
+    - assets/cards/40.jpg
+    - assets/cards/41.jpg
+    - assets/cards/42.jpg
+    - assets/cards/43.jpg
+    - assets/cards/44.jpg
+    - assets/cards/45.jpg
+    - assets/cards/46.jpg
+    - assets/cards/47.jpg
+    - assets/cards/48.jpg
+    - assets/cards/49.jpg
+    - assets/cards/50.jpg
+    - assets/cards/51.jpg
+    - assets/cards/52.jpg
+    - assets/cards/53.jpg
+    - assets/cards/54.jpg
+    - assets/cards/55.jpg
+    - assets/cards/56.jpg
+    - assets/cards/57.jpg
+    - assets/cards/58.jpg
+    - assets/cards/59.jpg
+    - assets/cards/60.jpg
+    - assets/cards/61.jpg
+    - assets/cards/62.jpg
+    - assets/cards/63.jpg
+    - assets/cards/64.jpg
+    - assets/cards/65.jpg
+    - assets/cards/66.jpg
+    - assets/cards/67.jpg
+    - assets/cards/68.jpg
+    - assets/cards/69.jpg
+    - assets/cards/70.jpg
+    - assets/cards/71.jpg
+    - assets/cards/72.jpg
+    - assets/cards/73.jpg
+    - assets/cards/74.jpg
+    - assets/cards/75.jpg
+    - assets/cards/76.jpg
+    - assets/cards/77.jpg
+    - assets/cards/78.jpg
+    - assets/cards/79.jpg
+    - assets/cards/80.jpg
+    - assets/cards/81.jpg
+    - assets/cards/82.jpg
+    - assets/cards/83.jpg
+    - assets/cards/84.jpg
+    - assets/cards/85.jpg
+    - assets/cards/86.jpg
+    - assets/cards/87.jpg
+    - assets/cards/88.jpg
+    - assets/cards/89.jpg
+    - assets/cards/90.jpg
+    - assets/cards/91.jpg
+    - assets/cards/92.jpg
+    - assets/cards/93.jpg
+    - assets/cards/94.jpg
+    - assets/cards/95.jpg
+    - assets/cards/96.jpg
+    - assets/cards/97.jpg
+    - assets/cards/98.jpg
+    - assets/cards/99.jpg
+    - assets/cards/100.jpg
+    - assets/cards/101.jpg
+    - assets/cards/102.jpg
+    - assets/cards/103.jpg
+    - assets/cards/104.jpg
+    - assets/cards/105.jpg
+    - assets/cards/106.jpg
+    - assets/cards/107.jpg
+    - assets/cards/108.jpg
+    - assets/cards/109.jpg
+    - assets/cards/110.jpg
+    - assets/cards/111.jpg
+    - assets/cards/112.jpg
+    - assets/cards/113.jpg
+    - assets/cards/114.jpg
+    - assets/cards/115.jpg
+    - assets/cards/116.jpg
+    - assets/cards/117.jpg
+    - assets/cards/118.jpg
+    - assets/cards/119.jpg
+    - assets/cards/120.jpg
+

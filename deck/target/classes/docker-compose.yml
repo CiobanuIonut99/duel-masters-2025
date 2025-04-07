@@ -1,0 +1,5 @@
+services:
+  eureka-server:
+    image: steeltoeoss/eureka-server
+    ports:
+      - "8761:8761"
