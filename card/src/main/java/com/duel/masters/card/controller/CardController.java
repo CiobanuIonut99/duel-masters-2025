@@ -1,7 +1,7 @@
 package com.duel.masters.card.controller;
 
-import com.duel.masters.card.dto.DeckCardDTO;
-import com.duel.masters.card.entity.Card;
+import com.duel.masters.card.dto.CardDto;
+import com.duel.masters.card.model.Card;
 import com.duel.masters.card.service.CardService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,14 +19,7 @@ public class CardController {
     private final CardService cardService;
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<Card> getAll() {
-        return cardService.getAll();
+    public List<CardDto> getAll() {
+        return cardService.getDM01();
     }
-
-    @GetMapping("/deck")
-    public List<DeckCardDTO> getDeckCards() {
-        return cardService.getNecessaryCards();
-    }
-
 }

@@ -1,6 +1,6 @@
 package com.duel.masters.card.repository;
 
-import com.duel.masters.card.entity.Card;
+import com.duel.masters.card.model.Card;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
