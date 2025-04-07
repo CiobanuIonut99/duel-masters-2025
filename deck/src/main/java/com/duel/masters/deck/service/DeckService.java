@@ -1,6 +1,7 @@
 package com.duel.masters.deck.service;
 
 import com.duel.masters.deck.dto.CardDto;
+import com.duel.masters.deck.dto.DeckDto;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -20,8 +21,11 @@ import static com.duel.masters.deck.util.DeckUtil.shuffleCards;
 public class DeckService {
 
     private final RestClient.Builder restClientBuilder;
+    private final ObjectMapper objectMapper;
 
     public List<CardDto> getDM01() {
+        log.info("getDM01 in DeckService");
+
         try {
             final var result = restClientBuilder
                     .baseUrl("http://card-service")
@@ -30,15 +34,17 @@ public class DeckService {
                     .uri("/api/cards")
                     .retrieve()
                     .toEntity(String.class);
-            return new ObjectMapper().readValue(result.getBody(), new TypeReference<>() {
+
+            return objectMapper.readValue(result.getBody(), new TypeReference<>() {
             });
-        }  catch (Exception e) {
+
+        } catch (Exception e) {
             log.error("Failed to fetch cards from card-service: {}", e.getMessage(), e);
             throw new RuntimeException("Card service unavailable", e);
         }
     }
 
-    public List<CardDto> generateRandomDeck() {
+    public DeckDto generateRandomDeck() {
         Random random = new Random();
         int copiesOfCards;
         List<CardDto> deck = new ArrayList<>();
@@ -77,6 +83,12 @@ public class DeckService {
             if (deck.size() >= 40)
                 break;
         }
-        return deck;
+        return
+                DeckDto
+                        .builder()
+                        .name("RANDOM DECK")
+                        .id(1)
+                        .cards(deck)
+                        .build();
     }
 }

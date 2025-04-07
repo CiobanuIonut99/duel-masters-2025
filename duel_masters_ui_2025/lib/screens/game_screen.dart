@@ -103,7 +103,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     print("Fetching game data from the backend...");
 
     final response = await http.get(
-      Uri.parse('http://localhost:8080/api/cards/game-state'),
+      Uri.parse('http://localhost:8080/api/decks/random'),
     );
 
     if (response.statusCode == 200) {
