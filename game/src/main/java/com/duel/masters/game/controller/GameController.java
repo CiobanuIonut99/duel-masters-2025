@@ -15,6 +15,6 @@ public class GameController {
 
     @GetMapping
     public DeckCardDto getDeckCard() {
-        return  gameService.getDeckCardDto();
+        return gameService.getDeckCardDto();
     }
 }

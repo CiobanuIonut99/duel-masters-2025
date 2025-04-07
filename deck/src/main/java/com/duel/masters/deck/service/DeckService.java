@@ -57,32 +57,27 @@ public class DeckService {
                 case 0 -> {
                     continue;
                 }
-                case 1 -> deck.add(cardDto);
+                case 1 -> addCardToDeck(deck, cardDto, 1);
                 case 2 -> {
                     if (deck.size() > 38)
                         break;
-                    deck.add(cardDto);
-                    deck.add(cardDto);
+                    addCardToDeck(deck, cardDto, 2);
                 }
                 case 3 -> {
                     if (deck.size() > 37)
                         break;
-                    deck.add(cardDto);
-                    deck.add(cardDto);
-                    deck.add(cardDto);
+                    addCardToDeck(deck, cardDto, 3);
                 }
                 case 4 -> {
                     if (deck.size() > 36)
                         break;
-                    deck.add(cardDto);
-                    deck.add(cardDto);
-                    deck.add(cardDto);
-                    deck.add(cardDto);
+                    addCardToDeck(deck, cardDto, 4);
                 }
             }
             if (deck.size() >= 40)
                 break;
         }
+        shuffleCards(deck);
         return
                 DeckDto
                         .builder()
@@ -90,5 +85,11 @@ public class DeckService {
                         .id(1)
                         .cards(deck)
                         .build();
+    }
+
+    public void addCardToDeck(List<CardDto> cards, CardDto cardDto, int copiesOfCards) {
+        for (int i = 0; i < copiesOfCards; i++) {
+            cards.add(cardDto);
+        }
     }
 }

@@ -1,12 +1,16 @@
 package com.duel.masters.game.service;
 
 import com.duel.masters.game.dto.DeckCardDto;
+import com.duel.masters.game.dto.card.service.CardDto;
 import com.duel.masters.game.dto.deck.service.DeckDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -37,5 +41,26 @@ public class GameService {
 
     public DeckCardDto getDeckCardDto() {
         var deckDto = getDeckCard();
+        var deck = deckDto.getCards();
+        var shields = get5Cards(deck);
+        var hand = get5Cards(deck);
+
+        return DeckCardDto.builder()
+                .deck(deck)
+                .shields(shields)
+                .hand(hand)
+                .build();
     }
+
+    private List<CardDto> get5Cards(List<CardDto> deck) {
+        List<CardDto> cards = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            var card = deck.get(i);
+            cards.add(card);
+            deck.remove(card);
+        }
+        return cards;
+    }
+
+
 }
