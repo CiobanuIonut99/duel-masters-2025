@@ -1,4 +1,4 @@
-package com.duel.masters.card.entity;
+package com.duel.masters.card.model;
 
 import com.duel.masters.card.enums.Civilization;
 import com.duel.masters.card.enums.SpecialAbility;
@@ -19,7 +19,6 @@ public class Card {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
     @Enumerated(EnumType.STRING)
     private Type type;
@@ -33,5 +32,4 @@ public class Card {
 //    private String raritySymbol;
     @Enumerated(EnumType.STRING)
     private SpecialAbility specialAbility;
-
 }
