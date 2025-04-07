@@ -22,6 +22,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - assets/shield/999.png
     - assets/animations/shield/
     - assets/backgrounds/forest_board.png
     - assets/cards/0.jpg

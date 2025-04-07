@@ -211,6 +211,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
   }
 
+
+
+
   List<CardModel> battleZoneCards = [];
   List<CardModel> manaZoneCards = [];
   List<CardModel> graveyard = [];
@@ -274,6 +277,31 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   List<CardModel> opponentBattleZone = [];
   List<CardModel> opponentHandCards = [];
   List<CardModel> opponentShields = [];
+
+  Widget _buildZoneLabel(String label) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black45,
+            offset: Offset(0, 2),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
+      ),
+    );
+  }
 
 
   void sendToMana(CardModel card) {
@@ -672,25 +700,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           ), // Replace with your deck image asset
         ),
         SizedBox(height: 4),
-        Text('$label ($deckSize)', style: TextStyle(color: Colors.white)),
+        _buildZoneLabel('$label ($deckSize)'),
+
       ],
     );
   }
 
-  Widget _buildGraveyardZone({
-    required String label,
-    required List<CardModel> cards,
-  }) {
-    return Column(
-      children: [
-        Text(label, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
 
-        SizedBox(height: 4),
-        _buildCardRow(cards, cardWidth: 80, label: null),
-        // Show graveyard cards here
-      ],
-    );
-  }
   Widget _buildOpponentField() {
     return Column(
       children: [
@@ -740,8 +756,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             _buildCardRow(
               opponentShields,
               cardWidth: 80,
-              label: "Opponent Shields",
-              rotate180: true,
+              label: "Opponent Shields"
+              // rotate180: true,
             ),
           ],
         ),
@@ -860,11 +876,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           child: Stack(
                             children: [
                               Image.asset(
-                                (label == "Your Shields" ||
-                                    label == "Opponent Shields" ||
-                                    label == "Opponent Hand")
+                                label == "Your Shields" || label == "Opponent Shields"
+                                    ? 'assets/shield/999.png'
+                                    : (label == "Opponent Hand"
                                     ? 'assets/cards/0.jpg'
-                                    : card.imagePath,
+                                    : card.imagePath),
                                 width: cardWidth,
                               ),
 
@@ -900,7 +916,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        if (label != null) Text(label, style: TextStyle(color: Colors.white)),
+        if (label != null) _buildZoneLabel(label),
+
         SizedBox(height: 4),
         scrollable
             ? SingleChildScrollView(
@@ -939,6 +956,45 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           ),
     );
   }
+  Widget _buildGraveyardZone({
+    required String label,
+    required List<CardModel> cards,
+    bool rotate180 = false,
+  }) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () => _showCardZoneDialog(label, cards, rotate180),
+          child: SizedBox(
+            height: 70,
+            width: 60,
+            child: Stack(
+              alignment: Alignment.topCenter,
+              children: cards.asMap().entries.map((entry) {
+                final card = entry.value;
+                return Positioned(
+                  top: 0,
+                  child: Transform.rotate(
+                    angle: rotate180 ? 3.14 : 0,
+                    child: Image.asset(
+                      card.imagePath,
+                      width: 60,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+        SizedBox(height: 4),
+        _buildZoneLabel(label),
+
+
+
+      ],
+    );
+  }
+
 
   Widget _buildManaZone({
     required String label,
@@ -947,23 +1003,86 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }) {
     return Column(
       children: [
-        Text(label, style: TextStyle(color: Colors.white)),
-        SizedBox(height: 4),
-        Row(
-          children:
-              cards
-                  .map(
-                    (card) => Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 2),
-                      child: Transform.rotate(
-                        angle: rotate180 ? 3.14 : 0,
-                        child: Image.asset(card.imagePath, width: 40),
-                      ),
+        GestureDetector(
+          onTap: () => _showCardZoneDialog(label, cards, rotate180),
+          child: SizedBox(
+            height: 70,
+            width: 60,
+            child: Stack(
+              alignment: Alignment.topCenter,
+              children: cards.asMap().entries.map((entry) {
+                final card = entry.value;
+                return Positioned(
+                  top: 0,
+                  child: Transform.rotate(
+                    angle: rotate180 ? 3.14 : 0,
+                    child: Image.asset(
+                      card.imagePath,
+                      width: 60,
                     ),
-                  )
-                  .toList(),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
         ),
+        SizedBox(height: 4),
+        _buildZoneLabel(label),
+
       ],
     );
   }
+
+
+  void _showCardZoneDialog(String label, List<CardModel> cards, [bool rotate180 = false]) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.black87,
+        insetPadding: EdgeInsets.all(20),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 20),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: cards.map((card) {
+                    return GestureDetector(
+                      onTap: () => _showFullScreenCardPreview(card),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Transform.rotate(
+                          angle: rotate180 ? 3.14 : 0,
+                          child: Image.asset(
+                            card.imagePath,
+                            width: 130,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
+
+
 }
