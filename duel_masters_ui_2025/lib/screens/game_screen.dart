@@ -119,26 +119,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   }
 
-  void _showMatchmakingDialog() {
-    showDialog(
-      context: context,
-      builder:
-          (_) => AlertDialog(
-            title: Text("Multiplayer Match"),
-            content: Text("Would you like to search for a match or join one?"),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _searchForMatch();
-                },
-                child: Text("Search Match"),
-              ),
-            ],
-          ),
-    );
-  }
-
   void _searchForMatch() {
     if (stompClient.connected) {
       final randomId = myPlayerId;
