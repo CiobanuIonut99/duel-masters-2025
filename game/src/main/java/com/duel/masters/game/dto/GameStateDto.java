@@ -22,6 +22,8 @@ public class GameStateDto {
     private String playerName;
     private String opponentName;
 
+    private String playertopic;
+
     private Long currentTurnPlayerId;
 
     private List<CardDto> playerHand;

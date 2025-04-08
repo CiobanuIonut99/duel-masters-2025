@@ -21,8 +21,9 @@ public class GameWebSocketController {
 
     @MessageMapping("match")
     public void match(PlayerDto player) {
+        log.info("Matching player ..." + player);
 
-        log.info("Match player " + player);
+
         matchmakingService
                 .tryMatchPlayer(player)
                 .ifPresent(
@@ -38,6 +39,7 @@ public class GameWebSocketController {
                                     .playerName(player1.getUsername())
                                     .opponentName(player2.getUsername())
                                     .currentTurnPlayerId(player1.getId())
+                                    .playertopic("player1")
                                     .build();
 
                             var gameState2 = GameStateDto.builder()
@@ -47,17 +49,18 @@ public class GameWebSocketController {
                                     .playerName(player2.getUsername())
                                     .opponentName(player1.getUsername())
                                     .currentTurnPlayerId(player1.getId())
+                                    .playertopic("player2")
                                     .build();
 
-                            simpMessagingTemplate.convertAndSendToUser(
-                                    player1.getId().toString(),
-                                    "/queue/game",
+                            simpMessagingTemplate.convertAndSend(
+                                    "/topic/game" + gameId + "/player1",
                                     gameState1);
 
-                            simpMessagingTemplate.convertAndSendToUser(
-                                    player2.getId().toString(),
-                                    "/queue/game",
+                            simpMessagingTemplate.convertAndSend(
+                                    "/topic/game" + gameId + "/player2",
                                     gameState2);
+
+                            log.info("Match players {}  vs {}", player1, player2);
                         });
 
     }

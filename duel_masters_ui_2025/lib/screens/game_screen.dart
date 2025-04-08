@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +11,9 @@ import 'package:stomp_dart_client/stomp_frame.dart';
 
 import '../animations/fx_game.dart';
 import '../models/card_model.dart';
+import 'dart:developer';
+
+
 
 class GameScreen extends StatefulWidget {
   @override
@@ -56,7 +61,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     fxGame = FxGame();
     stompClient = StompClient(
       config: StompConfig(
-        url: 'wss://b799-5-12-128-179.ngrok-free.app/duel-masters-ws',
+        url: 'wss://21aa-5-12-128-179.ngrok-free.app/duel-masters-ws',
         // Your backend websocket endpoint
         onConnect: onStompConnect,
         onWebSocketError: (dynamic error) => print("WebSocket error: $error"),
@@ -137,13 +142,20 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void _searchForMatch() {
     if (stompClient.connected) {
+      final randomId = DateTime.now().millisecondsSinceEpoch % 1000000;
+      final randomUsername = "player_$randomId";
       stompClient.send(
         destination: '/duel-masters/match',
-        body: jsonEncode({
-          "id": 1,
-          "username": "badosu",
-        }), // replace with actual dynamic ID
+        body: jsonEncode({"id": randomId, "username": randomUsername}),
+        // body: jsonEncode({
+        //   "id": 1,
+        //   "username": "mota",
+        // }),
       );
+
+      print("🔄 Searching for match as $randomUsername ($randomId)");
+      log("🔄 Searching for match as $randomUsername ($randomId)");
+
       setState(() {
         hasJoinedMatch = true;
       });
@@ -152,20 +164,38 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void onStompConnect(StompFrame frame) {
     print("✅ Connected to WebSocket");
+    log("✅ Connected to WebSocket");
 
-    // Subscribe to receive updates from the game
+    // Step 1: Subscribe to the temporary queue to receive your GameState
     stompClient.subscribe(
-      destination: '/user/queue/game', // Match your backend topic
+      destination: '/user/queue/game',
       callback: (frame) {
         final gameState = jsonDecode(frame.body!);
         print("📬 Received GameState: $gameState");
+        log("📬 Received GameState: $gameState");
+
+        final gameId = gameState['gameId'];
+        final playerTopic = gameState['playertopic']; // "player1" or "player2"
+
+        // Step 2: Subscribe to your actual topic based on backend assignment
+        final topic = '/topic/game/$gameId/$playerTopic';
+        stompClient.subscribe(
+          destination: topic,
+          callback: (frame) {
+            final update = jsonDecode(frame.body!);
+            print("🎮 Game update on $topic: $update");
+            log("🎮 Game update on $topic: $update");
+
+            // Apply game state updates here
+            setState(() {
+              // Update your local game state
+            });
+          },
+        );
 
         setState(() {
-          // gameId = gameState['gameId'];
-          // playerId = gameState['playerId'];
-          // opponentId = gameState['opponentId'];
-          // playerName = gameState['playerName'];
-          // opponentName = gameState['opponentName'];
+          hasJoinedMatch = true;
+          // store gameId, playerTopic, etc. if needed
         });
       },
     );
@@ -180,9 +210,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   Future<void> fetchGameData() async {
     print("Fetching game data from the backend...");
+    log("Fetching game data from the backend...");
 
     final response = await http.get(
-      Uri.parse('https://b799-5-12-128-179.ngrok-free.app/api/games'),
+      Uri.parse('https://21aa-5-12-128-179.ngrok-free.app/api/games'),
       headers: {
         'ngrok-skip-browser-warning': 'true', // ✅ Required by ngrok
         'Content-Type': 'application/json',
@@ -191,9 +222,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     if (response.statusCode == 200) {
       print("Data fetched successfully!");
+      log("Data fetched successfully!");
 
       // Log the raw response body for debugging
       print("Response body: ${response.body}");
+      log("Response body: ${response.body}");
 
       // Try decoding as Map<String, dynamic> first (expecting a JSON object structure)
       try {
@@ -201,6 +234,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
         // Log the structure after decoding
         print("Decoded response as Map: $data");
+        log("Decoded response as Map: $data");
 
         // If the response has 'deck', 'shields', and 'hand' as keys, proceed with mapping them
         if (data.containsKey('deck') &&
