@@ -156,17 +156,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     // Subscribe to receive updates from the game
     stompClient.subscribe(
-      destination: '/topic/game', // Match your backend topic
+      destination: '/user/queue/game', // Match your backend topic
       callback: (frame) {
         final gameState = jsonDecode(frame.body!);
         print("📬 Received GameState: $gameState");
 
-        // TODO: Update your UI state here based on the gameState
-        // You may need a `GameStateDto` model to deserialize it cleanly
         setState(() {
-          // Example: set player ID, etc.
-          // playerId = gameState['playerId'];
           // gameId = gameState['gameId'];
+          // playerId = gameState['playerId'];
+          // opponentId = gameState['opponentId'];
+          // playerName = gameState['playerName'];
+          // opponentName = gameState['opponentName'];
         });
       },
     );

@@ -31,18 +31,33 @@ public class GameWebSocketController {
                             var player1 = playerList.get(0);
                             var player2 = playerList.get(1);
 
-                            var gameStateDto =
-                                    GameStateDto
-                                            .builder()
-                                            .gameId(gameId)
-                                            .playerId(player1.getId())
-                                            .opponentId(player2.getId())
-                                            .playerName(player1.getUsername())
-                                            .opponentName(player2.getUsername())
-                                            .currentTurnPlayerId(player1.getId())
-                                            .build();
+                            var gameState1 = GameStateDto.builder()
+                                    .gameId(gameId)
+                                    .playerId(player1.getId())
+                                    .opponentId(player2.getId())
+                                    .playerName(player1.getUsername())
+                                    .opponentName(player2.getUsername())
+                                    .currentTurnPlayerId(player1.getId())
+                                    .build();
 
-                            simpMessagingTemplate.convertAndSend("/topic/game", gameStateDto);
+                            var gameState2 = GameStateDto.builder()
+                                    .gameId(gameId)
+                                    .playerId(player2.getId())
+                                    .opponentId(player1.getId())
+                                    .playerName(player2.getUsername())
+                                    .opponentName(player1.getUsername())
+                                    .currentTurnPlayerId(player1.getId())
+                                    .build();
+
+                            simpMessagingTemplate.convertAndSendToUser(
+                                    player1.getId().toString(),
+                                    "/queue/game",
+                                    gameState1);
+
+                            simpMessagingTemplate.convertAndSendToUser(
+                                    player2.getId().toString(),
+                                    "/queue/game",
+                                    gameState2);
                         });
 
     }
