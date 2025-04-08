@@ -22,7 +22,7 @@ public class GameStateDto {
     private String playerName;
     private String opponentName;
 
-    private String playertopic;
+    private String playerTopic;
 
     private Long currentTurnPlayerId;
 
