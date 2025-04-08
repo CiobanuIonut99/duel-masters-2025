@@ -15,8 +15,11 @@ import java.util.List;
 public class GameStateDto {
 
     private String gameId;
+
     private Long playerId;
     private Long opponentId;
+
+    private Long currentTurnPlayerId;
 
     private List<CardDto> playerHand;
     private List<CardDto> playerShields;

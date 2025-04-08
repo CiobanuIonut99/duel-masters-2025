@@ -27,7 +27,7 @@ spring:
         - id: game-service-ws
           uri: lb:ws://game-service
           predicates:
-            - Path=/duelmasters-ws/**
+            - Path=/duel-masters-ws/**
           filters:
             - name: PreserveHostHeader
 

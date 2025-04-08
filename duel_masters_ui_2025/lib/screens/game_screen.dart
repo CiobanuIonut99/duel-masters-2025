@@ -3,14 +3,12 @@ import 'dart:convert';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
-import '../animations/fx_game.dart';
-import '../models/card_model.dart';
-
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 
+import '../animations/fx_game.dart';
+import '../models/card_model.dart';
 
 class GameScreen extends StatefulWidget {
   @override
@@ -18,8 +16,8 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
-
   late StompClient stompClient;
+  bool hasJoinedMatch = false;
 
   CardModel? redGlowShield;
   late FxGame fxGame;
@@ -57,7 +55,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     fxGame = FxGame();
     stompClient = StompClient(
       config: StompConfig(
-        url: 'ws://localhost:8080/duelmasters-ws', // Your backend websocket endpoint
+        url: 'ws://localhost:8080/duel-masters-ws',
+        // Your backend websocket endpoint
         onConnect: onStompConnect,
         onWebSocketError: (dynamic error) => print("WebSocket error: $error"),
       ),
@@ -109,6 +108,53 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         });
       }
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!hasJoinedMatch) {
+        _showMatchmakingDialog();
+      }
+    });
+  }
+  void _showMatchmakingDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("Multiplayer Match"),
+        content: Text("Would you like to search for a match or join one?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _searchForMatch();
+            },
+            child: Text("Search Match"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _joinMatch();
+            },
+            child: Text("Join Match"),
+          ),
+        ],
+      ),
+    );
+  }
+  void _searchForMatch() {
+    if (stompClient.connected) {
+      stompClient.send(
+        destination: '/duel-masters/match',
+        body: jsonEncode({"id": 2}), // replace with actual dynamic ID
+      );
+      setState(() {
+        hasJoinedMatch = true;
+      });
+    }
+  }
+
+  void _joinMatch() {
+    // You can prompt for an ID or fetch from shared preferences or elsewhere
+    _searchForMatch(); // placeholder for simplicity
   }
 
 
@@ -134,11 +180,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     // Notify server you want to join a game
     stompClient.send(
-      destination: '/app/match', // Match your backend mapping
-      body: jsonEncode({"playerId": "player1"}), // Replace with dynamic ID if needed
+      destination: '/duel-masters/match', // Match your backend mapping
+      body: jsonEncode({"id": 2}), // Replace with dynamic ID if needed
     );
   }
-
 
   @override
   void dispose() {
@@ -259,9 +304,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
   }
 
-
-
-
   List<CardModel> battleZoneCards = [];
   List<CardModel> manaZoneCards = [];
   List<CardModel> graveyard = [];
@@ -333,11 +375,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         color: Colors.black.withOpacity(0.6),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black45,
-            offset: Offset(0, 2),
-            blurRadius: 4,
-          ),
+          BoxShadow(color: Colors.black45, offset: Offset(0, 2), blurRadius: 4),
         ],
       ),
       child: Text(
@@ -350,7 +388,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       ),
     );
   }
-
 
   void sendToMana(CardModel card) {
     if (hasPlayedManaThisTurn) {
@@ -375,11 +412,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       graveyard.add(card);
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("${card.name} moved to Graveyard")),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("${card.name} moved to Graveyard")));
   }
-
 
   void resetTurn() {
     setState(() {
@@ -407,42 +443,42 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void _showHandCardDialog(CardModel card) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text(card.name),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                sendToMana(card);
-              },
-              child: Text("Send to Mana Zone"),
+      builder:
+          (_) => AlertDialog(
+            title: Text(card.name),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    sendToMana(card);
+                  },
+                  child: Text("Send to Mana Zone"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    summonCard(card);
+                  },
+                  child: Text("Summon to Battle Zone"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    sendToGraveyard(card);
+                  },
+                  child: Text("Send to Graveyard"),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel"),
+                ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                summonCard(card);
-              },
-              child: Text("Summon to Battle Zone"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                sendToGraveyard(card);
-              },
-              child: Text("Send to Graveyard"),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("Cancel"),
-            ),
-          ],
-        ),
-      ),
+          ),
     );
   }
-
 
   void attackShield(CardModel attacker, CardModel targetShield) {
     if (attacker.isTapped) {
@@ -749,11 +785,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         ),
         SizedBox(height: 4),
         _buildZoneLabel('$label ($deckSize)'),
-
       ],
     );
   }
-
 
   Widget _buildOpponentField() {
     return Column(
@@ -777,17 +811,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             ),
 
             // Graveyard
-            _buildGraveyardZone(
-              label: "Opponent Graveyard",
-              cards: [],
-            ),
+            _buildGraveyardZone(label: "Opponent Graveyard", cards: []),
 
             // Mana
-            _buildManaZone(
-              label: "Opponent Mana",
-              cards: [],
-              rotate180: true,
-            ),
+            _buildManaZone(label: "Opponent Mana", cards: [], rotate180: true),
 
             // Deck
             _buildDeckZone(
@@ -804,17 +831,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             _buildCardRow(
               opponentShields,
               cardWidth: 80,
-              label: "Opponent Shields"
+              label: "Opponent Shields",
               // rotate180: true,
             ),
           ],
         ),
         SizedBox(height: 12),
-
       ],
     );
   }
-
 
   Widget _buildCardRow(
     List<CardModel> cards, {
@@ -924,11 +949,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           child: Stack(
                             children: [
                               Image.asset(
-                                label == "Your Shields" || label == "Opponent Shields"
+                                label == "Your Shields" ||
+                                        label == "Opponent Shields"
                                     ? 'assets/cards/0.jpg'
                                     : (label == "Opponent Hand"
-                                    ? 'assets/cards/0.jpg'
-                                    : card.imagePath),
+                                        ? 'assets/cards/0.jpg'
+                                        : card.imagePath),
                                 width: cardWidth,
                               ),
 
@@ -1004,6 +1030,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           ),
     );
   }
+
   Widget _buildGraveyardZone({
     required String label,
     required List<CardModel> cards,
@@ -1018,31 +1045,25 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             width: 60,
             child: Stack(
               alignment: Alignment.topCenter,
-              children: cards.asMap().entries.map((entry) {
-                final card = entry.value;
-                return Positioned(
-                  top: 0,
-                  child: Transform.rotate(
-                    angle: rotate180 ? 3.14 : 0,
-                    child: Image.asset(
-                      card.imagePath,
-                      width: 60,
-                    ),
-                  ),
-                );
-              }).toList(),
+              children:
+                  cards.asMap().entries.map((entry) {
+                    final card = entry.value;
+                    return Positioned(
+                      top: 0,
+                      child: Transform.rotate(
+                        angle: rotate180 ? 3.14 : 0,
+                        child: Image.asset(card.imagePath, width: 60),
+                      ),
+                    );
+                  }).toList(),
             ),
           ),
         ),
         SizedBox(height: 4),
         _buildZoneLabel(label),
-
-
-
       ],
     );
   }
-
 
   Widget _buildManaZone({
     required String label,
@@ -1058,79 +1079,79 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             width: 60,
             child: Stack(
               alignment: Alignment.topCenter,
-              children: cards.asMap().entries.map((entry) {
-                final card = entry.value;
-                return Positioned(
-                  top: 0,
-                  child: Transform.rotate(
-                    angle: rotate180 ? 3.14 : 0,
-                    child: Image.asset(
-                      card.imagePath,
-                      width: 60,
-                    ),
-                  ),
-                );
-              }).toList(),
+              children:
+                  cards.asMap().entries.map((entry) {
+                    final card = entry.value;
+                    return Positioned(
+                      top: 0,
+                      child: Transform.rotate(
+                        angle: rotate180 ? 3.14 : 0,
+                        child: Image.asset(card.imagePath, width: 60),
+                      ),
+                    );
+                  }).toList(),
             ),
           ),
         ),
         SizedBox(height: 4),
         _buildZoneLabel(label),
-
       ],
     );
   }
 
-
-  void _showCardZoneDialog(String label, List<CardModel> cards, [bool rotate180 = false]) {
+  void _showCardZoneDialog(
+    String label,
+    List<CardModel> cards, [
+    bool rotate180 = false,
+  ]) {
     showDialog(
       context: context,
-      builder: (_) => Dialog(
-        backgroundColor: Colors.black87,
-        insetPadding: EdgeInsets.all(20),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+      builder:
+          (_) => Dialog(
+            backgroundColor: Colors.black87,
+            insetPadding: EdgeInsets.all(20),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children:
+                          cards.map((card) {
+                            return GestureDetector(
+                              onTap: () => _showFullScreenCardPreview(card),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0,
+                                ),
+                                child: Transform.rotate(
+                                  angle: rotate180 ? 3.14 : 0,
+                                  child: Image.asset(
+                                    card.imagePath,
+                                    width: 130,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: 20),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: cards.map((card) {
-                    return GestureDetector(
-                      onTap: () => _showFullScreenCardPreview(card),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Transform.rotate(
-                          angle: rotate180 ? 3.14 : 0,
-                          child: Image.asset(
-                            card.imagePath,
-                            width: 130,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
-
-
-
-
 }
