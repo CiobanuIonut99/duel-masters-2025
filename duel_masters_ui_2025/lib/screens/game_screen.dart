@@ -7,12 +7,20 @@ import 'package:http/http.dart' as http;
 import '../animations/fx_game.dart';
 import '../models/card_model.dart';
 
+import 'package:stomp_dart_client/stomp.dart';
+import 'package:stomp_dart_client/stomp_config.dart';
+import 'package:stomp_dart_client/stomp_frame.dart';
+
+
 class GameScreen extends StatefulWidget {
   @override
   State<GameScreen> createState() => _GameScreenState();
 }
 
 class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
+
+  late StompClient stompClient;
+
   CardModel? redGlowShield;
   late FxGame fxGame;
   late AnimationController shieldMoveController;
@@ -47,6 +55,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     fxGame = FxGame();
+    stompClient = StompClient(
+      config: StompConfig(
+        url: 'ws://localhost:8080/duelmasters-ws', // Your backend websocket endpoint
+        onConnect: onStompConnect,
+        onWebSocketError: (dynamic error) => print("WebSocket error: $error"),
+      ),
+    );
+
+    stompClient.activate();
+
     fetchGameData();
 
     shieldMoveController = AnimationController(
@@ -93,9 +111,39 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     });
   }
 
+
+  void onStompConnect(StompFrame frame) {
+    print("✅ Connected to WebSocket");
+
+    // Subscribe to receive updates from the game
+    stompClient.subscribe(
+      destination: '/topic/game', // Match your backend topic
+      callback: (frame) {
+        final gameState = jsonDecode(frame.body!);
+        print("📬 Received GameState: $gameState");
+
+        // TODO: Update your UI state here based on the gameState
+        // You may need a `GameStateDto` model to deserialize it cleanly
+        setState(() {
+          // Example: set player ID, etc.
+          // playerId = gameState['playerId'];
+          // gameId = gameState['gameId'];
+        });
+      },
+    );
+
+    // Notify server you want to join a game
+    stompClient.send(
+      destination: '/app/match', // Match your backend mapping
+      body: jsonEncode({"playerId": "player1"}), // Replace with dynamic ID if needed
+    );
+  }
+
+
   @override
   void dispose() {
     shieldMoveController.dispose();
+    stompClient.deactivate();
     super.dispose();
   }
 
@@ -877,7 +925,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                             children: [
                               Image.asset(
                                 label == "Your Shields" || label == "Opponent Shields"
-                                    ? 'assets/shield/shield_0.png'
+                                    ? 'assets/cards/0.jpg'
                                     : (label == "Opponent Hand"
                                     ? 'assets/cards/0.jpg'
                                     : card.imagePath),

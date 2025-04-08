@@ -6,6 +6,7 @@ version: 1.0.0+1
 environment:
   sdk: ^3.8.0-265.0.dev
 dependencies:
+  stomp_dart_client: ^0.4.4
   uuid: ^4.0.0
   flame: ^1.13.1
   http: ^0.13.3

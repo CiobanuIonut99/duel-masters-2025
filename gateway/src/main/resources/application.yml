@@ -20,10 +20,16 @@ spring:
           uri: lb://deck-service
           predicates:
             - Path=/api/decks/**
-        - id: game-service
+        - id: game-service-rest
           uri: lb://game-service
           predicates:
             - Path=/api/games/**
+        - id: game-service-ws
+          uri: lb:ws://game-service
+          predicates:
+            - Path=/duelmasters-ws/**
+          filters:
+            - name: PreserveHostHeader
 
 eureka:
   client:

@@ -9,13 +9,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class GameService {
+
     private final RestClient.Builder restClientBuilder;
     private final ObjectMapper objectMapper;
 
