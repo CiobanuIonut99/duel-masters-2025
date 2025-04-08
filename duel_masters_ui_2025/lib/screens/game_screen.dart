@@ -115,6 +115,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       }
     });
   }
+
   void _showMatchmakingDialog() {
     showDialog(
       context: context,
@@ -128,18 +129,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               _searchForMatch();
             },
             child: Text("Search Match"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _joinMatch();
-            },
-            child: Text("Join Match"),
-          ),
+          )
         ],
       ),
     );
   }
+
   void _searchForMatch() {
     if (stompClient.connected) {
       stompClient.send(
@@ -151,12 +146,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       });
     }
   }
-
-  void _joinMatch() {
-    // You can prompt for an ID or fetch from shared preferences or elsewhere
-    _searchForMatch(); // placeholder for simplicity
-  }
-
 
   void onStompConnect(StompFrame frame) {
     print("✅ Connected to WebSocket");
