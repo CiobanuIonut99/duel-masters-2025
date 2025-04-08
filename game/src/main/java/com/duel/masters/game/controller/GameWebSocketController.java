@@ -90,7 +90,7 @@ public class GameWebSocketController {
                                     log.info("✅ Sent to topic2: {}", topic2);
                                     log.info("🎮 Match players {} vs {}", player1.getUsername(), player2.getUsername());
                                 }
-                            }, 1000); // delay in milliseconds
+                            }, 2000); // delay in milliseconds
                         });
 
     }

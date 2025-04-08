@@ -117,11 +117,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       }
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!hasJoinedMatch) {
-        _showMatchmakingDialog();
-      }
-    });
   }
 
   void _showMatchmakingDialog() {
@@ -190,15 +185,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               callback: (frame) {
                 print("📡 Subscribed to: /topic/game/$gameId/$playerTopic");
                 final update = jsonDecode(frame.body!);
-                print("📥 Update on my topic: $update");
 
                 // Parse your player zones
                 final updatedHand =
                     (update['playerHand'] as List)
                         .map((c) => CardModel.fromJson(c))
                         .toList();
-                print("UPDATED HAND");
-                print(updatedHand);
                 final updatedShields =
                     (update['playerShields'] as List)
                         .map((c) => CardModel.fromJson(c))
@@ -633,25 +625,37 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       appBar: AppBar(
         title: Text("Duel Masters - Match Start"),
         actions: [
-          Expanded(
-            child: Align(
-              alignment: Alignment.center,
-              child: IconButton(
-                icon: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.refresh),
-                    SizedBox(width: 4),
-                    Text('End turn', style: TextStyle(fontSize: 16)),
-                  ],
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: hasJoinedMatch
+                      ? null
+                      : () {
+                    _searchForMatch();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("🔍 Looking for opponent..."),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.person_search),
+                  label: Text("Search Match"),
                 ),
-                tooltip: "Untap All",
-                onPressed: endTurn,
-              ),
+                SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: endTurn,
+                  icon: Icon(Icons.refresh),
+                  label: Text("End Turn"),
+                ),
+              ],
             ),
           ),
         ],
       ),
+
 
       body: Stack(
         children: [
