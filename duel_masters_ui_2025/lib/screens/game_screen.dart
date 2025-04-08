@@ -52,10 +52,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    fetchGameData();
     fxGame = FxGame();
     stompClient = StompClient(
       config: StompConfig(
-        url: 'ws://localhost:8080/duel-masters-ws',
+        url: 'wss://b799-5-12-128-179.ngrok-free.app/duel-masters-ws',
         // Your backend websocket endpoint
         onConnect: onStompConnect,
         onWebSocketError: (dynamic error) => print("WebSocket error: $error"),
@@ -63,8 +64,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
 
     stompClient.activate();
-
-    fetchGameData();
 
     shieldMoveController = AnimationController(
       vsync: this,
@@ -183,7 +182,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     print("Fetching game data from the backend...");
 
     final response = await http.get(
-      Uri.parse('http://localhost:8080/api/games'),
+      Uri.parse('https://b799-5-12-128-179.ngrok-free.app/api/games'),
+      headers: {
+        'ngrok-skip-browser-warning': 'true', // ✅ Required by ngrok
+        'Content-Type': 'application/json',
+      },
     );
 
     if (response.statusCode == 200) {

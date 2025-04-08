@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/games")
+@RequestMapping("/api/games")
 @AllArgsConstructor
-@CrossOrigin("*")
+//@CrossOrigin("*")
 public class GameController {
     private final GameService gameService;
 
