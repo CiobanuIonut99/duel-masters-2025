@@ -37,6 +37,8 @@ public class GameWebSocketController {
                                             .gameId(gameId)
                                             .playerId(player1.getId())
                                             .opponentId(player2.getId())
+                                            .playerName(player1.getUsername())
+                                            .opponentName(player2.getUsername())
                                             .currentTurnPlayerId(player1.getId())
                                             .build();
 

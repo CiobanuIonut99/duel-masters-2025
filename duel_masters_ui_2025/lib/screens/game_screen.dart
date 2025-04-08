@@ -119,19 +119,20 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void _showMatchmakingDialog() {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text("Multiplayer Match"),
-        content: Text("Would you like to search for a match or join one?"),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _searchForMatch();
-            },
-            child: Text("Search Match"),
-          )
-        ],
-      ),
+      builder:
+          (_) => AlertDialog(
+            title: Text("Multiplayer Match"),
+            content: Text("Would you like to search for a match or join one?"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _searchForMatch();
+                },
+                child: Text("Search Match"),
+              ),
+            ],
+          ),
     );
   }
 
@@ -139,7 +140,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     if (stompClient.connected) {
       stompClient.send(
         destination: '/duel-masters/match',
-        body: jsonEncode({"id": 2}), // replace with actual dynamic ID
+        body: jsonEncode({
+          "id": 1,
+          "username": "badosu",
+        }), // replace with actual dynamic ID
       );
       setState(() {
         hasJoinedMatch = true;
@@ -165,12 +169,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           // gameId = gameState['gameId'];
         });
       },
-    );
-
-    // Notify server you want to join a game
-    stompClient.send(
-      destination: '/duel-masters/match', // Match your backend mapping
-      body: jsonEncode({"id": 2}), // Replace with dynamic ID if needed
     );
   }
 
