@@ -124,7 +124,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       final randomId = myPlayerId;
       final randomUsername = "player_$randomId";
       stompClient.send(
-        destination: '/duel-masters/game',
+        destination: '/duel-masters/game/start',
         body: jsonEncode({
           "id": randomId,
           "username": randomUsername,

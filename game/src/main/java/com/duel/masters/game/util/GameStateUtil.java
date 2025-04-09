@@ -23,4 +23,24 @@ public class GameStateUtil {
                 .playerTopic(playerTopic)
                 .build();
     }
+
+    public static GameStateDto getGameStateDto(GameStateDto gameStateDto, String topic) {
+        return GameStateDto
+                .builder()
+                .gameId(gameStateDto.getGameId())
+                .playerId(gameStateDto.getPlayerId())
+                .opponentId(gameStateDto.getOpponentId())
+                .playerName(gameStateDto.getPlayerName())
+                .opponentName(gameStateDto.getOpponentName())
+                .playerShields(gameStateDto.getPlayerShields())
+                .opponentShields(gameStateDto.getOpponentShields())
+                .playerHand(gameStateDto.getPlayerHand())
+                .opponentHand(gameStateDto.getOpponentHand())
+                .playerDeck(gameStateDto.getPlayerDeck())
+                .opponentDeck(gameStateDto.getOpponentDeck())
+                .currentTurnPlayerId(gameStateDto.getPlayerId())
+                .playerTopic(topic)
+                .build();
+    }
 }
+

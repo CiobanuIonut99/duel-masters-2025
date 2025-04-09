@@ -12,6 +12,7 @@ import org.springframework.web.client.RestClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import static com.duel.masters.deck.util.DeckUtil.shuffleCards;
 
@@ -77,6 +78,7 @@ public class DeckService {
             if (deck.size() >= 40)
                 break;
         }
+        assignGameCardId(deck);
         shuffleCards(deck);
         return
                 DeckDto
@@ -91,5 +93,9 @@ public class DeckService {
         for (int i = 0; i < copiesOfCards; i++) {
             cards.add(cardDto);
         }
+    }
+
+    public void assignGameCardId(List<CardDto> cards) {
+        cards.forEach(card -> card.setGameCardId(UUID.randomUUID().toString()));
     }
 }

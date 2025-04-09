@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class CardDto {
     private Long id;
+    private String gameCardId;
     private String name;
     private String type;
     private String civilization;

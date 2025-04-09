@@ -45,7 +45,6 @@ public class GameService {
                                     List.of(gameState1, gameState2)
                             );
                             log.info("sent to general topic : topic/matchmaking");
-
                             var topic1 = GAME_TOPIC + gameId + SLASH + PLAYER_1_TOPIC;
                             var topic2 = GAME_TOPIC + gameId + SLASH + PLAYER_2_TOPIC;
                             sendGameStatesToTopics(topic1, gameState1, topic2, gameState2, player, opponent);
