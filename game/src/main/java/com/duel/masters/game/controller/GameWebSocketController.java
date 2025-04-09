@@ -6,6 +6,7 @@ import com.duel.masters.game.service.GameLogicService;
 import com.duel.masters.game.service.GameService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 
@@ -28,6 +29,10 @@ public class GameWebSocketController {
         log.info("doAction");
         log.info("gameStateDto: {}", gameStateDto);
         gameLogicService.doAction(gameStateDto);
+    }
+    @MessageExceptionHandler
+    public void handleError(Throwable ex) {
+        log.error("WebSocket error: {}", ex.getMessage(), ex);
     }
 
 }

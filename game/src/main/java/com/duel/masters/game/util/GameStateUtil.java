@@ -3,6 +3,8 @@ package com.duel.masters.game.util;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.player.service.PlayerDto;
 
+import java.util.ArrayList;
+
 public class GameStateUtil {
 
     public static GameStateDto getGameStateDto(String gameId, PlayerDto player, PlayerDto opponent, String playerTopic) {
@@ -19,6 +21,8 @@ public class GameStateUtil {
                 .opponentHand(opponent.getPlayerHand())
                 .playerDeck(player.getPlayerDeck())
                 .opponentDeck(opponent.getPlayerDeck())
+                .playerManaZone(player.getPlayerManaZone() == null ? new ArrayList<>() : player.getPlayerManaZone())
+                .opponentManaZone(opponent.getPlayerManaZone() == null ? new ArrayList<>() : opponent.getPlayerManaZone())
                 .currentTurnPlayerId(player.getId())
                 .playerTopic(playerTopic)
                 .build();

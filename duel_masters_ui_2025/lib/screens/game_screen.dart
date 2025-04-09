@@ -279,6 +279,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               (data['deck'] as List).map((cardData) {
                 return CardModel(
                   id: cardData['id'],
+                  power: cardData['power'],
                   gameCardId: cardData['gameCardId'],
                   name: cardData['name'] ?? "Unknown",
                   type: cardData['type'] ?? "UNKNOWN",
@@ -295,6 +296,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               (data['shields'] as List).map((cardData) {
                 return CardModel(
                   id: cardData['id'],
+                  power: cardData['power'],
                   gameCardId: cardData['gameCardId'],
                   name: cardData['name'] ?? "Unknown",
                   type: cardData['type'] ?? "UNKNOWN",
@@ -311,6 +313,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               (data['hand'] as List).map((cardData) {
                 return CardModel(
                   id: cardData['id'],
+                  power: cardData['power'],
                   gameCardId: cardData['gameCardId'],
                   name: cardData['name'] ?? "Unknown",
                   type: cardData['type'] ?? "UNKNOWN",
@@ -376,6 +379,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return battleZoneCards.map((cardModel) {
       return CardModel(
         id: cardModel.id,
+        power: cardModel.power,
         gameCardId: cardModel.gameCardId,
         name: cardModel.name,
         type: cardModel.type,
@@ -386,7 +390,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         ability: cardModel.ability,
         specialAbility: cardModel.specialAbility,
         isTapped: cardModel.isTapped,
-        instanceId: cardModel.instanceId,
       );
     }).toList();
   }
@@ -395,6 +398,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return hand.map((cardModel) {
       return CardModel(
         id: cardModel.id,
+        power: cardModel.power,
         gameCardId: cardModel.gameCardId,
         name: cardModel.name,
         type: cardModel.type,
@@ -405,7 +409,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         ability: cardModel.ability,
         specialAbility: cardModel.specialAbility,
         isTapped: cardModel.isTapped,
-        instanceId: cardModel.instanceId,
       );
     }).toList();
   }
@@ -414,6 +417,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return shields.map((cardModel) {
       return CardModel(
         id: cardModel.id,
+        power: cardModel.power,
         gameCardId: cardModel.gameCardId,
         name: cardModel.name,
         type: cardModel.type,
@@ -424,7 +428,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         ability: cardModel.ability,
         specialAbility: cardModel.specialAbility,
         isTapped: cardModel.isTapped,
-        instanceId: cardModel.instanceId,
       );
     }).toList();
   }
@@ -471,27 +474,23 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       "opponentShields": opponentShields.map((c) => c.toJson()).toList(),
       "opponentDeck": opponentDeck.map((c) => c.toJson()).toList(),
     };
-    print("Sending to backend with gameCardId: ${card.gameCardId}");
-    print("Sending to backend with gameId: ${currentGameId}");
-    print("Sending to backend with playerTopic: ${myPlayerTopic}");
-    print("Sending to backend with playerHand: ${hand.map((c) => c.toJson()).toList()}");
-    print("Sending to backend with playerManaZone: ${manaZoneCards.map((c) => c.toJson()).toList()}");
-    print("Sending to backend with playerShields: ${shields.map((c) => c.toJson()).toList}");
-
-    stompClient.send(
-      destination: '/duel-masters/game/action',
-      body: jsonEncode(gameStateDto),
-    );
+    print("Sending to backend with gameStateDto: ${gameStateDto}");
 
 
+    if (stompClient.connected) {
+      stompClient.send(
+        destination: '/duel-masters/game/action',
+        body: jsonEncode(gameStateDto),
+      );
 
-    setState(() {
-      hasPlayedManaThisTurn = true;
-    });
+      setState(() {
+        hasPlayedManaThisTurn = true;
+      });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("${card.name} sent to mana zone!")),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${card.name} sent to mana zone!")),
+      );
+    }
   }
 
 
@@ -964,8 +963,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           cards.map((card) {
             final isGlowTarget = isTargetZone;
             bool isRedGlow =
-                brokenShieldCard != null &&
-                card.instanceId == brokenShieldCard!.instanceId;
+                brokenShieldCard != null ;
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 4),
               child: MouseRegion(

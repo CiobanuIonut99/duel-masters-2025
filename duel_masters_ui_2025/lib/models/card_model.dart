@@ -9,15 +9,16 @@ class CardModel {
   final String race;
   final int manaCost;
   final int manaNumber;
+  final int power;
   final String ability;
   final String specialAbility;
   bool isTapped;
-  String instanceId;
 
 
 
   CardModel({
     required this.id,
+    required this.power,
     required this.gameCardId,
     required this.name,
     required this.type,
@@ -27,9 +28,8 @@ class CardModel {
     required this.manaNumber,
     required this.ability,
     required this.specialAbility,
-    this.isTapped = false,
-    String? instanceId,
-  }) : instanceId = instanceId ?? Uuid().v4(); // 👍 now it works
+    this.isTapped = false
+  }); // 👍 now it works
   void toggleTap() {
     isTapped = !isTapped;
   }
@@ -46,13 +46,13 @@ class CardModel {
         'manaNumber': manaNumber,
         'ability': ability,
         'specialAbility': specialAbility,
-        'isTapped': isTapped,
-        'instanceId': instanceId,
+        'isTapped': isTapped
       };
 
   factory CardModel.fromJson(Map<String, dynamic> json) {
     return CardModel(
       id: json['id'],
+      power: json['power'],
       gameCardId: json['gameCardId'],
       name: json['name'],
       type: json['type'],
@@ -63,7 +63,6 @@ class CardModel {
       ability: json['ability'],
       specialAbility: json['specialAbility'],
       isTapped: json['isTapped'] ?? false,
-      instanceId: json['instanceId'],
     );
   }
 
