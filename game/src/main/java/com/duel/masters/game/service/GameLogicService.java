@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.duel.masters.game.constant.Constant.*;
-import static com.duel.masters.game.util.GameStateUtil.getGameStateDto;
+import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoOpponent;
+import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoPlayer;
 import static com.duel.masters.game.util.ObjectMapperUtil.convertToGameStateDto;
 
 @AllArgsConstructor
@@ -49,8 +50,8 @@ public class GameLogicService {
 
         var topic1 = GAME_TOPIC + gameState.getGameId() + SLASH + PLAYER_1_TOPIC;
         var topic2 = GAME_TOPIC + gameState.getGameId() + SLASH + PLAYER_2_TOPIC;
-        var gameState1 = getGameStateDto(gameState, PLAYER_1_TOPIC);
-        var gameState2 = getGameStateDto(gameState, PLAYER_2_TOPIC);
+        var gameState1 = getGameStateDtoPlayer(gameState, PLAYER_1_TOPIC);
+        var gameState2 = getGameStateDtoOpponent(gameState, PLAYER_2_TOPIC);
 
         log.info("SENDING GAME STATE 1 : {}", gameState1);
         log.info("SENDING GAME STATE 2 : {}", gameState2);

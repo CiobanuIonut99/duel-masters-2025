@@ -35,18 +35,29 @@ public class GameStateDto {
     private Long currentTurnPlayerId;
 
     private String action;
-
+    @Builder.Default
     private List<CardDto> playerBattleZone = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> playerHand = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> playerShields = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> playerManaZone = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> playerGraveyard = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> playerDeck = new CopyOnWriteArrayList<>();
+    @Builder.Default
 
     private List<CardDto> opponentHand = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> opponentShields = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> opponentBattleZone = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> opponentManaZone = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> opponentGraveyard = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> opponentDeck = new CopyOnWriteArrayList<>();
 }

@@ -3,8 +3,6 @@ package com.duel.masters.game.util;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.player.service.PlayerDto;
 
-import java.util.ArrayList;
-
 public class GameStateUtil {
 
     public static GameStateDto getGameStateDto(String gameId, PlayerDto player, PlayerDto opponent, String playerTopic) {
@@ -28,7 +26,7 @@ public class GameStateUtil {
                 .build();
     }
 
-    public static GameStateDto getGameStateDto(GameStateDto gameStateDto, String topic) {
+    public static GameStateDto getGameStateDtoPlayer(GameStateDto gameStateDto, String topic) {
         return GameStateDto
                 .builder()
                 .gameId(gameStateDto.getGameId())
@@ -43,8 +41,33 @@ public class GameStateUtil {
                 .playerDeck(gameStateDto.getPlayerDeck())
                 .opponentDeck(gameStateDto.getOpponentDeck())
                 .currentTurnPlayerId(gameStateDto.getPlayerId())
+                .playerManaZone(gameStateDto.getPlayerManaZone())
+                .opponentManaZone(gameStateDto.getOpponentManaZone())
+                .playerTopic(topic)
+                .build();
+
+
+    }
+
+    public static GameStateDto getGameStateDtoOpponent(GameStateDto gameStateDto, String topic) {
+        return GameStateDto
+                .builder()
+                .gameId(gameStateDto.getGameId())
+                .playerId(gameStateDto.getOpponentId())
+                .opponentId(gameStateDto.getPlayerId())
+                .playerName(gameStateDto.getOpponentName())
+                .opponentName(gameStateDto.getPlayerName())
+                .playerShields(gameStateDto.getOpponentShields())
+                .opponentShields(gameStateDto.getPlayerShields())
+                .playerHand(gameStateDto.getOpponentHand())
+                .opponentHand(gameStateDto.getPlayerHand())
+                .playerDeck(gameStateDto.getOpponentDeck())
+                .opponentDeck(gameStateDto.getPlayerDeck())
+                .currentTurnPlayerId(gameStateDto.getPlayerId())
+                .playerManaZone(gameStateDto.getOpponentManaZone())
+                .opponentManaZone(gameStateDto.getPlayerManaZone())
                 .playerTopic(topic)
                 .build();
     }
-}
 
+}

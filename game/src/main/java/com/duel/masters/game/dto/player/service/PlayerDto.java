@@ -20,12 +20,17 @@ public class PlayerDto {
     private String country;
     private int victories;
     private int losses;
-
+    @Builder.Default
     private List<CardDto> playerHand = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> playerShields = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> playerBattleZone = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> playerManaZone = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> playerGraveyard = new CopyOnWriteArrayList<>();
+    @Builder.Default
     private List<CardDto> playerDeck = new CopyOnWriteArrayList<>();
 
 }
