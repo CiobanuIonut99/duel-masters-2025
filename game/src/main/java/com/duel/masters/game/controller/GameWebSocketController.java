@@ -11,6 +11,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 
+import java.util.Map;
+
 @Controller
 @AllArgsConstructor
 @Slf4j
@@ -25,10 +27,10 @@ public class GameWebSocketController {
     }
 
     @MessageMapping("/game/action")
-    public void doAction(@Payload  GameStateDto gameStateDto) {
+    public void doAction(@Payload Map<String, Object> payload) {
         log.info("doAction");
-        log.info("gameStateDto: {}", gameStateDto);
-        gameLogicService.doAction(gameStateDto);
+        log.info("gameStateDto: {}", payload);
+        gameLogicService.doAction(payload);
     }
     @MessageExceptionHandler
     public void handleError(Throwable ex) {

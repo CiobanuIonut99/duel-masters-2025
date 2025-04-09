@@ -2,19 +2,20 @@ package com.duel.masters.game.service;
 
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
-import com.duel.masters.game.dto.player.service.PlayerDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.duel.masters.game.constant.Constant.*;
-import static com.duel.masters.game.constant.Constant.PLAYER_2_TOPIC;
 import static com.duel.masters.game.util.GameStateUtil.getGameStateDto;
+import static com.duel.masters.game.util.ObjectMapperUtil.convertToGameStateDto;
 
 @AllArgsConstructor
 @Service
@@ -23,7 +24,8 @@ public class GameLogicService {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public void doAction(GameStateDto gameStateDto) {
+    public void doAction(Map<String, Object> payload) {
+        final var gameStateDto = convertToGameStateDto(payload);
         switch (gameStateDto.getAction()) {
             case "SEND_CARD_TO_MANA" -> {
                 sendCardToMana(gameStateDto.getPlayerHand(),

@@ -135,6 +135,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           "playerShields": shields.map((card) => card.toJson()).toList(),
           "playerDeck": deck.map((card) => card.toJson()).toList(),
         }),
+
+        headers: {'content-type': 'application/json'},
       );
 
       print("🔄 Searching for match as $randomUsername ($randomId)");
