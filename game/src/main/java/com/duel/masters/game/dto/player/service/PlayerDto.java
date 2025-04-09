@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,11 +21,11 @@ public class PlayerDto {
     private int victories;
     private int losses;
 
-    private List<CardDto> playerHand;
-    private List<CardDto> playerShields;
-    private List<CardDto> playerBattleZone;
-    private List<CardDto> playerManaZone;
-    private List<CardDto> playerGraveyard;
-    private List<CardDto> playerDeck;
+    private List<CardDto> playerHand = new CopyOnWriteArrayList<>();
+    private List<CardDto> playerShields = new CopyOnWriteArrayList<>();
+    private List<CardDto> playerBattleZone = new CopyOnWriteArrayList<>();
+    private List<CardDto> playerManaZone = new CopyOnWriteArrayList<>();
+    private List<CardDto> playerGraveyard = new CopyOnWriteArrayList<>();
+    private List<CardDto> playerDeck = new CopyOnWriteArrayList<>();
 
 }

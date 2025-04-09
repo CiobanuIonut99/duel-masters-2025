@@ -2,7 +2,6 @@ package com.duel.masters.game.service;
 
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -10,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static com.duel.masters.game.constant.Constant.*;
 import static com.duel.masters.game.util.GameStateUtil.getGameStateDto;
@@ -37,12 +34,15 @@ public class GameLogicService {
     }
 
     private void sendCardToMana(List<CardDto> hand, String triggeredGameCardId, List<CardDto> manaZone) {
+        CardDto toMoveAndRemove = null;
         for (CardDto cardDto : hand) {
             if (cardDto.getGameCardId().equals(triggeredGameCardId)) {
-                manaZone.add(cardDto);
-                hand.remove(cardDto);
+                toMoveAndRemove = cardDto;
+                break;
             }
         }
+        hand.remove(toMoveAndRemove);
+        manaZone.add(toMoveAndRemove);
     }
 
     private void sendGameStatesToTopics(GameStateDto gameState) {
@@ -51,14 +51,13 @@ public class GameLogicService {
         var topic2 = GAME_TOPIC + gameState.getGameId() + SLASH + PLAYER_2_TOPIC;
         var gameState1 = getGameStateDto(gameState, PLAYER_1_TOPIC);
         var gameState2 = getGameStateDto(gameState, PLAYER_2_TOPIC);
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                simpMessagingTemplate.convertAndSend(topic1, gameState1);
-                simpMessagingTemplate.convertAndSend(topic2, gameState2);
-                log.info("✅ Sent to topic1: {}", topic1);
-                log.info("✅ Sent to topic2: {}", topic2);
-            }
-        }, 2000);
+
+        log.info("SENDING GAME STATE 1 : {}", gameState1);
+        log.info("SENDING GAME STATE 2 : {}", gameState2);
+        simpMessagingTemplate.convertAndSend(topic1, gameState1);
+        simpMessagingTemplate.convertAndSend(topic2, gameState2);
+        log.info("✅ Sent to topic1: {}", topic1);
+        log.info("✅ Sent to topic2: {}", topic2);
     }
+
 }

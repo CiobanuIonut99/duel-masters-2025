@@ -21,8 +21,8 @@ public class GameStateUtil {
                 .opponentHand(opponent.getPlayerHand())
                 .playerDeck(player.getPlayerDeck())
                 .opponentDeck(opponent.getPlayerDeck())
-                .playerManaZone(player.getPlayerManaZone() == null ? new ArrayList<>() : player.getPlayerManaZone())
-                .opponentManaZone(opponent.getPlayerManaZone() == null ? new ArrayList<>() : opponent.getPlayerManaZone())
+                .playerManaZone(player.getPlayerManaZone())
+                .opponentManaZone(opponent.getPlayerManaZone())
                 .currentTurnPlayerId(player.getId())
                 .playerTopic(playerTopic)
                 .build();

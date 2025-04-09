@@ -47,6 +47,7 @@ public class InitialStateService {
 
 
         log.info("Start getInitialState in GameService");
+        log.info("Deck: {}", deckDto);
         deckDto
                 .getCards()
                 .forEach((card) -> {log.info(card.getGameCardId());});

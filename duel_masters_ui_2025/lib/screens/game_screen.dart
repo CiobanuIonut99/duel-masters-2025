@@ -135,7 +135,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           "playerShields": shields.map((card) => card.toJson()).toList(),
           "playerDeck": deck.map((card) => card.toJson()).toList(),
         }),
-
         headers: {'content-type': 'application/json'},
       );
 
@@ -171,8 +170,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 print("📡 Subscribed to: /topic/game/$gameId/$playerTopic");
                 final update = jsonDecode(frame.body!);
                 currentGameId = update['gameId'];
+                print("gameId : $gameId OR $currentGameId" );
                 myPlayerTopic = update['playerTopic'];
-
 
                 // Parse your player zones
                 final updatedPlayerHand =
@@ -469,12 +468,27 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       "action": "SEND_CARD_TO_MANA",
       "triggeredGameCardId": card.gameCardId,
       "playerHand": hand.map((c) => c.toJson()).toList(),
-      "playerManaZone": manaZoneCards.map((c) => c.toJson()).toList(),
-      "playerShields": shields.map((c) => c.toJson()).toList(),
-      "playerDeck": deck.map((c) => c.toJson()).toList(),
-      "opponentHand": opponentHandCards.map((c) => c.toJson()).toList(),
-      "opponentShields": opponentShields.map((c) => c.toJson()).toList(),
-      "opponentDeck": opponentDeck.map((c) => c.toJson()).toList(),
+      // "playerHand": hand.map((c) => c.toJson()).toList(),
+      "playerManaZone": [],
+      // "playerManaZone": manaZoneCards.map((c) => c.toJson()).toList(),
+      "playerShields": [],
+      // "playerShields": shields.map((c) => c.toJson()).toList(),
+      "playerDeck": [],
+      // "playerDeck": deck.map((c) => c.toJson()).toList(),
+      "playerBattleZone": [],
+      // "playerBattleZone": battleZoneCards.map((c) => c.toJson()).toList(),
+      "playerGraveyard": [],
+      // "playerGraveyard": graveyard.map((c) => c.toJson()).toList(),
+      "opponentHand": [],
+      // "opponentHand": opponentHandCards.map((c) => c.toJson()).toList(),
+      "opponentShields": [],
+      // "opponentShields": opponentShields.map((c) => c.toJson()).toList(),
+      "opponentDeck": [],
+      // "opponentDeck": opponentDeck.map((c) => c.toJson()).toList(),
+      "opponentBattleZone": [],
+      "opponentGraveyard": [],
+      "opponentManaZone": [],
+
     };
     print("Sending to backend with gameStateDto: ${gameStateDto}");
 
