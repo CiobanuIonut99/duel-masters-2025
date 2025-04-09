@@ -428,7 +428,43 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void sendToMana(CardModel card) {
+    if (hasPlayedManaThisTurn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("You can only send one card to mana per turn.")),
+      );
+      return;
+    }
+
+    final gameStateDto = {
+      "gameId": "match-$myPlayerId", // Use actual gameId if stored
+      "playerId": myPlayerId,
+      "playerTopic": "player_$myPlayerId", // Must match backend expectations
+      "action": "SEND_CARD_TO_MANA",
+      "triggeredGameCardId": card.instanceId,
+      "playerHand": hand.map((c) => c.toJson()).toList(),
+      "playerManaZone": manaZoneCards.map((c) => c.toJson()).toList(),
+      "playerShields": shields.map((c) => c.toJson()).toList(),
+      "playerDeck": deck.map((c) => c.toJson()).toList(),
+      "opponentHand": opponentHandCards.map((c) => c.toJson()).toList(),
+      "opponentShields": opponentShields.map((c) => c.toJson()).toList(),
+      "opponentDeck": opponentDeck.map((c) => c.toJson()).toList(),
+    };
+
+    stompClient.send(
+      destination: '/duel-masters/game/action',
+      body: jsonEncode(gameStateDto),
+    );
+
+    setState(() {
+      hasPlayedManaThisTurn = true;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("${card.name} sent to mana zone!")),
+    );
   }
+
+
 
   void sendToGraveyard(CardModel card) {
     setState(() {

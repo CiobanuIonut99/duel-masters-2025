@@ -26,6 +26,8 @@ public class GameWebSocketController {
 
     @MessageMapping("/action")
     public void doAction(GameStateDto gameStateDto) {
+        log.info("doAction");
+        log.info("gameStateDto: {}", gameStateDto);
         gameLogicService.doAction(gameStateDto);
     }
 }
