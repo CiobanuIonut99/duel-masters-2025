@@ -65,7 +65,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     fxGame = FxGame();
     stompClient = StompClient(
       config: StompConfig(
-        url: 'wss://fc0e-5-12-128-179.ngrok-free.app/duel-masters-ws',
+        url: 'wss://10eb-5-12-128-179.ngrok-free.app/duel-masters-ws',
         // Your backend websocket endpoint
         onConnect: onStompConnect,
         onWebSocketError: (dynamic error) => print("WebSocket error: $error"),
@@ -124,7 +124,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       final randomId = myPlayerId;
       final randomUsername = "player_$randomId";
       stompClient.send(
-        destination: '/duel-masters/match',
+        destination: '/duel-masters/game',
         body: jsonEncode({
           "id": randomId,
           "username": randomUsername,
@@ -237,7 +237,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     log("Fetching game data from the backend...");
 
     final response = await http.get(
-      Uri.parse('https://fc0e-5-12-128-179.ngrok-free.app/api/games'),
+      Uri.parse('https://10eb-5-12-128-179.ngrok-free.app/api/games'),
       headers: {
         'ngrok-skip-browser-warning': 'true', // ✅ Required by ngrok
         'Content-Type': 'application/json',
@@ -428,17 +428,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void sendToMana(CardModel card) {
-    if (hasPlayedManaThisTurn) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("You can only play 1 mana per turn.")),
-      );
-      return;
-    }
-    setState(() {
-      manaZoneCards.add(card);
-      hand.remove(card);
-      hasPlayedManaThisTurn = true;
-    });
   }
 
   void sendToGraveyard(CardModel card) {

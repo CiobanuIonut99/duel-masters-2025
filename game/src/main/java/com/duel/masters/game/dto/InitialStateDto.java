@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Data
-public class DeckCardDto {
+public class InitialStateDto {
 
     private List<CardDto> deck;
     private List<CardDto> shields;

@@ -1,69 +1,72 @@
 package com.duel.masters.game.service;
 
-import com.duel.masters.game.dto.DeckCardDto;
-import com.duel.masters.game.dto.card.service.CardDto;
-import com.duel.masters.game.dto.deck.service.DeckDto;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.dto.player.service.PlayerDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
+
+import static com.duel.masters.game.constant.Constant.*;
+import static com.duel.masters.game.util.GameStateUtil.getGameStateDto;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class GameService {
 
-    private final RestClient.Builder restClientBuilder;
-    private final ObjectMapper objectMapper;
+    private final MatchmakingService matchmakingService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public DeckDto getDeckCard() {
-        log.info("Start getDeckCard in GameService");
+    public void startGame(PlayerDto playerDto) {
+        log.info("Matching player ..." + playerDto.getUsername());
+        log.info("Player shield number : {} ", playerDto.getPlayerShields().size());
+        log.info("Player hand number : {} ", playerDto.getPlayerHand().size());
+        log.info("Player deck number : {} ", playerDto.getPlayerDeck().size());
 
-        try {
-            final var result = restClientBuilder
-                    .baseUrl("http://deck-service")
-                    .build()
-                    .get()
-                    .uri("/api/decks/random")
-                    .retrieve()
-                    .toEntity(String.class);
+        matchmakingService
+                .tryMatchPlayer(playerDto)
+                .ifPresent(
+                        playerList -> {
+                            String gameId = UUID.randomUUID().toString();
+                            var player = playerList.get(0);
+                            var opponent = playerList.get(1);
 
-            return objectMapper.readValue(result.getBody(), DeckDto.class);
+                            var gameState1 = getGameStateDto(gameId, player, opponent, PLAYER_1_TOPIC);
+                            var gameState2 = getGameStateDto(gameId, opponent, player, PLAYER_2_TOPIC);
 
-        } catch (Exception e) {
-            log.error("Failed to fetch deck from deck-service: {}", e.getMessage(), e);
-            throw new RuntimeException("Deck service unavailable", e);
-        }
+                            simpMessagingTemplate.convertAndSend(
+                                    MATCHMAKING_TOPIC,
+                                    List.of(gameState1, gameState2)
+                            );
+                            log.info("sent to general topic : topic/matchmaking");
+
+                            var topic1 = GAME_TOPIC + gameId + SLASH + PLAYER_1_TOPIC;
+                            var topic2 = GAME_TOPIC + gameId + SLASH + PLAYER_2_TOPIC;
+                            sendGameStatesToTopics(topic1, gameState1, topic2, gameState2, player, opponent);
+                        });
     }
 
-    public DeckCardDto getDeckCardDto() {
-        var deckDto = getDeckCard();
-        var deck = deckDto.getCards();
-        var shields = get5Cards(deck);
-        var hand = get5Cards(deck);
-
-        return DeckCardDto.builder()
-                .deck(deck)
-                .shields(shields)
-                .hand(hand)
-                .build();
+    private void sendGameStatesToTopics(String topic1,
+                                        GameStateDto gameState1,
+                                        String topic2,
+                                        GameStateDto gameState2,
+                                        PlayerDto player,
+                                        PlayerDto opponent) {
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                simpMessagingTemplate.convertAndSend(topic1, gameState1);
+                simpMessagingTemplate.convertAndSend(topic2, gameState2);
+                log.info("✅ Sent to topic1: {}", topic1);
+                log.info("✅ Sent to topic2: {}", topic2);
+                log.info("🎮 Match players {} vs {}", player.getUsername(), opponent.getUsername());
+            }
+        }, 2000);
     }
-
-    private List<CardDto> get5Cards(List<CardDto> deck) {
-        List<CardDto> cards = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            var card = deck.get(i);
-            cards.add(card);
-            deck.remove(card);
-        }
-        return cards;
-    }
-
-
 }

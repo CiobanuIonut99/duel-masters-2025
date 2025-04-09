@@ -1,7 +1,7 @@
 package com.duel.masters.game.controller;
 
-import com.duel.masters.game.dto.DeckCardDto;
-import com.duel.masters.game.service.GameService;
+import com.duel.masters.game.dto.InitialStateDto;
+import com.duel.masters.game.service.InitialStateService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/games")
 @AllArgsConstructor
 public class GameController {
-    private final GameService gameService;
+    private final InitialStateService initialStateService;
 
     @GetMapping
-    public DeckCardDto getDeckCard() {
-        return gameService.getDeckCardDto();
+    public InitialStateDto getInitialState() {
+        return initialStateService.getInitialState();
     }
 }
