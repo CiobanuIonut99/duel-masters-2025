@@ -460,6 +460,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       "opponentShields": opponentShields.map((c) => c.toJson()).toList(),
       "opponentDeck": opponentDeck.map((c) => c.toJson()).toList(),
     };
+    print("Sending to backend with gameCardId: ${card.gameCardId}");
+    print("Sending to backend with gameId: ${currentGameId}");
+    print("Sending to backend with playerTopic: ${myPlayerTopic}");
 
     stompClient.send(
       destination: '/duel-masters/game/action',
