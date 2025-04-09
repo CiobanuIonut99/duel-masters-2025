@@ -2,7 +2,7 @@ import 'package:uuid/uuid.dart';
 
 class CardModel {
   final int id;
-  final int gameCardId;
+  final String gameCardId;
   final String name;
   final String type;
   final String civilization;
