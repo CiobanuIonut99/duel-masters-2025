@@ -14,53 +14,69 @@ import '../animations/fx_game.dart';
 import '../models/card_model.dart';
 
 class GameScreen extends StatefulWidget {
+  const GameScreen({super.key});
+
   @override
   State<GameScreen> createState() => _GameScreenState();
 }
 
 class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
-  late StompClient stompClient;
-  bool hasJoinedMatch = false;
+  // Current player overall cards
+  List<CardModel> playerHand = [];
+  List<CardModel> playerDeck = [];
+  List<CardModel> playerShields = [];
+  List<CardModel> playerManaZone = [];
+  List<CardModel> playerGraveyard = [];
+  List<CardModel> playerBattleZone = [];
+
+  // Opponent player overall cards
+  List<CardModel> opponentHand = [];
+  List<CardModel> opponentDeck = [];
+  List<CardModel> opponentShields = [];
+  List<CardModel> opponentManaZone = [];
+  List<CardModel> opponentGraveyard = [];
+  List<CardModel> opponentBattleZone = [];
+
+  int deckSize = 0;
+
+  final currentPlayerId = DateTime.now().millisecondsSinceEpoch % 1000000;
+
   String? currentGameId;
   String? myPlayerTopic;
 
+  bool hasJoinedMatch = false;
+
+  CardModel? brokenShieldCard;
   CardModel? redGlowShield;
+  CardModel? selectedAttacker;
+  CardModel? hoveredCard;
+
   late FxGame fxGame;
+
   late AnimationController shieldMoveController;
   late Animation<Offset> shieldOffsetAnimation;
   late Animation<double> trembleAnimation;
   late Animation<double> scaleAnimation;
+
   final GlobalKey _shieldKey = GlobalKey();
   final GlobalKey _opponentHandKey = GlobalKey();
+
   Offset? opponentHandTarget;
   Offset? shieldOriginGlobal;
   Offset centerScreen = Offset.zero;
 
   bool isSelectingAttackTarget = false;
-  CardModel? selectedAttacker;
   bool animateShieldToHand = false;
   bool isTapped = false;
 
-  CardModel? brokenShieldCard;
-  double hoverScale = 1.0; // Scale factor for hover effect
-  CardModel? hoveredCard;
-  List<CardModel> opponentBattleZone = [];
-  List<CardModel> opponentHandCards = [];
-  List<CardModel> opponentShields = [];
-  List<CardModel> opponentDeck = [];
-  List<CardModel> opponentManaZone = [];
-  List<CardModel> hand =
-      []; // This will be updated with data fetched from the backend
-  List<CardModel> shields =
-      []; // This will be updated with data fetched from the backend
-  List<CardModel> deck =
-      []; // This will be updated with data fetched from the backend
+  double hoverScale = 1.0;
 
-  int deckSize = 0; // This will hold the deck size fetched from the backend
   StompUnsubscribe? sub1;
   StompUnsubscribe? sub2;
-  final myPlayerId = DateTime.now().millisecondsSinceEpoch % 1000000;
 
+  late StompClient stompClient;
+
+  // Initialize entire state
   @override
   void initState() {
     super.initState();
@@ -69,7 +85,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     stompClient = StompClient(
       config: StompConfig(
         url: 'wss://10eb-5-12-128-179.ngrok-free.app/duel-masters-ws',
-        // Your backend websocket endpoint
         onConnect: onStompConnect,
         onWebSocketError: (dynamic error) => print("WebSocket error: $error"),
       ),
@@ -113,164 +128,25 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         setState(() {
           animateShieldToHand = false;
           opponentShields.remove(redGlowShield);
-          opponentHandCards.add(brokenShieldCard!);
+          opponentHand.add(brokenShieldCard!);
           brokenShieldCard = null;
           redGlowShield = null;
         });
       }
     });
-
-  }
-
-  void _searchForMatch() {
-    if (stompClient.connected) {
-      final randomId = myPlayerId;
-      final randomUsername = "player_$randomId";
-      stompClient.send(
-        destination: '/duel-masters/game/start',
-        body: jsonEncode({
-          "id": randomId,
-          "username": randomUsername,
-          "playerHand": hand.map((card) => card.toJson()).toList(),
-          "playerShields": shields.map((card) => card.toJson()).toList(),
-          "playerDeck": deck.map((card) => card.toJson()).toList(),
-        }),
-        headers: {'content-type': 'application/json'},
-      );
-
-      print("🔄 Searching for match as $randomUsername ($randomId)");
-      log("🔄 Searching for match as $randomUsername ($randomId)");
-
-      setState(() {
-        hasJoinedMatch = true;
-      });
-    }
-  }
-
-  void onStompConnect(StompFrame frame) {
-    print("✅ Connected to WebSocket");
-
-    stompClient.subscribe(
-      destination: '/topic/matchmaking',
-      callback: (frame) {
-        final List<dynamic> gameStates = jsonDecode(frame.body!);
-
-        for (var state in gameStates) {
-          if (state['playerId'] == myPlayerId) {
-            final gameId = state['gameId'];
-            final playerTopic = state['playerTopic'];
-
-            print(
-              "🎮 Matched! Subscribing to: /topic/game/$gameId/$playerTopic",
-            );
-
-            stompClient.subscribe(
-              destination: '/topic/game/$gameId/$playerTopic',
-              callback: (frame) {
-                print("📡 Subscribed to: /topic/game/$gameId/$playerTopic");
-                final update = jsonDecode(frame.body!);
-                currentGameId = update['gameId'];
-                print("gameId : $gameId OR $currentGameId" );
-                myPlayerTopic = update['playerTopic'];
-
-                // Parse your player zones
-                final updatedPlayerHand =
-                    (update['playerHand'] as List)
-                        .map((c) => CardModel.fromJson(c))
-                        .toList();
-                final updatedPlayerShields =
-                    (update['playerShields'] as List)
-                        .map((c) => CardModel.fromJson(c))
-                        .toList();
-                final updatedPlayerDeck =
-                    (update['playerDeck'] as List)
-                        .map((c) => CardModel.fromJson(c))
-                        .toList();
-                final updatedPlayerManaZone =
-                    (update['playerManaZone'] as List)
-                        .map((c) => CardModel.fromJson(c))
-                        .toList();
-
-                // Parse opponent zones (check for null fallback)
-                final updatedOpponentHand =
-                    (update['opponentHand'] as List?)
-                        ?.map((c) => CardModel.fromJson(c))
-                        .toList() ??
-                    [];
-                print("UPDATED OPPONENT HAND");
-                print(updatedOpponentHand);
-                final updatedOpponentShields =
-                    (update['opponentShields'] as List?)
-                        ?.map((c) => CardModel.fromJson(c))
-                        .toList() ??
-                    [];
-                final updatetOpponentDeck =
-                    (update['opponentDeck'] as List?)
-                        ?.map((c) => CardModel.fromJson(c))
-                        .toList() ??
-                    [];
-                final updatedOpponentManaZone =
-                    (update['opponentManaZone'] as List?)
-                        ?.map((c) => CardModel.fromJson(c))
-                        .toList() ??
-                    [];
-
-                setState(() {
-                  // Your zones
-                  hand = updatedPlayerHand;
-                  shields = updatedPlayerShields;
-                  deck = updatedPlayerDeck;
-                  deckSize = updatedPlayerDeck.length;
-                  manaZoneCards = updatedPlayerManaZone;
-
-                  // Opponent zones
-                  opponentHandCards = updatedOpponentHand;
-                  opponentShields = updatedOpponentShields;
-                  opponentDeck = updatetOpponentDeck;
-                  opponentManaZone = updatedOpponentManaZone;
-                });
-              },
-            );
-
-            setState(() {
-              hasJoinedMatch = true;
-            });
-
-            break;
-          }
-        }
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    shieldMoveController.dispose();
-    stompClient.deactivate();
-    super.dispose();
   }
 
   Future<void> fetchGameData() async {
     print("Fetching game data from the backend...");
-    log("Fetching game data from the backend...");
 
     final response = await http.get(
       Uri.parse('https://10eb-5-12-128-179.ngrok-free.app/api/games'),
-      headers: {
-        'ngrok-skip-browser-warning': 'true', // ✅ Required by ngrok
-        'Content-Type': 'application/json',
-      },
     );
 
     if (response.statusCode == 200) {
       print("Data fetched successfully!");
-      log("Data fetched successfully!");
       try {
         final Map<String, dynamic> data = json.decode(response.body);
-
-        // Log the structure after decoding
-        print("Decoded response as Map: $data");
-        log("Decoded response as Map: $data");
 
         // If the response has 'deck', 'shields', and 'hand' as keys, proceed with mapping them
         if (data.containsKey('deck') &&
@@ -327,26 +203,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 );
               }).toList();
 
-          // Log all the fetched data
-          print(
-            "Fetched deck: ${fetchedDeck.map((card) => card.name).toList()}",
-          );
-          print(
-            "Fetched shields: ${fetchedShields.map((card) => card.name).toList()}",
-          );
-          print(
-            "Fetched hand: ${fetchedHand.map((card) => card.name).toList()}",
-          );
-
           setState(() {
-            shields = fetchedShields;
-            hand = fetchedHand;
-            deck = fetchedDeck;
-            deckSize = fetchedDeck.length; // Store the deck size
-
-            opponentShields = setOpShields();
-            opponentHandCards = setOpHand();
-            opponentBattleZone = setOpBattleZOne();
+            playerHand = fetchedHand;
+            playerDeck = fetchedDeck;
+            playerShields = fetchedShields;
+            deckSize = fetchedDeck.length;
           });
         } else {
           print(
@@ -370,14 +231,158 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
   }
 
-  List<CardModel> battleZoneCards = [];
-  List<CardModel> manaZoneCards = [];
-  List<CardModel> graveyard = [];
+  // Connect with backend WS throgh STOMP
+  void onStompConnect(StompFrame frame) {
+    print("✅ Connected to WebSocket");
+
+    stompClient.subscribe(
+      destination: '/topic/matchmaking',
+      callback: (frame) {
+        final List<dynamic> gameStates = jsonDecode(frame.body!);
+
+        for (var state in gameStates) {
+          if (state['playerId'] == currentPlayerId) {
+            final gameId = state['gameId'];
+            final playerTopic = state['playerTopic'];
+
+            print(
+              "🎮 Matched! Subscribing to: /topic/game/$gameId/$playerTopic",
+            );
+
+            stompClient.subscribe(
+              destination: '/topic/game/$gameId/$playerTopic',
+              callback: (frame) {
+                print("📡 Subscribed to: /topic/game/$gameId/$playerTopic");
+                final responseBody = jsonDecode(frame.body!);
+                currentGameId = responseBody['gameId'];
+                print("gameId : $gameId OR $currentGameId");
+                myPlayerTopic = responseBody['playerTopic'];
+
+                // Parse your player zones
+                final updatedPlayerHand =
+                    (responseBody['playerHand'] as List)
+                        .map((c) => CardModel.fromJson(c))
+                        .toList();
+                final updatedPlayerShields =
+                    (responseBody['playerShields'] as List)
+                        .map((c) => CardModel.fromJson(c))
+                        .toList();
+                final updatedPlayerDeck =
+                    (responseBody['playerDeck'] as List)
+                        .map((c) => CardModel.fromJson(c))
+                        .toList();
+                final updatedPlayerManaZone =
+                    (responseBody['playerManaZone'] as List)
+                        .map((c) => CardModel.fromJson(c))
+                        .toList();
+                final updatedPlayerBattleZone =
+                    (responseBody['playerBattleZone'] as List)
+                        .map((c) => CardModel.fromJson(c))
+                        .toList();
+                final updatedPlayerGraveyard =
+                    (responseBody['playerGraveyard'] as List)
+                        .map((c) => CardModel.fromJson(c))
+                        .toList();
+
+                final updatedOpponentHand =
+                    (responseBody['opponentHand'] as List?)
+                        ?.map((c) => CardModel.fromJson(c))
+                        .toList() ??
+                    [];
+                final updatedOpponentShields =
+                    (responseBody['opponentShields'] as List?)
+                        ?.map((c) => CardModel.fromJson(c))
+                        .toList() ??
+                    [];
+                final updatetOpponentDeck =
+                    (responseBody['opponentDeck'] as List?)
+                        ?.map((c) => CardModel.fromJson(c))
+                        .toList() ??
+                    [];
+                final updatedOpponentManaZone =
+                    (responseBody['opponentManaZone'] as List?)
+                        ?.map((c) => CardModel.fromJson(c))
+                        .toList() ??
+                    [];
+                final updatedOpponentBattleZone =
+                    (responseBody['opponentBattleZone'] as List?)
+                        ?.map((c) => CardModel.fromJson(c))
+                        .toList() ??
+                    [];
+                final updatedOpponentGraveyard =
+                    (responseBody['opponentGraveyard'] as List?)
+                        ?.map((c) => CardModel.fromJson(c))
+                        .toList() ??
+                    [];
+
+                setState(() {
+                  // Your zones
+                  deckSize = updatedPlayerDeck.length;
+                  playerHand = updatedPlayerHand;
+                  playerShields = updatedPlayerShields;
+                  playerDeck = updatedPlayerDeck;
+                  playerManaZone = updatedPlayerManaZone;
+                  playerGraveyard = updatedPlayerGraveyard;
+                  playerBattleZone = updatedPlayerBattleZone;
+
+                  // Opponent zones
+                  opponentHand = updatedOpponentHand;
+                  opponentShields = updatedOpponentShields;
+                  opponentDeck = updatetOpponentDeck;
+                  opponentManaZone = updatedOpponentManaZone;
+                  opponentGraveyard = updatedOpponentGraveyard;
+                  opponentBattleZone = updatedOpponentBattleZone;
+                });
+              },
+            );
+
+            setState(() {
+              hasJoinedMatch = true;
+            });
+
+            break;
+          }
+        }
+      },
+    );
+  }
+
+  void _searchForMatch() {
+    if (stompClient.connected) {
+      final randomId = currentPlayerId;
+      final randomUsername = "player_$randomId";
+      stompClient.send(
+        destination: '/duel-masters/game/start',
+        body: jsonEncode({
+          "id": randomId,
+          "username": randomUsername,
+          "playerHand": playerHand.map((card) => card.toJson()).toList(),
+          "playerShields": playerShields.map((card) => card.toJson()).toList(),
+          "playerDeck": playerDeck.map((card) => card.toJson()).toList(),
+        }),
+        headers: {'content-type': 'application/json'},
+      );
+
+      print("🔄 Searching for match as $randomUsername ($randomId)");
+      log("🔄 Searching for match as $randomUsername ($randomId)");
+
+      setState(() {
+        hasJoinedMatch = true;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    shieldMoveController.dispose();
+    stompClient.deactivate();
+    super.dispose();
+  }
 
   bool hasPlayedManaThisTurn = false;
 
   List<CardModel> setOpBattleZOne() {
-    return battleZoneCards.map((cardModel) {
+    return playerBattleZone.map((cardModel) {
       return CardModel(
         id: cardModel.id,
         power: cardModel.power,
@@ -396,7 +401,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   List<CardModel> setOpHand() {
-    return hand.map((cardModel) {
+    return playerHand.map((cardModel) {
       return CardModel(
         id: cardModel.id,
         power: cardModel.power,
@@ -415,7 +420,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   List<CardModel> setOpShields() {
-    return shields.map((cardModel) {
+    return playerShields.map((cardModel) {
       return CardModel(
         id: cardModel.id,
         power: cardModel.power,
@@ -463,35 +468,33 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
     final gameStateDto = {
       "gameId": currentGameId,
-      "playerId": myPlayerId,
+      "playerId": currentPlayerId,
       "playerTopic": myPlayerTopic,
       "action": "SEND_CARD_TO_MANA",
       "triggeredGameCardId": card.gameCardId,
-      "playerHand": hand.map((c) => c.toJson()).toList(),
+      "playerHand": playerHand.map((c) => c.toJson()).toList(),
       // "playerHand": hand.map((c) => c.toJson()).toList(),
       // "playerManaZone": [],
-      "playerManaZone": manaZoneCards.map((c) => c.toJson()).toList(),
-      // "playerShields": [],
-      "playerShields": shields.map((c) => c.toJson()).toList(),
-      // "playerDeck": [],
-      "playerDeck": deck.map((c) => c.toJson()).toList(),
-      // "playerBattleZone": [],
-      "playerBattleZone": battleZoneCards.map((c) => c.toJson()).toList(),
-      // "playerGraveyard": [],
-      "playerGraveyard": graveyard.map((c) => c.toJson()).toList(),
-      // "opponentHand": [],
-      "opponentHand": opponentHandCards.map((c) => c.toJson()).toList(),
-      // "opponentShields": [],
-      "opponentShields": opponentShields.map((c) => c.toJson()).toList(),
-      // "opponentDeck": [],
-      "opponentDeck": opponentDeck.map((c) => c.toJson()).toList(),
+      "playerManaZone": playerManaZone.map((c) => c.toJson()).toList(),
+      "playerShields": [],
+      // "playerShields": shields.map((c) => c.toJson()).toList(),
+      "playerDeck": [],
+      // "playerDeck": deck.map((c) => c.toJson()).toList(),
+      "playerBattleZone": [],
+      // "playerBattleZone": battleZoneCards.map((c) => c.toJson()).toList(),
+      "playerGraveyard": [],
+      // "playerGraveyard": graveyard.map((c) => c.toJson()).toList(),
+      "opponentHand": [],
+      // "opponentHand": opponentHandCards.map((c) => c.toJson()).toList(),
+      "opponentShields": [],
+      // "opponentShields": opponentShields.map((c) => c.toJson()).toList(),
+      "opponentDeck": [],
+      // "opponentDeck": opponentDeck.map((c) => c.toJson()).toList(),
       "opponentBattleZone": [],
       "opponentGraveyard": [],
       "opponentManaZone": [],
-
     };
     print("Sending to backend with gameStateDto: ${gameStateDto}");
-
 
     if (stompClient.connected) {
       stompClient.send(
@@ -509,15 +512,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
   }
 
-
-
   void sendToGraveyard(CardModel card) {
     setState(() {
-      hand.remove(card);
-      battleZoneCards.remove(card);
-      manaZoneCards.remove(card);
-      shields.remove(card);
-      graveyard.add(card);
+      playerHand.remove(card);
+      playerBattleZone.remove(card);
+      playerManaZone.remove(card);
+      playerShields.remove(card);
+      playerGraveyard.add(card);
     });
 
     ScaffoldMessenger.of(
@@ -532,7 +533,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void summonCard(CardModel card) {
-    if (manaZoneCards.length < card.manaCost) {
+    if (playerManaZone.length < card.manaCost) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Not enough mana to summon ${card.name}")),
       );
@@ -540,8 +541,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
     setState(() {
       card.isTapped = true;
-      hand.remove(card);
-      battleZoneCards.add(card);
+      playerHand.remove(card);
+      playerBattleZone.add(card);
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("${card.name} summoned to battle zone!")),
@@ -644,13 +645,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     setState(() {
       hasPlayedManaThisTurn = false;
       // Untap all cards in the battle zone
-      for (var card in battleZoneCards) card.isTapped = false;
+      for (var card in playerBattleZone) card.isTapped = false;
 
       // Draw a card from the deck (if available)
-      if (deck.isNotEmpty) {
+      if (playerDeck.isNotEmpty) {
         CardModel drawnCard =
-            deck.removeLast(); // Remove the top card from the deck
-        hand.add(drawnCard); // Add the drawn card to the hand
+            playerDeck.removeLast(); // Remove the top card from the deck
+        playerHand.add(drawnCard); // Add the drawn card to the hand
         deckSize = deckSize - 1;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Drew a card: ${drawnCard.name}")),
@@ -680,17 +681,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             child: Row(
               children: [
                 ElevatedButton.icon(
-                  onPressed: hasJoinedMatch
-                      ? null
-                      : () {
-                    _searchForMatch();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("🔍 Looking for opponent..."),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  },
+                  onPressed:
+                      hasJoinedMatch
+                          ? null
+                          : () {
+                            _searchForMatch();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("🔍 Looking for opponent..."),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
                   icon: Icon(Icons.person_search),
                   label: Text("Search Match"),
                 ),
@@ -705,7 +707,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           ),
         ],
       ),
-
 
       body: Stack(
         children: [
@@ -746,7 +747,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           SizedBox(height: 12),
                           Center(
                             child: _buildCardRow(
-                              battleZoneCards,
+                              playerBattleZone,
                               cardWidth: 100,
                               label: "Your Battle Zone",
                             ),
@@ -859,7 +860,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildCardRow(shields, cardWidth: 80, label: "Your Shields"),
+            _buildCardRow(playerShields, cardWidth: 80, label: "Your Shields"),
           ],
         ),
         SizedBox(height: 12),
@@ -870,7 +871,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: _buildCardRow(
-                  hand,
+                  playerHand,
                   cardWidth: 100,
                   label: "Your Hand",
                   scrollable: true,
@@ -878,9 +879,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            _buildGraveyardZone(label: "Graveyard", cards: graveyard),
+            _buildGraveyardZone(label: "Graveyard", cards: playerGraveyard),
             // Player's graveyard
-            _buildManaZone(label: "Your Mana", cards: manaZoneCards),
+            _buildManaZone(label: "Your Mana", cards: playerManaZone),
             // Player's mana
             _buildDeckZone(deckSize: deckSize, label: "Your Deck"),
           ],
@@ -921,7 +922,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: _buildCardRow(
-                  opponentHandCards,
+                  opponentHand,
                   cardWidth: 100,
                   label: "Opponent Hand",
                   scrollable: true,
@@ -978,8 +979,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       children:
           cards.map((card) {
             final isGlowTarget = isTargetZone;
-            bool isRedGlow =
-                brokenShieldCard != null ;
+            bool isRedGlow = brokenShieldCard != null;
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 4),
               child: MouseRegion(
@@ -996,7 +996,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 child: GestureDetector(
                   onTap: () {
                     if (!card.name.startsWith("Shield") &&
-                        !opponentHandCards.contains(card)) {
+                        !opponentHand.contains(card)) {
                       _showFullScreenCardPreview(card);
                     }
                     if (card.isTapped) return;
