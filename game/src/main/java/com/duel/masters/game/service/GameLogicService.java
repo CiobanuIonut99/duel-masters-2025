@@ -21,18 +21,33 @@ import static com.duel.masters.game.util.ObjectMapperUtil.convertToGameStateDto;
 public class GameLogicService {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final GameStateStore gameStateStore;
 
     public void doAction(Map<String, Object> payload) {
-        final var gameStateDto = convertToGameStateDto(payload);
-        switch (gameStateDto.getAction()) {
+        var incomingDto = convertToGameStateDto(payload);
+        var currentState = gameStateStore.getGameState(incomingDto.getGameId());
+
+        if (currentState == null) {
+            log.error("❌ No game state found for gameId: {}", incomingDto.getGameId());
+            return;
+        }
+
+        // 🔁 Normalize roles: make sure the player performing action is always "player"
+        boolean isPlayer1 = currentState.getPlayerId().equals(incomingDto.getPlayerId());
+
+        List<CardDto> hand = isPlayer1 ? currentState.getPlayerHand() : currentState.getOpponentHand();
+        List<CardDto> manaZone = isPlayer1 ? currentState.getPlayerManaZone() : currentState.getOpponentManaZone();
+        String triggeredCardId = incomingDto.getTriggeredGameCardId();
+
+        switch (incomingDto.getAction()) {
             case "SEND_CARD_TO_MANA" -> {
-                sendCardToMana(gameStateDto.getPlayerHand(),
-                        gameStateDto.getTriggeredGameCardId(),
-                        gameStateDto.getPlayerManaZone());
-                sendGameStatesToTopics(gameStateDto);
+                sendCardToMana(hand, triggeredCardId, manaZone);
+                gameStateStore.saveGameState(currentState);
+                sendGameStatesToTopics(currentState);
             }
         }
     }
+
 
     private void sendCardToMana(List<CardDto> hand, String triggeredGameCardId, List<CardDto> manaZone) {
         CardDto toMoveAndRemove = null;
@@ -47,6 +62,7 @@ public class GameLogicService {
     }
 
     private void sendGameStatesToTopics(GameStateDto gameState) {
+        gameStateStore.saveGameState(gameState);
 
         var topic1 = GAME_TOPIC + gameState.getGameId() + SLASH + PLAYER_1_TOPIC;
         var topic2 = GAME_TOPIC + gameState.getGameId() + SLASH + PLAYER_2_TOPIC;

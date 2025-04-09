@@ -22,12 +22,14 @@ public class GameService {
 
     private final MatchmakingService matchmakingService;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final GameStateStore gameStateStore;
 
     public void startGame(PlayerDto playerDto) {
         log.info("Matching player ..." + playerDto.getUsername());
         log.info("Player shield number : {} ", playerDto.getPlayerShields().size());
         log.info("Player hand number : {} ", playerDto.getPlayerHand().size());
         log.info("Player deck number : {} ", playerDto.getPlayerDeck().size());
+
 
         matchmakingService
                 .tryMatchPlayer(playerDto)
@@ -39,7 +41,7 @@ public class GameService {
 
                             var gameState1 = getGameStateDto(gameId, player, opponent, PLAYER_1_TOPIC);
                             var gameState2 = getGameStateDto(gameId, opponent, player, PLAYER_2_TOPIC);
-
+                            gameStateStore.saveGameState(gameState1);
                             simpMessagingTemplate.convertAndSend(
                                     MATCHMAKING_TOPIC,
                                     List.of(gameState1, gameState2)

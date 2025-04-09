@@ -410,40 +410,19 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       );
       return;
     }
-    final gameStateDto = {
+
+    final payload = {
       "gameId": currentGameId,
       "playerId": currentPlayerId,
       "playerTopic": myPlayerTopic,
       "action": "SEND_CARD_TO_MANA",
       "triggeredGameCardId": card.gameCardId,
-      "playerHand": playerHand.map((c) => c.toJson()).toList(),
-      "playerManaZone": playerManaZone.map((c) => c.toJson()).toList(),
-      "playerShields": playerShields.map((c) => c.toJson()).toList(),
-      // "playerDeck": [],
-      "playerDeck": playerDeck.map((c) => c.toJson()).toList(),
-      "playerBattleZone": [],
-      // "playerBattleZone": playerBattleZone.map((c) => c.toJson()).toList(),
-      "playerGraveyard": [],
-      // "playerGraveyard": playerGraveyard.map((c) => c.toJson()).toList(),
-      "opponentHand": [],
-      // "opponentHand": opponentHand.map((c) => c.toJson()).toList(),
-      "opponentShields": [],
-      // "opponentShields": opponentShields.map((c) => c.toJson()).toList(),
-      "opponentDeck": [],
-      // "opponentDeck": opponentDeck.map((c) => c.toJson()).toList(),
-      "opponentBattleZone": [],
-      // "opponentBattleZone": opponentBattleZone.map((c) => c.toJson()).toList(),
-      "opponentGraveyard": [],
-      // "opponentGraveyard": opponentGraveyard.map((c) => c.toJson()).toList(),
-      "opponentManaZone": []),
     };
-
-    print("Sending to backend with gameStateDto: ${gameStateDto}");
 
     if (stompClient.connected) {
       stompClient.send(
         destination: '/duel-masters/game/action',
-        body: jsonEncode(gameStateDto),
+        body: jsonEncode(payload),
       );
 
       setState(() {
@@ -455,6 +434,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       );
     }
   }
+
 
   void sendToGraveyard(CardModel card) {
     setState(() {
