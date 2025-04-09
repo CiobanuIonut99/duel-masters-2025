@@ -48,6 +48,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   List<CardModel> opponentHandCards = [];
   List<CardModel> opponentShields = [];
   List<CardModel> opponentDeck = [];
+  List<CardModel> opponentManaZone = [];
   List<CardModel> hand =
       []; // This will be updated with data fetched from the backend
   List<CardModel> shields =
@@ -172,16 +173,20 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
 
                 // Parse your player zones
-                final updatedHand =
+                final updatedPlayerHand =
                     (update['playerHand'] as List)
                         .map((c) => CardModel.fromJson(c))
                         .toList();
-                final updatedShields =
+                final updatedPlayerShields =
                     (update['playerShields'] as List)
                         .map((c) => CardModel.fromJson(c))
                         .toList();
-                final updatedDeck =
+                final updatedPlayerDeck =
                     (update['playerDeck'] as List)
+                        .map((c) => CardModel.fromJson(c))
+                        .toList();
+                final updatedPlayerManaZone =
+                    (update['playerManaZone'] as List)
                         .map((c) => CardModel.fromJson(c))
                         .toList();
 
@@ -203,18 +208,25 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                         ?.map((c) => CardModel.fromJson(c))
                         .toList() ??
                     [];
+                final updatedOpponentManaZone =
+                    (update['opponentManaZone'] as List?)
+                        ?.map((c) => CardModel.fromJson(c))
+                        .toList() ??
+                    [];
 
                 setState(() {
                   // Your zones
-                  hand = updatedHand;
-                  shields = updatedShields;
-                  deck = updatedDeck;
-                  deckSize = updatedDeck.length;
+                  hand = updatedPlayerHand;
+                  shields = updatedPlayerShields;
+                  deck = updatedPlayerDeck;
+                  deckSize = updatedPlayerDeck.length;
+                  manaZoneCards = updatedPlayerManaZone;
 
                   // Opponent zones
                   opponentHandCards = updatedOpponentHand;
                   opponentShields = updatedOpponentShields;
                   opponentDeck = updatetOpponentDeck;
+                  opponentManaZone = updatedOpponentManaZone;
                 });
               },
             );
@@ -445,7 +457,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       );
       return;
     }
-
     final gameStateDto = {
       "gameId": currentGameId,
       "playerId": myPlayerId,
@@ -463,11 +474,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     print("Sending to backend with gameCardId: ${card.gameCardId}");
     print("Sending to backend with gameId: ${currentGameId}");
     print("Sending to backend with playerTopic: ${myPlayerTopic}");
+    print("Sending to backend with playerHand: ${hand.map((c) => c.toJson()).toList()}");
+    print("Sending to backend with playerManaZone: ${manaZoneCards.map((c) => c.toJson()).toList()}");
+    print("Sending to backend with playerShields: ${shields.map((c) => c.toJson()).toList}");
 
     stompClient.send(
       destination: '/duel-masters/game/action',
       body: jsonEncode(gameStateDto),
     );
+
+
 
     setState(() {
       hasPlayedManaThisTurn = true;
