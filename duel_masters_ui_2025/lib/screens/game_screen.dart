@@ -427,7 +427,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       );
 
       setState(() {
-        hasPlayedManaThisTurn = true;
+        // hasPlayedManaThisTurn = true;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
