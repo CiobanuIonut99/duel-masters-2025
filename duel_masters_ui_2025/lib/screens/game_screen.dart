@@ -381,62 +381,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   bool hasPlayedManaThisTurn = false;
 
-  List<CardModel> setOpBattleZOne() {
-    return playerBattleZone.map((cardModel) {
-      return CardModel(
-        id: cardModel.id,
-        power: cardModel.power,
-        gameCardId: cardModel.gameCardId,
-        name: cardModel.name,
-        type: cardModel.type,
-        civilization: cardModel.civilization,
-        race: cardModel.race,
-        manaCost: cardModel.manaCost,
-        manaNumber: cardModel.manaNumber,
-        ability: cardModel.ability,
-        specialAbility: cardModel.specialAbility,
-        isTapped: cardModel.isTapped,
-      );
-    }).toList();
-  }
-
-  List<CardModel> setOpHand() {
-    return playerHand.map((cardModel) {
-      return CardModel(
-        id: cardModel.id,
-        power: cardModel.power,
-        gameCardId: cardModel.gameCardId,
-        name: cardModel.name,
-        type: cardModel.type,
-        civilization: cardModel.civilization,
-        race: cardModel.race,
-        manaCost: cardModel.manaCost,
-        manaNumber: cardModel.manaNumber,
-        ability: cardModel.ability,
-        specialAbility: cardModel.specialAbility,
-        isTapped: cardModel.isTapped,
-      );
-    }).toList();
-  }
-
-  List<CardModel> setOpShields() {
-    return playerShields.map((cardModel) {
-      return CardModel(
-        id: cardModel.id,
-        power: cardModel.power,
-        gameCardId: cardModel.gameCardId,
-        name: cardModel.name,
-        type: cardModel.type,
-        civilization: cardModel.civilization,
-        race: cardModel.race,
-        manaCost: cardModel.manaCost,
-        manaNumber: cardModel.manaNumber,
-        ability: cardModel.ability,
-        specialAbility: cardModel.specialAbility,
-        isTapped: cardModel.isTapped,
-      );
-    }).toList();
-  }
 
   Widget _buildZoneLabel(String label) {
     return Container(
@@ -476,8 +420,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       // "playerHand": hand.map((c) => c.toJson()).toList(),
       // "playerManaZone": [],
       "playerManaZone": playerManaZone.map((c) => c.toJson()).toList(),
-      "playerShields": [],
-      // "playerShields": shields.map((c) => c.toJson()).toList(),
+      // "playerShields": [],
+      "playerShields": playerShields.map((c) => c.toJson()).toList(),
       "playerDeck": [],
       // "playerDeck": deck.map((c) => c.toJson()).toList(),
       "playerBattleZone": [],
