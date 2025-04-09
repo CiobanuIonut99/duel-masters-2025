@@ -15,7 +15,6 @@ import java.util.List;
 public class GameStateDto {
 
     private String gameId;
-    private String instanceId;
     private String triggeredGameCardId;
 
     private Long playerId;

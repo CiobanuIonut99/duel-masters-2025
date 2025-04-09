@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -19,13 +20,12 @@ public class GameWebSocketController {
     private final GameLogicService gameLogicService;
 
     @MessageMapping("/game/start")
-
-    public void startGame(PlayerDto player) {
+    public void startGame(@Payload  PlayerDto player) {
         gameService.startGame(player);
     }
 
     @MessageMapping("/game/action")
-    public void doAction(GameStateDto gameStateDto) {
+    public void doAction(@Payload  GameStateDto gameStateDto) {
         log.info("doAction");
         log.info("gameStateDto: {}", gameStateDto);
         gameLogicService.doAction(gameStateDto);

@@ -1,5 +1,3 @@
-import 'package:uuid/uuid.dart';
-
 class CardModel {
   final int id;
   final String gameCardId;
@@ -14,8 +12,6 @@ class CardModel {
   final String specialAbility;
   bool isTapped;
 
-
-
   CardModel({
     required this.id,
     required this.power,
@@ -29,7 +25,7 @@ class CardModel {
     required this.ability,
     required this.specialAbility,
     this.isTapped = false
-  }); // 👍 now it works
+  });
   void toggleTap() {
     isTapped = !isTapped;
   }
@@ -44,6 +40,7 @@ class CardModel {
         'race': race,
         'manaCost': manaCost,
         'manaNumber': manaNumber,
+        'power': power,
         'ability': ability,
         'specialAbility': specialAbility,
         'isTapped': isTapped
@@ -52,7 +49,6 @@ class CardModel {
   factory CardModel.fromJson(Map<String, dynamic> json) {
     return CardModel(
       id: json['id'],
-      power: json['power'],
       gameCardId: json['gameCardId'],
       name: json['name'],
       type: json['type'],
@@ -60,6 +56,7 @@ class CardModel {
       race: json['race'],
       manaCost: json['manaCost'],
       manaNumber: json['manaNumber'],
+      power: json['power'],
       ability: json['ability'],
       specialAbility: json['specialAbility'],
       isTapped: json['isTapped'] ?? false,
