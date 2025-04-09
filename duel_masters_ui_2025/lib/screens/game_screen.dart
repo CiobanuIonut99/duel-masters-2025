@@ -21,6 +21,8 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   late StompClient stompClient;
   bool hasJoinedMatch = false;
+  String? currentGameId;
+  String? myPlayerTopic;
 
   CardModel? redGlowShield;
   late FxGame fxGame;
@@ -165,6 +167,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               callback: (frame) {
                 print("📡 Subscribed to: /topic/game/$gameId/$playerTopic");
                 final update = jsonDecode(frame.body!);
+                currentGameId = update['gameId'];
+                myPlayerTopic = update['playerTopic'];
+
 
                 // Parse your player zones
                 final updatedHand =
@@ -436,11 +441,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
 
     final gameStateDto = {
-      "gameId": "match-$myPlayerId", // Use actual gameId if stored
+      "gameId": currentGameId,
       "playerId": myPlayerId,
-      "playerTopic": "player_$myPlayerId", // Must match backend expectations
+      "playerTopic": myPlayerTopic,
       "action": "SEND_CARD_TO_MANA",
-      "triggeredGameCardId": card.instanceId,
+      "triggeredGameCardId": card.triggeredGameCardId,
       "playerHand": hand.map((c) => c.toJson()).toList(),
       "playerManaZone": manaZoneCards.map((c) => c.toJson()).toList(),
       "playerShields": shields.map((c) => c.toJson()).toList(),

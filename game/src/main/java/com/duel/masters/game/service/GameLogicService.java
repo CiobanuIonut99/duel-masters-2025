@@ -44,10 +44,11 @@ public class GameLogicService {
     }
 
     private void sendGameStatesToTopics(GameStateDto gameState) {
-        var gameState1 = getGameStateDto(gameState, gameState.getPlayerTopic());
-        var gameState2 = getGameStateDto(gameState, gameState.getPlayerTopic());
+
         var topic1 = GAME_TOPIC + gameState.getGameId() + SLASH + PLAYER_1_TOPIC;
         var topic2 = GAME_TOPIC + gameState.getGameId() + SLASH + PLAYER_2_TOPIC;
+        var gameState1 = getGameStateDto(gameState, PLAYER_1_TOPIC);
+        var gameState2 = getGameStateDto(gameState, PLAYER_2_TOPIC);
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {

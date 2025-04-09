@@ -2,6 +2,7 @@ import 'package:uuid/uuid.dart';
 
 class CardModel {
   final int id;
+  final int triggeredGameCardId;
   final String name;
   final String type;
   final String civilization;
@@ -17,6 +18,7 @@ class CardModel {
 
   CardModel({
     required this.id,
+    required this.triggeredGameCardId,
     required this.name,
     required this.type,
     required this.civilization,
@@ -35,6 +37,7 @@ class CardModel {
   Map<String, dynamic> toJson() =>
       {
         'id': id,
+        'triggeredGameCardId': triggeredGameCardId,
         'name': name,
         'type': type,
         'civilization': civilization,
@@ -50,6 +53,7 @@ class CardModel {
   factory CardModel.fromJson(Map<String, dynamic> json) {
     return CardModel(
       id: json['id'],
+      triggeredGameCardId: json['triggeredGameCardId'],
       name: json['name'],
       type: json['type'],
       civilization: json['civilization'],
