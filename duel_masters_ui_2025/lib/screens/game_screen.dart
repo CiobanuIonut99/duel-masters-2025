@@ -267,7 +267,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               (data['deck'] as List).map((cardData) {
                 return CardModel(
                   id: cardData['id'],
-                  triggeredGameCardId: cardData['triggeredGameCardId'],
+                  gameCardId: cardData['gameCardId'],
                   name: cardData['name'] ?? "Unknown",
                   type: cardData['type'] ?? "UNKNOWN",
                   civilization: cardData['civilization'] ?? "NONE",
@@ -283,7 +283,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               (data['shields'] as List).map((cardData) {
                 return CardModel(
                   id: cardData['id'],
-                  triggeredGameCardId: cardData['triggeredGameCardId'],
+                  gameCardId: cardData['gameCardId'],
                   name: cardData['name'] ?? "Unknown",
                   type: cardData['type'] ?? "UNKNOWN",
                   civilization: cardData['civilization'] ?? "NONE",
@@ -299,7 +299,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               (data['hand'] as List).map((cardData) {
                 return CardModel(
                   id: cardData['id'],
-                  triggeredGameCardId: cardData['triggeredGameCardId'],
+                  gameCardId: cardData['gameCardId'],
                   name: cardData['name'] ?? "Unknown",
                   type: cardData['type'] ?? "UNKNOWN",
                   civilization: cardData['civilization'] ?? "NONE",
@@ -364,7 +364,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return battleZoneCards.map((cardModel) {
       return CardModel(
         id: cardModel.id,
-        triggeredGameCardId: cardModel.triggeredGameCardId,
+        gameCardId: cardModel.gameCardId,
         name: cardModel.name,
         type: cardModel.type,
         civilization: cardModel.civilization,
@@ -383,7 +383,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return hand.map((cardModel) {
       return CardModel(
         id: cardModel.id,
-        triggeredGameCardId: cardModel.triggeredGameCardId,
+        gameCardId: cardModel.gameCardId,
         name: cardModel.name,
         type: cardModel.type,
         civilization: cardModel.civilization,
@@ -402,7 +402,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return shields.map((cardModel) {
       return CardModel(
         id: cardModel.id,
-        triggeredGameCardId: cardModel.triggeredGameCardId,
+        gameCardId: cardModel.gameCardId,
         name: cardModel.name,
         type: cardModel.type,
         civilization: cardModel.civilization,
@@ -451,7 +451,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       "playerId": myPlayerId,
       "playerTopic": myPlayerTopic,
       "action": "SEND_CARD_TO_MANA",
-      "triggeredGameCardId": card.triggeredGameCardId,
+      "triggeredGameCardId": card.gameCardId,
       "playerHand": hand.map((c) => c.toJson()).toList(),
       "playerManaZone": manaZoneCards.map((c) => c.toJson()).toList(),
       "playerShields": shields.map((c) => c.toJson()).toList(),
