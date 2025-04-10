@@ -413,7 +413,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void sendToMana(CardModel card) {
-    if (hasPlayedManaThisTurn) {
+    if (playedMana) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("You can only send one card to mana per turn.")),
       );
@@ -432,14 +432,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       stompClient.send(
         destination: '/duel-masters/game/action',
         body: jsonEncode(payload),
-      );
-
-      setState(() {
-        // hasPlayedManaThisTurn = true;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("${card.name} sent to mana zone!")),
       );
     }
   }
