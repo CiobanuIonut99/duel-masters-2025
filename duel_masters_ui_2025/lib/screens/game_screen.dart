@@ -12,6 +12,7 @@ import 'package:stomp_dart_client/stomp_handler.dart';
 
 import '../animations/fx_game.dart';
 import '../models/card_model.dart';
+import 'game_zone.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -42,7 +43,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   final currentPlayerId = DateTime.now().millisecondsSinceEpoch % 1000000;
   var opponentId;
-  var playedMana;
+  bool playedMana = false;
 
   int? currentTurnPlayerId;
 
@@ -680,13 +681,21 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                 color: Colors.black.withOpacity(0.3),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: _buildCardRow(
-                                opponentBattleZone,
-                                cardWidth: 100,
+                              child:
+                              GameZone(
                                 label: "Opponent Battle Zone",
+                                cards: opponentBattleZone,
+                                cardWidth: 100,
                                 scrollable: true,
-                                allowManaAction: true,
+                                allowManaAction: false,
+                                onTap: (card) {
+                                  // maybe just preview or nothing
+                                },
+                                onSecondaryTap: (card) {
+                                  // if needed
+                                },
                               ),
+
                             ),
 
                           ),
@@ -698,13 +707,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                 color: Colors.black.withOpacity(0.3),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: _buildCardRow(
-                                playerBattleZone,
-                                cardWidth: 100,
+                              child: GameZone(
                                 label: "Your Battle Zone",
+                                cards: playerBattleZone,
+                                cardWidth: 100,
                                 scrollable: true,
-                                allowManaAction: true,
+                                allowManaAction: false,
+                                onTap: (card) {
+                                  if (!card.isTapped) _startAttackSelection(card);
+                                },
+                                onSecondaryTap: null,
                               ),
+
                             ),
 
                           ),
@@ -822,13 +836,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 color: Colors.black.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: _buildCardRow(
-                playerShields,
-                cardWidth: 80,
+              child:GameZone(
                 label: "Your Shields",
+                cards: playerShields,
+                cardWidth: 80,
                 scrollable: true,
-                allowManaAction: true,
+                hideCardFaces: true,
+                allowManaAction: false,
+                onTap: null,
+                onSecondaryTap: null,
               ),
+
             ),
           ],
         ),
@@ -845,13 +863,20 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     color: Colors.black.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: _buildCardRow(
-                    playerHand,
-                    cardWidth: 100,
+                  child: GameZone(
                     label: "Your Hand",
+                    cards: playerHand,
+                    cardWidth: 100,
                     scrollable: true,
                     allowManaAction: true,
+                    onTap: (card) {
+                      // _showFullScreenCardPreview(card);
+                    },
+                    onSecondaryTap: (card) {
+                      _showHandCardDialog(card);
+                    },
                   ),
+
                 ),
               ),
             ),
@@ -923,13 +948,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     color: Colors.black.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: _buildCardRow(
-                    opponentHand,
-                    cardWidth: 100,
+                  child:
+                  GameZone(
                     label: "Opponent Hand",
+                    cards: opponentHand,
+                    cardWidth: 100,
                     scrollable: true,
-                    allowManaAction: true,
+                    hideCardFaces: true, // this shows card backs only
                   ),
+
                 )
 
               ),
@@ -978,13 +1005,25 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               color: Colors.black.withOpacity(0.3),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: _buildCardRow(
-              opponentShields,
-              cardWidth: 100,
+            child: GameZone(
               label: "Opponent Shields",
+              cards: opponentShields,
+              cardWidth: 100,
               scrollable: true,
-              allowManaAction: true,
+              hideCardFaces: true,
+              allowManaAction: false, // can't send to mana
+              onTap: (_) {},         // just disable preview (optional)
+              onSecondaryTap: (card) {
+                if (isSelectingAttackTarget && selectedAttacker != null) {
+                  attackShield(selectedAttacker!, card);
+                  setState(() {
+                    isSelectingAttackTarget = false;
+                    selectedAttacker = null;
+                  });
+                }
+              },
             ),
+
           )
 
           ],
@@ -1012,167 +1051,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         SnackBar(content: Text("🔀 Randomizing Turn Player...")),
       );
     }
-  }
-
-
-  Widget _buildCardRow(
-    List<CardModel> cards, {
-    double cardWidth = 60,
-    String? label,
-    bool scrollable = false,
-    bool allowManaAction = false,
-    bool rotate180 = false,
-  }) {
-    final isTargetZone =
-        (label == "Opponent Shields" || label == "Opponent Battle Zone") &&
-        isSelectingAttackTarget;
-
-    final row = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children:
-          cards.map((card) {
-            final isGlowTarget = isTargetZone;
-            bool isRedGlow = brokenShieldCard != null;
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4),
-              child: MouseRegion(
-                onEnter: (_) {
-                  setState(() {
-                    hoveredCard = card;
-                  });
-                },
-                onExit: (_) {
-                  setState(() {
-                    hoveredCard = null;
-                  });
-                },
-                child: GestureDetector(
-                  onTap: () {
-                    if (!card.name.startsWith("Shield") &&
-                        !opponentHand.contains(card)) {
-                      _showFullScreenCardPreview(card);
-                    }
-                    if (card.isTapped) return;
-                    setState(() {
-                      hoveredCard = card;
-                    });
-                  },
-                  onSecondaryTap:
-                      allowManaAction
-                          ? () => _showHandCardDialog(card)
-                          : isGlowTarget
-                          ? () {
-                            if (label == "Opponent Shields") {
-                              attackShield(selectedAttacker!, card);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "${selectedAttacker!.name} attacked ${card.name}",
-                                  ),
-                                ),
-                              );
-                            }
-                            setState(() {
-                              isSelectingAttackTarget = false;
-                              selectedAttacker = null;
-                            });
-                          }
-                          : (label == "Your Battle Zone" && !card.isTapped
-                              ? () => _startAttackSelection(card)
-                              : null),
-                  child: AnimatedContainer(
-                    duration: Duration(milliseconds: 1),
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        if (isRedGlow)
-                          BoxShadow(
-                            color: Colors.redAccent,
-                            blurRadius: 20,
-                            spreadRadius: 4,
-                          )
-                        else if (isTargetZone)
-                          BoxShadow(
-                            color: Colors.greenAccent,
-                            blurRadius: 20,
-                            spreadRadius: 4,
-                          )
-                        else if ((label?.contains("Shields") ?? false))
-                          BoxShadow(
-                            color: Colors.blueAccent.withOpacity(0.5),
-                            blurRadius: 20,
-                            spreadRadius: 4,
-                          ),
-                      ],
-                    ),
-
-                    child: Container(
-                      key:
-                          label == "Opponent Shields" &&
-                                  card == opponentShields.first
-                              ? _shieldKey
-                              : null,
-                      child: Transform.rotate(
-                        angle:
-                            (card.isTapped ? -1.57 : 0) +
-                            (rotate180 ? 3.14 : 0),
-                        child: Transform.scale(
-                          scale: hoveredCard == card ? 1.2 : 1.0,
-                          child: Stack(
-                            children: [
-                              Image.asset(
-                                label == "Your Shields" ||
-                                        label == "Opponent Shields"
-                                    ? 'assets/cards/0.jpg'
-                                    : (label == "Opponent Hand"
-                                        ? 'assets/cards/0.jpg'
-                                        : card.imagePath),
-                                width: cardWidth,
-                              ),
-
-                              if (card.isTapped && hoveredCard == card)
-                                Positioned(
-                                  bottom: 10,
-                                  left: 0,
-                                  right: 0,
-                                  child: Container(
-                                    color: Colors.black.withOpacity(0.7),
-                                    child: Text(
-                                      "Tapped / Cannot Attack",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        if (label != null) _buildZoneLabel(label),
-
-        SizedBox(height: 4),
-        scrollable
-            ? SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: row,
-            )
-            : row,
-      ],
-    );
   }
 
   void _showFullScreenCardPreview(CardModel card) {
