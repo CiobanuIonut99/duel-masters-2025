@@ -20,8 +20,17 @@ public class ActionsService {
     public void endTurn(GameStateDto currentState, GameStateDto incomingDto) {
         currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
         currentState.setPlayedMana(false);
+        drawCard(currentState);
         gameStateStore.saveGameState(currentState);
         topicService.sendGameStatesToTopics(currentState);
+    }
+
+    private void drawCard(GameStateDto currentState) {
+        var opponentHand = currentState.getOpponentHand();
+        var opponentDeck = currentState.getOpponentDeck();
+        var card = opponentDeck.getFirst();
+        opponentHand.add(card);
+        opponentHand.remove(card);
     }
 
     public void sendCardToMana(GameStateDto currentState, List<CardDto> hand, GameStateDto incomingDto, List<CardDto> manaZone) {
