@@ -49,8 +49,7 @@ public class InitialStateService {
         deckDto
                 .getCards()
                 .forEach((cardDto) -> {
-
-                    log.info(cardDto.getName() + "\n");
+                    log.info(cardDto.getName());
                 });
 
         return InitialStateDto.builder()

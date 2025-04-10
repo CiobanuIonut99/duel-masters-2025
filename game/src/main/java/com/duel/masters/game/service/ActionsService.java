@@ -19,7 +19,7 @@ public class ActionsService {
 
     public void endTurn(GameStateDto currentState,
                         GameStateDto incomingDto) {
-
+        log.info("Ending turn");
 //        aici probabil trebuie facut din backend, nu luat opponent ID din front end
         currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
         currentState.setPlayedMana(false);
@@ -37,6 +37,7 @@ public class ActionsService {
         var opponentCard = opponentDeck.getFirst();
         opponentHand.add(opponentCard);
         opponentDeck.remove(opponentCard);
+        log.info("Opponent draws card");
     }
 
     public void sendCardToMana(GameStateDto currentState, GameStateDto incomingDto) {
@@ -47,6 +48,7 @@ public class ActionsService {
             playMana(cardsUpdateDto.getHand(), incomingDto.getTriggeredGameCardId(), cardsUpdateDto.getManaZone());
             currentState.setPlayedMana(true);
             topicService.sendGameStatesToTopics(currentState);
+            log.info("Mana card played");
         } else {
             throw new AlreadyPlayedManaException();
         }
