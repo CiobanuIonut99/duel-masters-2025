@@ -29,8 +29,9 @@ public class GameStateDto {
     private String playerName;
     private String opponentName;
 
+    private boolean playedMana;
+
     private String playerTopic;
-//    private String opponentTopic;
 
     private Long currentTurnPlayerId;
 
