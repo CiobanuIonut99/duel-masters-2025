@@ -5,7 +5,7 @@ import com.duel.masters.game.dto.player.service.PlayerDto;
 
 public class GameStateUtil {
 
-    public static GameStateDto getGameStateDto(String gameId, PlayerDto player, PlayerDto opponent, String playerTopic) {
+    public static GameStateDto getGameStateDto(String gameId, PlayerDto player, PlayerDto opponent, boolean isPlayer1Chosen, String playerTopic) {
         return GameStateDto
                 .builder()
                 .gameId(gameId)
@@ -21,7 +21,7 @@ public class GameStateUtil {
                 .opponentDeck(opponent.getPlayerDeck())
                 .playerManaZone(player.getPlayerManaZone())
                 .opponentManaZone(opponent.getPlayerManaZone())
-                .currentTurnPlayerId(player.getId())
+                .currentTurnPlayerId(isPlayer1Chosen ? player.getId() : opponent.getId())
                 .playerTopic(playerTopic)
                 .build();
     }
@@ -40,7 +40,7 @@ public class GameStateUtil {
                 .opponentHand(gameStateDto.getOpponentHand())
                 .playerDeck(gameStateDto.getPlayerDeck())
                 .opponentDeck(gameStateDto.getOpponentDeck())
-                .currentTurnPlayerId(gameStateDto.getPlayerId())
+                .currentTurnPlayerId(gameStateDto.getCurrentTurnPlayerId())
                 .playerManaZone(gameStateDto.getPlayerManaZone())
                 .opponentManaZone(gameStateDto.getOpponentManaZone())
                 .playerTopic(topic)
@@ -63,7 +63,7 @@ public class GameStateUtil {
                 .opponentHand(gameStateDto.getPlayerHand())
                 .playerDeck(gameStateDto.getOpponentDeck())
                 .opponentDeck(gameStateDto.getPlayerDeck())
-                .currentTurnPlayerId(gameStateDto.getPlayerId())
+                .currentTurnPlayerId(gameStateDto.getCurrentTurnPlayerId())
                 .playerManaZone(gameStateDto.getOpponentManaZone())
                 .opponentManaZone(gameStateDto.getPlayerManaZone())
                 .playerTopic(topic)

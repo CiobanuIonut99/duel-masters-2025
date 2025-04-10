@@ -259,6 +259,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 myPlayerTopic = responseBody['playerTopic'];
                 currentTurnPlayerId = responseBody['currentTurnPlayerId'];
                 print("gameId : $gameId OR $currentGameId");
+                print("currentTurnPlayerId : $gameId OR $currentTurnPlayerId");
 
                 // Parse your player zones
                 final updatedPlayerHand =

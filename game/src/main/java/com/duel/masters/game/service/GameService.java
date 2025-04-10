@@ -7,10 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 
 import static com.duel.masters.game.constant.Constant.*;
 import static com.duel.masters.game.util.GameStateUtil.getGameStateDto;
@@ -38,9 +35,12 @@ public class GameService {
                             String gameId = UUID.randomUUID().toString();
                             var player = playerList.get(0);
                             var opponent = playerList.get(1);
+                            var randomPlayer =  new Random().nextInt(1,3);
+                            var isPlayer1Chosen = randomPlayer == 1;
 
-                            var gameState1 = getGameStateDto(gameId, player, opponent, PLAYER_1_TOPIC);
-                            var gameState2 = getGameStateDto(gameId, opponent, player, PLAYER_2_TOPIC);
+                            var gameState1 = getGameStateDto(gameId, player, opponent, isPlayer1Chosen, PLAYER_1_TOPIC);
+                            var gameState2 = getGameStateDto(gameId, opponent, player, !isPlayer1Chosen, PLAYER_2_TOPIC);
+
                             gameStateStore.saveGameState(gameState1);
                             simpMessagingTemplate.convertAndSend(
                                     MATCHMAKING_TOPIC,
