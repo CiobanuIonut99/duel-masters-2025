@@ -41,6 +41,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   final currentPlayerId = DateTime.now().millisecondsSinceEpoch % 1000000;
   var opponentId;
+  var playedMana;
 
   int? currentTurnPlayerId;
 
@@ -261,6 +262,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 myPlayerTopic = responseBody['playerTopic'];
                 currentTurnPlayerId = responseBody['currentTurnPlayerId'];
                 opponentId = responseBody['opponentId'];
+                playedMana = responseBody['playedMana'];
                 print("gameId : $currentGameId");
                 print("currentTurnPlayerId : $currentTurnPlayerId");
 
@@ -465,12 +467,23 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: playedMana
+                    ? null
+                : () {
                     Navigator.pop(context);
                     sendToMana(card);
                   },
                   child: Text("Send to Mana Zone"),
                 ),
+                if (playedMana)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      "You already sent a card to mana this turn!",
+                      style: TextStyle(color: Colors.red, fontSize: 12),
+                    ),
+                  ),
+
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context);
