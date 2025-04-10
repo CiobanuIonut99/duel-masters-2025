@@ -46,11 +46,7 @@ public class GameLogicService {
                 sendGameStatesToTopics(currentState);
             }
             case "END_TURN" -> {
-                if (isPlayer1) {
-                    currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
-                } else {
-                    currentState.setCurrentTurnPlayerId(incomingDto.getPlayerId());
-                }
+                currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
                 sendGameStatesToTopics(currentState);
                 gameStateStore.saveGameState(currentState);
             }
