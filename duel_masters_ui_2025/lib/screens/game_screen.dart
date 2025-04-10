@@ -438,17 +438,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
 
   void sendToGraveyard(CardModel card) {
-    setState(() {
-      playerHand.remove(card);
-      playerBattleZone.remove(card);
-      playerManaZone.remove(card);
-      playerShields.remove(card);
-      playerGraveyard.add(card);
-    });
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text("${card.name} moved to Graveyard")));
   }
 
   void resetTurn() {
@@ -458,20 +447,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void summonCard(CardModel card) {
-    if (playerManaZone.length < card.manaCost) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Not enough mana to summon ${card.name}")),
-      );
-      return;
-    }
-    setState(() {
-      card.isTapped = true;
-      playerHand.remove(card);
-      playerBattleZone.add(card);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("${card.name} summoned to battle zone!")),
-    );
   }
 
   void _showHandCardDialog(CardModel card) {
@@ -882,7 +857,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             _buildGraveyardZone(label: "Opponent Graveyard", cards: []),
 
             // Mana
-            _buildManaZone(label: "Opponent Mana", cards: [], rotate180: true),
+            _buildManaZone(label: "Opponent Mana", cards: opponentManaZone, rotate180: true),
 
             // Deck
             _buildDeckZone(

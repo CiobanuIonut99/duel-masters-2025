@@ -32,9 +32,4 @@ public class GameWebSocketController {
         log.info("gameStateDto: {}", payload);
         gameLogicService.doAction(payload);
     }
-    @MessageExceptionHandler
-    public void handleError(Throwable ex) {
-        log.error("WebSocket error: {}", ex.getMessage(), ex);
-    }
-
 }
