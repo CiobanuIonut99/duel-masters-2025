@@ -23,10 +23,6 @@ public class GameService {
 
     public void startGame(PlayerDto playerDto) {
         log.info("Matching player ..." + playerDto.getUsername());
-        log.info("Player shield number : {} ", playerDto.getPlayerShields().size());
-        log.info("Player hand number : {} ", playerDto.getPlayerHand().size());
-        log.info("Player deck number : {} ", playerDto.getPlayerDeck().size());
-
 
         matchmakingService
                 .tryMatchPlayer(playerDto)
@@ -38,32 +34,32 @@ public class GameService {
                             var randomPlayer =  new Random().nextInt(1,3);
                             var isPlayer1Chosen = randomPlayer == 1;
 
-                            var gameState1 = getGameStateDto(gameId, player, opponent, isPlayer1Chosen, PLAYER_1_TOPIC);
-                            var gameState2 = getGameStateDto(gameId, opponent, player, !isPlayer1Chosen, PLAYER_2_TOPIC);
+                            var gameStatePlayer = getGameStateDto(gameId, player, opponent, isPlayer1Chosen, PLAYER_1_TOPIC);
+                            var gameStateOpponent = getGameStateDto(gameId, opponent, player, !isPlayer1Chosen, PLAYER_2_TOPIC);
 
-                            gameStateStore.saveGameState(gameState1);
+                            gameStateStore.saveGameState(gameStatePlayer);
                             simpMessagingTemplate.convertAndSend(
                                     MATCHMAKING_TOPIC,
-                                    List.of(gameState1, gameState2)
+                                    List.of(gameStatePlayer, gameStateOpponent)
                             );
                             log.info("sent to general topic : topic/matchmaking");
                             var topic1 = GAME_TOPIC + gameId + SLASH + PLAYER_1_TOPIC;
                             var topic2 = GAME_TOPIC + gameId + SLASH + PLAYER_2_TOPIC;
-                            sendGameStatesToTopics(topic1, gameState1, topic2, gameState2, player, opponent);
+                            sendGameStatesToTopics(topic1, gameStatePlayer, topic2, gameStateOpponent, player, opponent);
                         });
     }
 
     private void sendGameStatesToTopics(String topic1,
-                                        GameStateDto gameState1,
+                                        GameStateDto gameStatePlayer,
                                         String topic2,
-                                        GameStateDto gameState2,
+                                        GameStateDto gameStateOpponent,
                                         PlayerDto player,
                                         PlayerDto opponent) {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                simpMessagingTemplate.convertAndSend(topic1, gameState1);
-                simpMessagingTemplate.convertAndSend(topic2, gameState2);
+                simpMessagingTemplate.convertAndSend(topic1, gameStatePlayer);
+                simpMessagingTemplate.convertAndSend(topic2, gameStateOpponent);
                 log.info("✅ Sent to topic1: {}", topic1);
                 log.info("✅ Sent to topic2: {}", topic2);
                 log.info("🎮 Match players {} vs {}", player.getUsername(), opponent.getUsername());

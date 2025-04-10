@@ -32,16 +32,18 @@ public class GameLogicService {
             return;
         }
 
-//        boolean isPlayer = currentState.getPlayerId().equals(incomingDto.getPlayerId());
-//        var hand = isPlayer ? currentState.getPlayerHand() : currentState.getOpponentHand();
-//        var manaZone = isPlayer ? currentState.getPlayerManaZone() : currentState.getOpponentManaZone();
+        boolean isPlayer = currentState.getPlayerId().equals(incomingDto.getPlayerId());
+        var hand = isPlayer ? currentState.getPlayerHand() : currentState.getOpponentHand();
+        var manaZone = isPlayer ? currentState.getPlayerManaZone() : currentState.getOpponentManaZone();
 //        var deck = isPlayer ? currentState.getPlayerDeck() : currentState.getOpponentDeck();
 //        var graveyard = isPlayer ? currentState.getPlayerGraveyard() : currentState.getOpponentGraveyard();
 //        var battleZone = isPlayer ? currentState.getPlayerBattleZone() : currentState.getOpponentBattleZone();
 
         switch (incomingDto.getAction()) {
             case "SEND_CARD_TO_MANA" -> {
-                sendCardToMana(currentState.getPlayerHand(), incomingDto.getTriggeredGameCardId(), currentState.getPlayerManaZone());
+                sendCardToMana(hand,
+                        incomingDto.getTriggeredGameCardId(),
+                        manaZone);
                 gameStateStore.saveGameState(currentState);
                 sendGameStatesToTopics(currentState);
             }
