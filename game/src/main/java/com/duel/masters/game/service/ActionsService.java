@@ -14,32 +14,40 @@ import java.util.List;
 @Slf4j
 public class ActionsService {
 
-    private final GameStateStore gameStateStore;
     private final TopicService topicService;
+    private final CardsUpdateService cardsUpdateService;
 
-    public void endTurn(GameStateDto currentState, GameStateDto incomingDto) {
+    public void endTurn(GameStateDto currentState,
+                        GameStateDto incomingDto) {
+
         currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
         currentState.setPlayedMana(false);
-        drawCard(currentState);
-        gameStateStore.saveGameState(currentState);
+        drawCard(currentState, incomingDto);
+
         topicService.sendGameStatesToTopics(currentState);
     }
 
-    private void drawCard(GameStateDto currentState) {
-        var opponentHand = currentState.getOpponentHand();
-        var opponentDeck = currentState.getOpponentDeck();
+    private void drawCard(GameStateDto currentState, GameStateDto incomingDto) {
+
+        final var isPlayer = cardsUpdateService.isPlayer(currentState, incomingDto);
+        final var cardsUpdateDto = cardsUpdateService.getOpponentCards(currentState, incomingDto, isPlayer);
+
+        var opponentHand = cardsUpdateDto.getHand();
+        var opponentDeck = cardsUpdateDto.getDeck();
         var card = opponentDeck.getFirst();
         opponentHand.add(card);
-        opponentHand.remove(card);
+        opponentDeck.remove(card);
     }
 
-    public void sendCardToMana(GameStateDto currentState, List<CardDto> hand, GameStateDto incomingDto, List<CardDto> manaZone) {
+    public void sendCardToMana(GameStateDto currentState, GameStateDto incomingDto) {
+
+        final var isPlayer = cardsUpdateService.isPlayer(currentState, incomingDto);
+        final var cardsUpdateDto = cardsUpdateService.getOwnCards(currentState, isPlayer);
         if (!currentState.isPlayedMana()) {
-            playMana(hand,
+            playMana(cardsUpdateDto.getHand(),
                     incomingDto.getTriggeredGameCardId(),
-                    manaZone);
+                    cardsUpdateDto.getManaZone());
             currentState.setPlayedMana(true);
-            gameStateStore.saveGameState(currentState);
             topicService.sendGameStatesToTopics(currentState);
         } else {
             throw new AlreadyPlayedManaException();

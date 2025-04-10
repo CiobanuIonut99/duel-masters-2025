@@ -13,7 +13,6 @@ public class ObjectMapperUtil {
     public static GameStateDto convertToGameStateDto(Map<String, Object> gameStateDto) {
         try {
             GameStateDto dto = mapper.convertValue(gameStateDto, GameStateDto.class);
-            log.info("✅ Successfully converted to DTO: {}", dto);
             return dto;
         } catch (Exception e) {
             log.error("❌ Failed to convert to GameStateDto", e);
