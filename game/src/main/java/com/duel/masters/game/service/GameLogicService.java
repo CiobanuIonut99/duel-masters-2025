@@ -56,8 +56,8 @@ public class GameLogicService {
                 } else {
                     currentState.setCurrentTurnPlayerId(incomingDto.getPlayerId());
                 }
-                sendGameStatesToTopics(currentState);
                 gameStateStore.saveGameState(currentState);
+                sendGameStatesToTopics(currentState);
             }
 
         }

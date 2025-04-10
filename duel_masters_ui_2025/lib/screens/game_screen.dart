@@ -40,7 +40,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   int deckSize = 0;
 
   final currentPlayerId = DateTime.now().millisecondsSinceEpoch % 1000000;
-  final opponentId;
+  var opponentId;
 
   int? currentTurnPlayerId;
 
@@ -260,9 +260,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 currentGameId = responseBody['gameId'];
                 myPlayerTopic = responseBody['playerTopic'];
                 currentTurnPlayerId = responseBody['currentTurnPlayerId'];
-                opponentId = responseBody['opponentId']
-                print("gameId : $gameId OR $currentGameId");
-                print("currentTurnPlayerId : $gameId OR $currentTurnPlayerId");
+                opponentId = responseBody['opponentId'];
+                print("gameId : $currentGameId");
+                print("currentTurnPlayerId : $currentTurnPlayerId");
 
                 // Parse your player zones
                 final updatedPlayerHand =
@@ -552,6 +552,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       "gameId": currentGameId,
       "playerId": currentPlayerId,
       "opponentId": opponentId,
+      "currentTurnPlayerId":currentTurnPlayerId,
       "action": "END_TURN",
     };
 
