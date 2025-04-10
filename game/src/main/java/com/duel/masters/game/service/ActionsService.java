@@ -20,6 +20,7 @@ public class ActionsService {
     public void endTurn(GameStateDto currentState,
                         GameStateDto incomingDto) {
 
+//        aici probabil trebuie facut din backend, nu luat opponent ID din front end
         currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
         currentState.setPlayedMana(false);
         drawCard(currentState, incomingDto);

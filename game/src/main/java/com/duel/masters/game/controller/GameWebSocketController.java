@@ -26,7 +26,6 @@ public class GameWebSocketController {
 
     @MessageMapping("/game/action")
     public void doAction(@Payload Map<String, Object> payload) {
-        log.info("doAction");
         log.info("gameStateDto: {}", payload);
         gameLogicService.doAction(payload);
     }
