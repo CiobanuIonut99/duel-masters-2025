@@ -38,6 +38,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   List<CardModel> opponentBattleZone = [];
 
   int deckSize = 0;
+  int opponentDeckSize = 0;
 
   final currentPlayerId = DateTime.now().millisecondsSinceEpoch % 1000000;
   var opponentId;
@@ -88,7 +89,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     fxGame = FxGame();
     stompClient = StompClient(
       config: StompConfig(
-        url: 'wss://f33b-5-12-128-179.ngrok-free.app/duel-masters-ws',
+        url: 'wss://439d-213-170-209-87.ngrok-free.app/duel-masters-ws',
         onConnect: onStompConnect,
         onWebSocketError: (dynamic error) => print("WebSocket error: $error"),
       ),
@@ -144,7 +145,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     print("Fetching game data from the backend...");
 
     final response = await http.get(
-      Uri.parse('https://f33b-5-12-128-179.ngrok-free.app/api/games'),
+      Uri.parse('https://439d-213-170-209-87.ngrok-free.app/api/games'),
     );
 
     if (response.statusCode == 200) {
@@ -326,6 +327,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 setState(() {
                   // Your zones
                   deckSize = updatedPlayerDeck.length;
+                  opponentDeckSize = updatetOpponentDeck.length;
                   playerHand = updatedPlayerHand;
                   playerShields = updatedPlayerShields;
                   playerDeck = updatedPlayerDeck;
@@ -672,19 +674,39 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                       Column(
                         children: [
                           Center(
-                            child: _buildCardRow(
-                              [],
-                              cardWidth: 100,
-                              label: "Opponent Battle Zone",
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: _buildCardRow(
+                                opponentBattleZone,
+                                cardWidth: 100,
+                                label: "Opponent Battle Zone",
+                                scrollable: true,
+                                allowManaAction: true,
+                              ),
                             ),
+
                           ),
                           SizedBox(height: 12),
                           Center(
-                            child: _buildCardRow(
-                              playerBattleZone,
-                              cardWidth: 100,
-                              label: "Your Battle Zone",
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: _buildCardRow(
+                                playerBattleZone,
+                                cardWidth: 100,
+                                label: "Your Battle Zone",
+                                scrollable: true,
+                                allowManaAction: true,
+                              ),
                             ),
+
                           ),
                         ],
                       ),
@@ -794,7 +816,20 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildCardRow(playerShields, cardWidth: 80, label: "Your Shields"),
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: _buildCardRow(
+                playerShields,
+                cardWidth: 80,
+                label: "Your Shields",
+                scrollable: true,
+                allowManaAction: true,
+              ),
+            ),
           ],
         ),
         SizedBox(height: 12),
@@ -804,19 +839,46 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             Expanded(
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: _buildCardRow(
-                  playerHand,
-                  cardWidth: 100,
-                  label: "Your Hand",
-                  scrollable: true,
-                  allowManaAction: true,
+                child: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: _buildCardRow(
+                    playerHand,
+                    cardWidth: 100,
+                    label: "Your Hand",
+                    scrollable: true,
+                    allowManaAction: true,
+                  ),
                 ),
               ),
             ),
-            _buildGraveyardZone(label: "Graveyard", cards: playerGraveyard),
-            // Player's graveyard
-            _buildManaZone(label: "Your Mana", cards: playerManaZone),
-            // Player's mana
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: _buildGraveyardZone(
+                label: "Graveyard",
+                cards: playerGraveyard,
+              ),
+            )
+            ,
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: _buildManaZone(
+                label: "Your Mana",
+                cards: playerManaZone,
+              ),
+            )
+            ,
             _buildDeckZone(deckSize: deckSize, label: "Your Deck"),
           ],
         ),
@@ -855,25 +917,53 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             Expanded(
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: _buildCardRow(
-                  opponentHand,
-                  cardWidth: 100,
-                  label: "Opponent Hand",
-                  scrollable: true,
-                  rotate180: true,
-                ),
+                child: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: _buildCardRow(
+                    opponentHand,
+                    cardWidth: 100,
+                    label: "Opponent Hand",
+                    scrollable: true,
+                    allowManaAction: true,
+                  ),
+                )
+
               ),
             ),
 
             // Graveyard
-            _buildGraveyardZone(label: "Opponent Graveyard", cards: []),
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: _buildManaZone(
+                label: "Fraveyard",
+                cards: opponentGraveyard,
+              ),
+            ),
 
             // Mana
-            _buildManaZone(label: "Opponent Mana", cards: opponentManaZone, rotate180: true),
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: _buildManaZone(
+                label: "Opponent Mana",
+                cards: opponentManaZone,
+              ),
+            ),
 
             // Deck
             _buildDeckZone(
-              deckSize: 30,
+              deckSize: opponentDeckSize,
               label: "Opponent Deck",
               rotate180: true,
             ),
@@ -882,13 +972,21 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         // Opponent Shields centered
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildCardRow(
-              opponentShields,
-              cardWidth: 80,
-              label: "Opponent Shields",
-              // rotate180: true,
+          children: [Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(12),
             ),
+            child: _buildCardRow(
+              opponentShields,
+              cardWidth: 100,
+              label: "Opponent Shields",
+              scrollable: true,
+              allowManaAction: true,
+            ),
+          )
+
           ],
         ),
         SizedBox(height: 12),
