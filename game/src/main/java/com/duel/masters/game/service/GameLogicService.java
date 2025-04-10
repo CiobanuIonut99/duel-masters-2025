@@ -47,6 +47,7 @@ public class GameLogicService {
                 gameStateStore.saveGameState(currentState);
                 sendGameStatesToTopics(currentState);
             }
+
         }
     }
 

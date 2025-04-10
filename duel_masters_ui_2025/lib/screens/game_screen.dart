@@ -40,6 +40,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   int deckSize = 0;
 
   final currentPlayerId = DateTime.now().millisecondsSinceEpoch % 1000000;
+  int? currentTurnPlayerId;
 
   String? currentGameId;
   String? myPlayerTopic;
@@ -255,8 +256,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 print("📡 Subscribed to: /topic/game/$gameId/$playerTopic");
                 final responseBody = jsonDecode(frame.body!);
                 currentGameId = responseBody['gameId'];
-                print("gameId : $gameId OR $currentGameId");
                 myPlayerTopic = responseBody['playerTopic'];
+                currentTurnPlayerId = responseBody['currentTurnPlayerId'];
+                print("gameId : $gameId OR $currentGameId");
 
                 // Parse your player zones
                 final updatedPlayerHand =
@@ -565,24 +567,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
 
     setState(() {
-      // hasPlayedManaThisTurn = false;
-      // // Untap all cards in the battle zone
-      // for (var card in playerBattleZone) card.isTapped = false;
-      //
-      // // Draw a card from the deck (if available)
-      // if (playerDeck.isNotEmpty) {
-      //   CardModel drawnCard =
-      //       playerDeck.removeLast(); // Remove the top card from the deck
-      //   playerHand.add(drawnCard); // Add the drawn card to the hand
-      //   deckSize = deckSize - 1;
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text("Drew a card: ${drawnCard.name}")),
-      //   );
-      // } else {
-      //   ScaffoldMessenger.of(
-      //     context,
-      //   ).showSnackBar(SnackBar(content: Text("Deck is empty!")));
-      // }
     });
 
     // Show a message that the turn has ended
@@ -596,7 +580,25 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return Scaffold(
       backgroundColor: Colors.green.shade900,
       appBar: AppBar(
-        title: Text("Duel Masters - Match Start"),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Duel Masters - Match Start"),
+            if (currentTurnPlayerId != null)
+              Text(
+                currentTurnPlayerId == currentPlayerId
+                    ? "Your Turn"
+                    : "Opponent's Turn",
+                style: TextStyle(
+                  color: currentTurnPlayerId == currentPlayerId
+                      ? Colors.greenAccent
+                      : Colors.redAccent,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+          ],
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -883,6 +885,27 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       ],
     );
   }
+
+  void randomizeTurnPlayer() {
+    if (stompClient.connected) {
+      final payload = {
+        "gameId": currentGameId,
+        "playerId": currentPlayerId,
+        "playerTopic": myPlayerTopic,
+        "action": "RANDOMIZE_TURN_PLAYER",
+      };
+
+      stompClient.send(
+        destination: '/duel-masters/game/action',
+        body: jsonEncode(payload),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("🔀 Randomizing Turn Player...")),
+      );
+    }
+  }
+
 
   Widget _buildCardRow(
     List<CardModel> cards, {
