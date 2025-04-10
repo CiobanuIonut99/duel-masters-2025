@@ -15,7 +15,7 @@ import java.util.List;
 public class InitialStateDto {
 
     private List<CardDto> deck;
-    private List<CardDto> shields;
     private List<CardDto> hand;
+    private List<CardDto> shields;
 
 }

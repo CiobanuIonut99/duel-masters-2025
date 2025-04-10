@@ -21,7 +21,7 @@ public class MatchmakingService {
             return Optional.of(List.of(player1, player2));
         }
 
-        return Optional.empty(); // Still waiting
+        return Optional.empty();
     }
 
 }

@@ -11,7 +11,6 @@ public class ObjectMapperUtil {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     public static GameStateDto convertToGameStateDto(Map<String, Object> gameStateDto) {
-        log.info("🔍 Raw payload as Map: {}", gameStateDto);
         try {
             GameStateDto dto = mapper.convertValue(gameStateDto, GameStateDto.class);
             log.info("✅ Successfully converted to DTO: {}", dto);

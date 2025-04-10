@@ -20,8 +20,8 @@ import static com.duel.masters.game.util.ObjectMapperUtil.convertToGameStateDto;
 @Slf4j
 public class GameLogicService {
 
-    private final SimpMessagingTemplate simpMessagingTemplate;
     private final GameStateStore gameStateStore;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     public void doAction(Map<String, Object> payload) {
         var incomingDto = convertToGameStateDto(payload);
@@ -32,11 +32,6 @@ public class GameLogicService {
             return;
         }
 
-
-//        aici verificat daca playerul care face actiunea e player1 sau nu
-//        din front end trimiti mereu unn singur state ( ori P1 ori P2)
-//        daca e P1 luam datele din P1
-//        daca e P2 luam datele din P2
         boolean isPlayer1 = currentState.getPlayerId().equals(incomingDto.getPlayerId());
         var hand = isPlayer1 ? currentState.getPlayerHand() : currentState.getOpponentHand();
         var manaZone = isPlayer1 ? currentState.getPlayerManaZone() : currentState.getOpponentManaZone();
@@ -62,7 +57,6 @@ public class GameLogicService {
 
         }
     }
-
 
     private void sendCardToMana(List<CardDto> hand, String triggeredGameCardId, List<CardDto> manaZone) {
         CardDto toMoveAndRemove = null;

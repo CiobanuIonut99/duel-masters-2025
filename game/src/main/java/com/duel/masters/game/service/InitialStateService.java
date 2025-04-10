@@ -46,11 +46,13 @@ public class InitialStateService {
         var hand = get5Cards(deck);
 
 
-        log.info("Start getInitialState in GameService");
-        log.info("Deck: {}", deckDto);
         deckDto
                 .getCards()
-                .forEach((card) -> {log.info(card.getGameCardId());});
+                .forEach((cardDto) -> {
+                    log.info("Start getInitialState in GameService \n");
+                    log.info(cardDto.getName() + "\n");
+                });
+
         return InitialStateDto.builder()
                 .deck(deck)
                 .shields(shields)
