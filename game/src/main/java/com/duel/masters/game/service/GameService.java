@@ -22,7 +22,7 @@ public class GameService {
     private final GameStateStore gameStateStore;
 
     public void startGame(PlayerDto playerDto) {
-        log.info("Matching player ..." + playerDto.getUsername());
+        log.info(playerDto.getUsername().concat(" is searching for an opponent  ..."));
 
         matchmakingService
                 .tryMatchPlayer(playerDto)
@@ -31,20 +31,21 @@ public class GameService {
                             String gameId = UUID.randomUUID().toString();
                             var player = playerList.get(0);
                             var opponent = playerList.get(1);
-                            var randomPlayer =  new Random().nextInt(1,3);
+                            var randomPlayer = new Random().nextInt(1, 3);
                             var isPlayer1Chosen = randomPlayer == 1;
 
                             var gameStatePlayer = getGameStateDto(gameId, player, opponent, isPlayer1Chosen, PLAYER_1_TOPIC);
                             var gameStateOpponent = getGameStateDto(gameId, opponent, player, !isPlayer1Chosen, PLAYER_2_TOPIC);
+                            var gameStates = List.of(gameStatePlayer, gameStateOpponent);
 
                             gameStateStore.saveGameState(gameStatePlayer);
-                            simpMessagingTemplate.convertAndSend(
-                                    MATCHMAKING_TOPIC,
-                                    List.of(gameStatePlayer, gameStateOpponent)
-                            );
+                            simpMessagingTemplate.convertAndSend(MATCHMAKING_TOPIC, gameStates);
+
                             log.info("sent to general topic : topic/matchmaking");
+
                             var topic1 = GAME_TOPIC + gameId + SLASH + PLAYER_1_TOPIC;
                             var topic2 = GAME_TOPIC + gameId + SLASH + PLAYER_2_TOPIC;
+
                             sendGameStatesToTopics(topic1, gameStatePlayer, topic2, gameStateOpponent, player, opponent);
                         });
     }
@@ -62,8 +63,8 @@ public class GameService {
                 simpMessagingTemplate.convertAndSend(topic2, gameStateOpponent);
                 log.info("✅ Sent to topic1: {}", topic1);
                 log.info("✅ Sent to topic2: {}", topic2);
-                log.info("🎮 Match players {} vs {}", player.getUsername(), opponent.getUsername());
+                log.info("🎮 Matched players {} vs {}", player.getUsername(), opponent.getUsername());
             }
-        }, 2000);
+        }, 1000);
     }
 }

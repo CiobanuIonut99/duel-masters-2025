@@ -29,24 +29,21 @@ public class ActionsService {
 
     private void drawCard(GameStateDto currentState, GameStateDto incomingDto) {
 
-        final var isPlayer = cardsUpdateService.isPlayer(currentState, incomingDto);
-        final var cardsUpdateDto = cardsUpdateService.getOpponentCards(currentState, incomingDto, isPlayer);
+        final var cardsUpdateDto = cardsUpdateService.getOpponentCards(currentState, incomingDto);
 
         var opponentHand = cardsUpdateDto.getHand();
         var opponentDeck = cardsUpdateDto.getDeck();
-        var card = opponentDeck.getFirst();
-        opponentHand.add(card);
-        opponentDeck.remove(card);
+        var opponentCard = opponentDeck.getFirst();
+        opponentHand.add(opponentCard);
+        opponentDeck.remove(opponentCard);
     }
 
     public void sendCardToMana(GameStateDto currentState, GameStateDto incomingDto) {
 
-        final var isPlayer = cardsUpdateService.isPlayer(currentState, incomingDto);
-        final var cardsUpdateDto = cardsUpdateService.getOwnCards(currentState, isPlayer);
+        final var cardsUpdateDto = cardsUpdateService.getOwnCards(currentState, incomingDto);
+
         if (!currentState.isPlayedMana()) {
-            playMana(cardsUpdateDto.getHand(),
-                    incomingDto.getTriggeredGameCardId(),
-                    cardsUpdateDto.getManaZone());
+            playMana(cardsUpdateDto.getHand(), incomingDto.getTriggeredGameCardId(), cardsUpdateDto.getManaZone());
             currentState.setPlayedMana(true);
             topicService.sendGameStatesToTopics(currentState);
         } else {
