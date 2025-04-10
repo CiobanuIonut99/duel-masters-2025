@@ -571,7 +571,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       "gameId": currentGameId,
       "playerId": currentPlayerId,
       "playerTopic": myPlayerTopic,
-      "action": "DRAW_CARD",
+      "action": "END_TURN",
     };
 
     if (stompClient.connected) {
