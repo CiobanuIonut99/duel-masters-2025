@@ -38,14 +38,26 @@ public class GameLogicService {
 //        daca e P1 luam datele din P1
 //        daca e P2 luam datele din P2
         boolean isPlayer1 = currentState.getPlayerId().equals(incomingDto.getPlayerId());
-        List<CardDto> hand = isPlayer1 ? currentState.getPlayerHand() : currentState.getOpponentHand();
-        List<CardDto> manaZone = isPlayer1 ? currentState.getPlayerManaZone() : currentState.getOpponentManaZone();
+        var hand = isPlayer1 ? currentState.getPlayerHand() : currentState.getOpponentHand();
+        var manaZone = isPlayer1 ? currentState.getPlayerManaZone() : currentState.getOpponentManaZone();
+        var deck = isPlayer1 ? currentState.getPlayerDeck() : currentState.getOpponentDeck();
+        var graveyard = isPlayer1 ? currentState.getPlayerGraveyard() : currentState.getOpponentGraveyard();
+        var battleZone = isPlayer1 ? currentState.getPlayerBattleZone() : currentState.getOpponentBattleZone();
 
         switch (incomingDto.getAction()) {
             case "SEND_CARD_TO_MANA" -> {
                 sendCardToMana(hand, incomingDto.getTriggeredGameCardId(), manaZone);
                 gameStateStore.saveGameState(currentState);
                 sendGameStatesToTopics(currentState);
+            }
+            case "END_TURN" -> {
+                if (isPlayer1) {
+                    currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
+                } else {
+                    currentState.setCurrentTurnPlayerId(incomingDto.getPlayerId());
+                }
+                sendGameStatesToTopics(currentState);
+                gameStateStore.saveGameState(currentState);
             }
 
         }
