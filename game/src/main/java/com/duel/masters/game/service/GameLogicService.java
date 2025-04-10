@@ -32,16 +32,18 @@ public class GameLogicService {
             return;
         }
 
-        // 🔁 Normalize roles: make sure the player performing action is always "player"
-        boolean isPlayer1 = currentState.getPlayerId().equals(incomingDto.getPlayerId());
 
+//        aici verificat daca playerul care face actiunea e player1 sau nu
+//        din front end trimiti mereu unn singur state ( ori P1 ori P2)
+//        daca e P1 luam datele din P1
+//        daca e P2 luam datele din P2
+        boolean isPlayer1 = currentState.getPlayerId().equals(incomingDto.getPlayerId());
         List<CardDto> hand = isPlayer1 ? currentState.getPlayerHand() : currentState.getOpponentHand();
         List<CardDto> manaZone = isPlayer1 ? currentState.getPlayerManaZone() : currentState.getOpponentManaZone();
-        String triggeredCardId = incomingDto.getTriggeredGameCardId();
 
         switch (incomingDto.getAction()) {
             case "SEND_CARD_TO_MANA" -> {
-                sendCardToMana(hand, triggeredCardId, manaZone);
+                sendCardToMana(hand, incomingDto.getTriggeredGameCardId(), manaZone);
                 gameStateStore.saveGameState(currentState);
                 sendGameStatesToTopics(currentState);
             }

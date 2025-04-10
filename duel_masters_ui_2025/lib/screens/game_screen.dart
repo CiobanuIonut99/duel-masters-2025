@@ -567,25 +567,47 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void endTurn() {
-    setState(() {
-      hasPlayedManaThisTurn = false;
-      // Untap all cards in the battle zone
-      for (var card in playerBattleZone) card.isTapped = false;
+    final payload = {
+      "gameId": currentGameId,
+      "playerId": currentPlayerId,
+      "playerTopic": myPlayerTopic,
+      "action": "DRAW_CARD",
+    };
 
-      // Draw a card from the deck (if available)
-      if (playerDeck.isNotEmpty) {
-        CardModel drawnCard =
-            playerDeck.removeLast(); // Remove the top card from the deck
-        playerHand.add(drawnCard); // Add the drawn card to the hand
-        deckSize = deckSize - 1;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Drew a card: ${drawnCard.name}")),
-        );
-      } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Deck is empty!")));
-      }
+    if (stompClient.connected) {
+      stompClient.send(
+        destination: '/duel-masters/game/action',
+        body: jsonEncode(payload),
+      );
+
+      setState(() {
+        // hasPlayedManaThisTurn = true;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Drew one card from deck")),
+      );
+    }
+
+    setState(() {
+      // hasPlayedManaThisTurn = false;
+      // // Untap all cards in the battle zone
+      // for (var card in playerBattleZone) card.isTapped = false;
+      //
+      // // Draw a card from the deck (if available)
+      // if (playerDeck.isNotEmpty) {
+      //   CardModel drawnCard =
+      //       playerDeck.removeLast(); // Remove the top card from the deck
+      //   playerHand.add(drawnCard); // Add the drawn card to the hand
+      //   deckSize = deckSize - 1;
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text("Drew a card: ${drawnCard.name}")),
+      //   );
+      // } else {
+      //   ScaffoldMessenger.of(
+      //     context,
+      //   ).showSnackBar(SnackBar(content: Text("Deck is empty!")));
+      // }
     });
 
     // Show a message that the turn has ended
