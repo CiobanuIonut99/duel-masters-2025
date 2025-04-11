@@ -82,6 +82,7 @@ class _CardRowState extends State<CardRow> {
                             icon: Icon(Icons.visibility, color: Colors.white),
                             onPressed: () => widget.onTap?.call(card),
                           ),
+                          if(card.isSummonable)
                           IconButton(
                             icon: Icon(Icons.sports, color: Colors.redAccent),
                             onPressed: () => widget.onSummon?.call(card),

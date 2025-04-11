@@ -480,7 +480,25 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       opponentId: opponentId,
       action: "END_TURN",
       onSuccess: () {
-        //   maybe add some behaviour
+        setState(() {
+          playerHand = playerHand.map((card) {
+            return CardModel(
+              id: card.id,
+              power: card.power,
+              gameCardId: card.gameCardId,
+              name: card.name,
+              type: card.type,
+              civilization: card.civilization,
+              race: card.race,
+              manaCost: card.manaCost,
+              manaNumber: card.manaNumber,
+              ability: card.ability,
+              specialAbility: card.specialAbility,
+              isTapped: card.isTapped,
+              isSummonable: true, // or apply your condition here
+            );
+          }).toList();
+        });
       },
     );
   }

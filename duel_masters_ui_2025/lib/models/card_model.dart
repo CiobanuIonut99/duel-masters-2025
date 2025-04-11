@@ -11,6 +11,7 @@ class CardModel {
   final String ability;
   final String specialAbility;
   bool isTapped;
+  bool isSummonable;  // NEW
 
   CardModel({
     required this.id,
@@ -24,27 +25,29 @@ class CardModel {
     required this.manaNumber,
     required this.ability,
     required this.specialAbility,
-    this.isTapped = false
+    this.isTapped = false,
+    this.isSummonable = false, // NEW
   });
+
   void toggleTap() {
     isTapped = !isTapped;
   }
 
-  Map<String, dynamic> toJson() =>
-      {
-        'id': id,
-        'gameCardId': gameCardId,
-        'name': name,
-        'type': type,
-        'civilization': civilization,
-        'race': race,
-        'manaCost': manaCost,
-        'manaNumber': manaNumber,
-        'power': power,
-        'ability': ability,
-        'specialAbility': specialAbility,
-        'isTapped': isTapped
-      };
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'gameCardId': gameCardId,
+    'name': name,
+    'type': type,
+    'civilization': civilization,
+    'race': race,
+    'manaCost': manaCost,
+    'manaNumber': manaNumber,
+    'power': power,
+    'ability': ability,
+    'specialAbility': specialAbility,
+    'isTapped': isTapped,
+    'isSummonable': isSummonable, // NEW
+  };
 
   factory CardModel.fromJson(Map<String, dynamic> json) {
     return CardModel(
@@ -60,9 +63,9 @@ class CardModel {
       ability: json['ability'],
       specialAbility: json['specialAbility'],
       isTapped: json['isTapped'] ?? false,
+      isSummonable: json['isSummonable'] ?? false,  // NEW
     );
   }
 
-
-  String get imagePath => 'assets/cards/${id}.jpg';
+  String get imagePath => 'assets/cards/$id.jpg';
 }

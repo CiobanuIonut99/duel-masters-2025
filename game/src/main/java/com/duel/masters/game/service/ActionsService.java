@@ -22,8 +22,8 @@ public class ActionsService {
         log.info("Ending turn");
         currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
         currentState.setPlayedMana(false);
-        setOpponentCreaturesSummonable(currentState, incomingDto);
         drawCard(currentState, incomingDto);
+        setOpponentCreaturesSummonable(currentState, incomingDto);
         topicService.sendGameStatesToTopics(currentState);
     }
 
