@@ -64,7 +64,7 @@ class _CardRowState extends State<CardRow> {
                     child: Transform.rotate(
                       angle: (card.isTapped ? -1.57 : 0) + (widget.rotate180 ? 3.14 : 0),
                       child: Transform.scale(
-                        scale: hoveredCard == card ? 1.15 : 1.0,
+                        scale: hoveredCard?.gameCardId == card.gameCardId ? 1.15 : 1.0,
                         child: Image.asset(
                           widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
                           width: widget.cardWidth,
@@ -82,7 +82,7 @@ class _CardRowState extends State<CardRow> {
                             icon: Icon(Icons.visibility, color: Colors.white),
                             onPressed: () => widget.onTap?.call(card),
                           ),
-                          if(card.summonable)
+                          if (card.summonable)
                             IconButton(
                               icon: Icon(Icons.sports, color: Colors.redAccent),
                               onPressed: () => widget.onSummon?.call(card),
@@ -93,8 +93,7 @@ class _CardRowState extends State<CardRow> {
                           ),
                         ],
                       ),
-                    ),
-
+                    )
                 ],
               ),
             ),
