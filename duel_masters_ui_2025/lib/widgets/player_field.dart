@@ -4,7 +4,6 @@ import '../screens/game_zone.dart';
 import 'package:flutter/material.dart';
 import '../../models/card_model.dart';
 import '../screens/game_zone.dart';
-
 class PlayerField extends StatelessWidget {
   final List<CardModel> hand;
   final List<CardModel> shields;
@@ -13,6 +12,8 @@ class PlayerField extends StatelessWidget {
   final int deckSize;
   final Function(CardModel) onTapHandCard;
   final Function(CardModel) onSecondaryTapHandCard;
+  final Function(CardModel) onSummonHandCard;        // NEW
+  final Function(CardModel) onSendToManaHandCard;    // NEW
   final VoidCallback onTapManaZone;
   final VoidCallback onTapGraveyard;
 
@@ -25,6 +26,8 @@ class PlayerField extends StatelessWidget {
     required this.deckSize,
     required this.onTapHandCard,
     required this.onSecondaryTapHandCard,
+    required this.onSummonHandCard,        // NEW
+    required this.onSendToManaHandCard,    // NEW
     required this.onTapManaZone,
     required this.onTapGraveyard,
   });
@@ -54,6 +57,8 @@ class PlayerField extends StatelessWidget {
                 cards: hand,
                 onTapCard: onTapHandCard,
                 onSecondaryTapCard: onSecondaryTapHandCard,
+                onSummonCard: onSummonHandCard,        // NEW
+                onSendToMana: onSendToManaHandCard,    // NEW
               ),
             ),
             Row(
@@ -94,6 +99,8 @@ class PlayerField extends StatelessWidget {
     bool hideFaces = false,
     Function(CardModel)? onTapCard,
     Function(CardModel)? onSecondaryTapCard,
+    Function(CardModel)? onSummonCard,        // NEW
+    Function(CardModel)? onSendToMana,        // NEW
   }) {
     return Container(
       padding: EdgeInsets.all(8),
@@ -109,6 +116,8 @@ class PlayerField extends StatelessWidget {
         allowManaAction: false,
         onTap: onTapCard,
         onSecondaryTap: onSecondaryTapCard,
+        onSummon: onSummonCard,          // NEW
+        onSendToMana: onSendToMana,      // NEW
       ),
     );
   }

@@ -101,6 +101,8 @@ class OpponentField extends StatelessWidget {
     bool hideFaces = false,
     Function(CardModel)? onTapCard,
     Function(CardModel)? onSecondaryTapCard,
+    Function(CardModel)? onSummonCard,         // new
+    Function(CardModel)? onSendToManaCard,     // new
   }) {
     return Container(
       padding: EdgeInsets.all(8),
@@ -110,14 +112,16 @@ class OpponentField extends StatelessWidget {
       ),
       child: GameZone(
         label: label,
-
         cards: cards,
         cardWidth: 100,
         hideCardFaces: hideFaces,
         allowManaAction: false,
         onTap: onTapCard,
         onSecondaryTap: onSecondaryTapCard,
+        onSummon: onSummonCard,                // pass to GameZone
+        onSendToMana: onSendToManaCard,        // pass to GameZone
       ),
     );
   }
+
 }

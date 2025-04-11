@@ -690,21 +690,14 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                         manaZone: playerManaZone,
                         graveyard: playerGraveyard,
                         deckSize: deckSize,
-                        onTapHandCard:
-                            (card) => _showFullScreenCardPreview(card),
-                        onSecondaryTapHandCard:
-                            (card) => _showHandCardDialog(card),
-                        onTapManaZone:
-                            () => _showCardZoneDialog(
-                              "Your Mana",
-                              playerManaZone,
-                            ),
-                        onTapGraveyard:
-                            () => _showCardZoneDialog(
-                              "Graveyard",
-                              playerGraveyard,
-                            ),
+                        onTapHandCard: (card) => _showFullScreenCardPreview(card),
+                        onSecondaryTapHandCard: (card) => _showHandCardDialog(card),
+                        onTapManaZone: () => _showCardZoneDialog("Your Mana", playerManaZone),
+                        onTapGraveyard: () => _showCardZoneDialog("Graveyard", playerGraveyard),
+                        onSummonHandCard: (card) => summonCard(card),         // NEW
+                        onSendToManaHandCard: (card) => sendToMana(card),     // NEW
                       ),
+
 
                       SizedBox(height: 16),
                     ],
