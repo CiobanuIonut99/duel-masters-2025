@@ -49,7 +49,7 @@ public class ActionsService {
         final var ownCards = cardsUpdateService.getOwnCards(currentState, incomingDto);
 
         if (!currentState.isPlayedMana()) {
-            playMana(ownCards.getHand(), incomingDto.getTriggeredGameCardId(), ownCards.getManaZone());
+            playCard(ownCards.getHand(), incomingDto.getTriggeredGameCardId(), ownCards.getManaZone());
             currentState.setPlayedMana(true);
             setCreaturesSummonable(cardsUpdateService.getOwnCards(currentState, incomingDto));
             topicService.sendGameStatesToTopics(currentState);
@@ -59,16 +59,16 @@ public class ActionsService {
         }
     }
 
-    public void playMana(List<CardDto> hand, String triggeredGameCardId, List<CardDto> manaZone) {
+    public void playCard(List<CardDto> source, String triggeredGameCardId, List<CardDto> destination) {
         CardDto toMoveAndRemove = null;
-        for (CardDto cardDto : hand) {
+        for (CardDto cardDto : source) {
             if (cardDto.getGameCardId().equals(triggeredGameCardId)) {
                 toMoveAndRemove = cardDto;
                 break;
             }
         }
-        hand.remove(toMoveAndRemove);
-        manaZone.add(toMoveAndRemove);
+        destination.add(toMoveAndRemove);
+        source.remove(toMoveAndRemove);
     }
 
     public void setCreaturesSummonable(CardsUpdateDto cards) {
@@ -93,5 +93,11 @@ public class ActionsService {
                 }
             }
         }
+    }
+
+    public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingDto) {
+        var hand = cardsUpdateService.getOwnCards(currentState, incomingDto).getHand();
+        var battleZone = cardsUpdateService.getOwnCards(currentState, incomingDto).getBattleZone();
+        playCard(hand, incomingDto.getTriggeredGameCardId(), battleZone);
     }
 }

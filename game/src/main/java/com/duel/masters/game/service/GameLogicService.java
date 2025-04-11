@@ -29,9 +29,7 @@ public class GameLogicService {
         switch (incomingDto.getAction()) {
             case SEND_CARD_TO_MANA -> actionsService.sendCardToMana(currentState, incomingDto);
             case END_TURN -> actionsService.endTurn(currentState, incomingDto);
-            case SUMMON_TO_BATTLE_ZONE -> {
-//            actionsService.summonToBattleZone(currentState, incomingDto);
-            }
+            case SUMMON_TO_BATTLE_ZONE -> actionsService.summonToBattleZone(currentState, incomingDto);
         }
     }
 
