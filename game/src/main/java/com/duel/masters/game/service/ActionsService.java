@@ -59,7 +59,7 @@ public class ActionsService {
         }
     }
 
-    public void playCard(List<CardDto> source, String triggeredGameCardId, List<CardDto> destination) {
+    public CardDto playCard(List<CardDto> source, String triggeredGameCardId, List<CardDto> destination) {
         log.info("Playing card source : {}", source);
         CardDto toMoveAndRemove = null;
         for (CardDto cardDto : source) {
@@ -70,6 +70,7 @@ public class ActionsService {
         }
         destination.add(toMoveAndRemove);
         source.remove(toMoveAndRemove);
+        return toMoveAndRemove;
     }
 
     public void setCreaturesSummonable(CardsUpdateDto cards) {
@@ -99,7 +100,9 @@ public class ActionsService {
     public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingDto) {
         var hand = cardsUpdateService.getOwnCards(currentState, incomingDto).getHand();
         var battleZone = cardsUpdateService.getOwnCards(currentState, incomingDto).getBattleZone();
-        playCard(hand, incomingDto.getTriggeredGameCardId(), battleZone);
+        var card = playCard(hand, incomingDto.getTriggeredGameCardId(), battleZone);
+        card.setSummonable(false);
+        card.setTapped(true);
         topicService.sendGameStatesToTopics(currentState);
         log.info("Card summoned to battle zone : {}", battleZone);
     }
