@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -101,12 +102,48 @@ public class ActionsService {
         var ownCards = cardsUpdateService.getOwnCards(currentState, incomingDto);
         var hand = ownCards.getHand();
         var battleZone = ownCards.getBattleZone();
-        log.info("Battle zone  before: {}", battleZone);
-        var card = playCard(hand, incomingDto.getTriggeredGameCardId(), battleZone);
-        log.info("Battle zone after: {}", battleZone);
-        card.setSummonable(false);
-        card.setTapped(true);
-        topicService.sendGameStatesToTopics(currentState);
-        log.info("Card summoned to battle zone : {}", battleZone);
+        var manaZone = ownCards.getManaZone();
+        var selectedManaCardIds = incomingDto.getTriggeredGameCardIds();
+        var cardToBeSummoned = new CardDto();
+
+        for (CardDto cardDto : hand) {
+            if (cardDto.getGameCardId().equals(incomingDto.getTriggeredGameCardId())) {
+                cardToBeSummoned = cardDto;
+                break;
+            }
+        }
+        var manaZoneGameCardIds = manaZone
+                .stream()
+                .map(CardDto::getGameCardId)
+                .toList();
+
+        boolean atLeastOneSelectedManaHasNecessaryCivilization = false;
+        List<CardDto> selectedManaCards = new ArrayList<>();
+        for (int i = 0; i < manaZone.size(); i++) {
+            for (int j = 0; j < selectedManaCardIds.size(); j++) {
+                var selectedCard = manaZone.get(i);
+                if (selectedCard.getGameCardId().equals(selectedManaCardIds.get(j))) {
+                    selectedManaCards.add(selectedCard);
+                    if (selectedCard.getCivilization().equals(cardToBeSummoned.getCivilization())) {
+                        atLeastOneSelectedManaHasNecessaryCivilization = true;
+                    }
+                }
+            }
+        }
+
+        if (manaZoneGameCardIds.containsAll(incomingDto.getTriggeredGameCardIds()) &&
+                manaZone.size() >= selectedManaCardIds.size() &&
+                selectedManaCardIds.size() == cardToBeSummoned.getManaCost() &&
+                atLeastOneSelectedManaHasNecessaryCivilization
+        ) {
+            for (CardDto cardDto : selectedManaCards) {
+                cardDto.setTapped(true);
+            }
+            battleZone.add(cardToBeSummoned);
+            hand.remove(cardToBeSummoned);
+            cardToBeSummoned.setTapped(true);
+            topicService.sendGameStatesToTopics(currentState);
+            log.info("Card summoned to battle zone : {}", battleZone);
+        }
     }
 }
