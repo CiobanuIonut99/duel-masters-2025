@@ -509,57 +509,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void summonCard(CardModel card) {}
 
-  void _showHandCardDialog(CardModel card) {
-    showDialog(
-      context: context,
-      builder:
-          (_) => AlertDialog(
-            title: Text(card.name),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  onPressed:
-                      playedMana
-                          ? null
-                          : () {
-                            Navigator.pop(context);
-                            sendToMana(card);
-                          },
-                  child: Text("Send to Mana Zone"),
-                ),
-                if (playedMana)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      "You already sent a card to mana this turn!",
-                      style: TextStyle(color: Colors.red, fontSize: 12),
-                    ),
-                  ),
-
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    summonCard(card);
-                  },
-                  child: Text("Summon to Battle Zone"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    sendToGraveyard(card);
-                  },
-                  child: Text("Send to Graveyard"),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("Cancel"),
-                ),
-              ],
-            ),
-          ),
-    );
-  }
 
   void attackShield(CardModel attacker, CardModel targetShield) {
     if (attacker.isTapped) {

@@ -73,7 +73,7 @@ class _CardRowState extends State<CardRow> {
                     ),
                   ),
 
-                  if (hoveredCard == card && widget.label == "Your Hand")
+                  if (hoveredCard?.gameCardId == card.gameCardId && widget.label == "Your Hand")
                     Positioned(
                       bottom: 0,
                       child: Row(

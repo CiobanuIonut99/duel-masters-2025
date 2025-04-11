@@ -73,10 +73,18 @@ public class ActionsService {
         if (!opponentManaZone.isEmpty()) {
             opponentManaZone.forEach(cardDto -> cardDto.setTapped(false));
             for (CardDto cardDto : opponentHand) {
-                var atLeastOneCardSameCivilizationPresent = opponentManaZone.stream()
+                var atLeastOneCardSameCivilizationPresent = opponentManaZone
+                        .stream()
                         .anyMatch(card -> card.getCivilization().equalsIgnoreCase(cardDto.getCivilization()));
+                log.info("START LOG *************************************************************************");
+                log.info("At least one card same civilization present in mana : {}", atLeastOneCardSameCivilizationPresent);
+                log.info("CardDto mana needed to be summoned : {}", cardDto.getManaCost());
+                log.info("CardDto name : {}", cardDto.getName());
+                log.info("Opponent mana zone size : {}", opponentManaZone.size());
+                log.info("STOP LOG *************************************************************************");
                 if (atLeastOneCardSameCivilizationPresent && opponentManaZone.size() >= cardDto.getManaCost()) {
                     cardDto.setSummonable(true);
+                    log.info("Opponent summonable card : {}", cardDto.getName());
                 }
             }
         }
