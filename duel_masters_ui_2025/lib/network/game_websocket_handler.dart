@@ -128,6 +128,29 @@ class GameWebSocketHandler {
     );
   }
 
+  void summon({
+    required String? gameId,
+    required int playerId,
+    required String? playerTopic,
+    required String triggeredGameCardId,
+    required VoidCallback onSucces,
+  }) {
+    if (!stompClient.connected) return;
+
+    final payload = {
+      "gameId": gameId,
+      "playerId": playerId,
+      "playerTopic": playerTopic,
+      "action": "SUMMON_TO_BATTLE_ZONE",
+      "triggeredGameCardId": triggeredGameCardId,
+    };
+
+    stompClient.send(
+      destination: '/duel-masters/game/action',
+      body: jsonEncode(payload),
+    );
+  }
+
   void endTurn({
     required String? gameId,
     required int playerId,

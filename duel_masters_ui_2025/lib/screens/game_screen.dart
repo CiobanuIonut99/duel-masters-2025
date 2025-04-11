@@ -436,7 +436,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           glowingManaCardIds.add(card.gameCardId);
         });
       },
-
     );
     Future.delayed(Duration(seconds: 2), () {
       setState(() {
@@ -460,23 +459,24 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       action: "END_TURN",
       onSuccess: () {
         setState(() {
-          playerHand = playerHand.map((card) {
-            return CardModel(
-              id: card.id,
-              power: card.power,
-              gameCardId: card.gameCardId,
-              name: card.name,
-              type: card.type,
-              civilization: card.civilization,
-              race: card.race,
-              manaCost: card.manaCost,
-              manaNumber: card.manaNumber,
-              ability: card.ability,
-              specialAbility: card.specialAbility,
-              isTapped: card.isTapped,
-              summonable: true, // or apply your condition here
-            );
-          }).toList();
+          playerHand =
+              playerHand.map((card) {
+                return CardModel(
+                  id: card.id,
+                  power: card.power,
+                  gameCardId: card.gameCardId,
+                  name: card.name,
+                  type: card.type,
+                  civilization: card.civilization,
+                  race: card.race,
+                  manaCost: card.manaCost,
+                  manaNumber: card.manaNumber,
+                  ability: card.ability,
+                  specialAbility: card.specialAbility,
+                  isTapped: card.isTapped,
+                  summonable: true, // or apply your condition here
+                );
+              }).toList();
         });
       },
     );
@@ -486,8 +486,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void resetTurn() {}
 
-  void summonCard(CardModel card) {}
-
+  void summonCard(CardModel card) {
+    wsHandler.summon(
+      gameId: currentGameId,
+      playerId: currentPlayerId,
+      playerTopic: myPlayerTopic,
+      triggeredGameCardId: card.gameCardId,
+      onSucces: () {
+        setState(() {});
+      },
+    );
+  }
 
   void attackShield(CardModel attacker, CardModel targetShield) {
     if (attacker.isTapped) {
@@ -636,15 +645,25 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                         manaZone: playerManaZone,
                         graveyard: playerGraveyard,
                         deckSize: deckSize,
-                        onTapHandCard: (card) => _showFullScreenCardPreview(card),
-                        onSecondaryTapHandCard: (card) {}, // REMOVE DIALOG ON RIGHT CLICK
-                        onTapManaZone: () => _showCardZoneDialog("Your Mana", playerManaZone),
-                        onTapGraveyard: () => _showCardZoneDialog("Graveyard", playerGraveyard),
-                        onSummonHandCard: (card) => summonCard(card),         // right click -> summon
-                        onSendToManaHandCard: (card) => sendToMana(card),     // right click -> mana
+                        onTapHandCard:
+                            (card) => _showFullScreenCardPreview(card),
+                        onSecondaryTapHandCard: (card) {},
+                        // REMOVE DIALOG ON RIGHT CLICK
+                        onTapManaZone:
+                            () => _showCardZoneDialog(
+                              "Your Mana",
+                              playerManaZone,
+                            ),
+                        onTapGraveyard:
+                            () => _showCardZoneDialog(
+                              "Graveyard",
+                              playerGraveyard,
+                            ),
+                        onSummonHandCard: (card) => summonCard(card),
+                        // right click -> summon
+                        onSendToManaHandCard:
+                            (card) => sendToMana(card), // right click -> mana
                       ),
-
-
 
                       SizedBox(height: 16),
                     ],
