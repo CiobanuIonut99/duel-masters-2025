@@ -11,7 +11,7 @@ class CardModel {
   final String ability;
   final String specialAbility;
   bool isTapped;
-  bool isSummonable;  // NEW
+  bool summonable;  // NEW
 
   CardModel({
     required this.id,
@@ -26,7 +26,7 @@ class CardModel {
     required this.ability,
     required this.specialAbility,
     this.isTapped = false,
-    this.isSummonable = false, // NEW
+    this.summonable = false, // NEW
   });
 
   void toggleTap() {
@@ -46,7 +46,7 @@ class CardModel {
     'ability': ability,
     'specialAbility': specialAbility,
     'isTapped': isTapped,
-    'isSummonable': isSummonable, // NEW
+    'summonable': summonable, // NEW
   };
 
   factory CardModel.fromJson(Map<String, dynamic> json) {
@@ -63,7 +63,7 @@ class CardModel {
       ability: json['ability'],
       specialAbility: json['specialAbility'],
       isTapped: json['isTapped'] ?? false,
-      isSummonable: json['isSummonable'] ?? false,  // NEW
+      summonable: json['summonable'] ?? false,
     );
   }
 

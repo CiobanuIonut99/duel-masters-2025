@@ -24,6 +24,9 @@ public class ActionsService {
         currentState.setPlayedMana(false);
         drawCard(currentState, incomingDto);
         setOpponentCreaturesSummonable(currentState, incomingDto);
+        log.info("****************************".repeat(20));
+        log.info("GAME STATE : {}", currentState);
+        log.info("****************************".repeat(20));
         topicService.sendGameStatesToTopics(currentState);
     }
 
