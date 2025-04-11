@@ -687,6 +687,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return Column(
       children: [
         GameZone(
+          key: ValueKey(opponentBattleZone.map((e) => e.gameCardId).join(',')),
           label: "Opponent Battle Zone",
           cards: opponentBattleZone,
           cardWidth: 100,
@@ -694,6 +695,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         ),
         SizedBox(height: 12),
         GameZone(
+          key: ValueKey(playerBattleZone.map((e) => e.gameCardId).join(',')),
           label: "Your Battle Zone",
           cards: playerBattleZone,
           cardWidth: 100,
@@ -706,6 +708,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       ],
     );
   }
+
 
   // 🛡️ Shield card flies to opponent hand after trembling
   Widget _buildShieldBreakAnimation() {
