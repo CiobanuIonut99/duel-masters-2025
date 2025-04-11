@@ -35,32 +35,46 @@ class OpponentField extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
+            Align(
+              alignment: Alignment.centerRight,
               child: _buildZoneContainer(
                 label: "Opponent Hand",
                 cards: hand,
                 hideFaces: true,
               ),
             ),
-            GestureDetector(
-              onTap: onTapGraveyard,
-              child: _buildZoneContainer(label: "Graveyard", cards: graveyard),
-            ),
-            GestureDetector(
-              onTap: onTapManaZone,
-              child: _buildZoneContainer(label: "Opponent Mana", cards: manaZone),
-            ),
-            Column(
+            Row(
               children: [
-                Transform.rotate(
-                  angle: 3.14,
-                  child: Image.asset('assets/cards/0.jpg', width: 70),
+                GestureDetector(
+                  onTap: onTapGraveyard,
+                  child: _buildZoneContainer(
+                    label: "Graveyard",
+                    cards: graveyard,
+                  ),
                 ),
-                Text('Opponent Deck ($deckSize)'),
+                SizedBox(width: 8),
+                GestureDetector(
+                  onTap: onTapManaZone,
+                  child: _buildZoneContainer(
+                    label: "Opponent Mana",
+                    cards: manaZone,
+                  ),
+                ),
+                SizedBox(width: 8),
+                Column(
+                  children: [
+                    Transform.rotate(
+                      angle: 3.14,
+                      child: Image.asset('assets/cards/0.jpg', width: 70),
+                    ),
+                    Text('Opponent Deck ($deckSize)'),
+                  ],
+                ),
               ],
             ),
           ],
         ),
+
         SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -96,6 +110,7 @@ class OpponentField extends StatelessWidget {
       ),
       child: GameZone(
         label: label,
+
         cards: cards,
         cardWidth: 100,
         hideCardFaces: hideFaces,

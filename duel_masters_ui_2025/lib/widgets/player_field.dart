@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../models/card_model.dart';
 import '../screens/game_zone.dart';
+import 'package:flutter/material.dart';
+import '../../models/card_model.dart';
+import '../screens/game_zone.dart';
 
 class PlayerField extends StatelessWidget {
   final List<CardModel> hand;
@@ -44,7 +47,8 @@ class PlayerField extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
+            Align(
+              alignment: Alignment.centerLeft,
               child: _buildZoneContainer(
                 label: "Your Hand",
                 cards: hand,
@@ -52,18 +56,30 @@ class PlayerField extends StatelessWidget {
                 onSecondaryTapCard: onSecondaryTapHandCard,
               ),
             ),
-            GestureDetector(
-              onTap: onTapGraveyard,
-              child: _buildZoneContainer(label: "Graveyard", cards: graveyard),
-            ),
-            GestureDetector(
-              onTap: onTapManaZone,
-              child: _buildZoneContainer(label: "Your Mana", cards: manaZone),
-            ),
-            Column(
+            Row(
               children: [
-                Image.asset('assets/cards/0.jpg', width: 70),
-                Text('Your Deck ($deckSize)'),
+                GestureDetector(
+                  onTap: onTapGraveyard,
+                  child: _buildZoneContainer(
+                    label: "Graveyard",
+                    cards: graveyard,
+                  ),
+                ),
+                SizedBox(width: 8),
+                GestureDetector(
+                  onTap: onTapManaZone,
+                  child: _buildZoneContainer(
+                    label: "Your Mana",
+                    cards: manaZone,
+                  ),
+                ),
+                SizedBox(width: 8),
+                Column(
+                  children: [
+                    Image.asset('assets/cards/0.jpg', width: 70),
+                    Text('Your Deck ($deckSize)'),
+                  ],
+                ),
               ],
             ),
           ],
