@@ -20,11 +20,10 @@ public class ActionsService {
     public void endTurn(GameStateDto currentState,
                         GameStateDto incomingDto) {
         log.info("Ending turn");
-//        aici probabil trebuie facut din backend, nu luat opponent ID din front end
         currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
         currentState.setPlayedMana(false);
+        setOpponentCreaturesSummonable(currentState, incomingDto);
         drawCard(currentState, incomingDto);
-
         topicService.sendGameStatesToTopics(currentState);
     }
 
@@ -66,5 +65,20 @@ public class ActionsService {
         manaZone.add(toMoveAndRemove);
     }
 
+    public void setOpponentCreaturesSummonable(GameStateDto currentState, GameStateDto incomingDto) {
+        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingDto);
+        var opponentHand = opponentCards.getHand();
+        var opponentManaZone = opponentCards.getManaZone();
 
+        if (!opponentManaZone.isEmpty()) {
+            opponentManaZone.forEach(cardDto -> cardDto.setTapped(false));
+            for (CardDto cardDto : opponentHand) {
+                var atLeastOneCardSameCivilizationPresent = opponentManaZone.stream()
+                        .anyMatch(card -> card.getCivilization().equalsIgnoreCase(cardDto.getCivilization()));
+                if (atLeastOneCardSameCivilizationPresent && opponentManaZone.size() >= cardDto.getManaCost()) {
+                    cardDto.setSummonable(true);
+                }
+            }
+        }
+    }
 }

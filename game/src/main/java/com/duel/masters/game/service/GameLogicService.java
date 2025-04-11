@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static com.duel.masters.game.constant.Constant.END_TURN;
-import static com.duel.masters.game.constant.Constant.SEND_CARD_TO_MANA;
+import static com.duel.masters.game.constant.Constant.*;
 import static com.duel.masters.game.util.ObjectMapperUtil.convertToGameStateDto;
 
 @AllArgsConstructor
@@ -28,11 +27,10 @@ public class GameLogicService {
         }
 
         switch (incomingDto.getAction()) {
-            case SEND_CARD_TO_MANA -> {
-                actionsService.sendCardToMana(currentState, incomingDto);
-            }
-            case END_TURN -> {
-                actionsService.endTurn(currentState, incomingDto);
+            case SEND_CARD_TO_MANA -> actionsService.sendCardToMana(currentState, incomingDto);
+            case END_TURN -> actionsService.endTurn(currentState, incomingDto);
+            case SUMMON_TO_BATTLE_ZONE -> {
+//            actionsService.summonToBattleZone(currentState, incomingDto);
             }
         }
     }
