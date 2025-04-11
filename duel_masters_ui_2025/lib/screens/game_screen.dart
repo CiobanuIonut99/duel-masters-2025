@@ -1,17 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:stomp_dart_client/stomp.dart';
-import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:stomp_dart_client/stomp_handler.dart';
 
 import '../animations/fx_game.dart';
 import '../models/card_model.dart';
+import '../network/game_websocket_handler.dart';
 import 'game_zone.dart';
 
 class GameScreen extends StatefulWidget {
@@ -81,65 +80,38 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   StompUnsubscribe? sub2;
 
   late StompClient stompClient;
+  late final GameWebSocketHandler wsHandler;
 
-  // Initialize entire state
   @override
   void initState() {
     super.initState();
     fetchGameData();
+
     fxGame = FxGame();
-    stompClient = StompClient(
-      config: StompConfig(
-        url: 'wss://439d-213-170-209-87.ngrok-free.app/duel-masters-ws',
-        onConnect: onStompConnect,
-        onWebSocketError: (dynamic error) => print("WebSocket error: $error"),
-      ),
-    );
 
-    stompClient.activate();
-
-    shieldMoveController = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 5),
-    );
-
-    trembleAnimation = Tween<double>(
-      begin: 0,
-      end: 48,
-    ).chain(CurveTween(curve: Curves.elasticIn)).animate(shieldMoveController);
-
-    scaleAnimation = TweenSequence([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.2), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.2), weight: 1),
-    ]).animate(
-      CurvedAnimation(
-        parent: shieldMoveController,
-        curve: Interval(0.0, 0.3), // scale pulse only in the early phase
-      ),
-    );
-
-    shieldOffsetAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: Offset(-2, -2), // adjust to where opponent's hand is
-    ).animate(
-      CurvedAnimation(
-        parent: shieldMoveController,
-        curve: Interval(0.4, 1.0, curve: Curves.easeOut),
-      ),
-    );
-
-    shieldMoveController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
+    wsHandler = GameWebSocketHandler(
+      url: 'wss://439d-213-170-209-87.ngrok-free.app/duel-masters-ws',
+      currentPlayerId: currentPlayerId,
+      onMatchFound: (gameId, playerTopic) {
         setState(() {
-          animateShieldToHand = false;
-          opponentShields.remove(redGlowShield);
-          opponentHand.add(brokenShieldCard!);
-          brokenShieldCard = null;
-          redGlowShield = null;
+          currentGameId = gameId;
+          myPlayerTopic = playerTopic;
+          hasJoinedMatch = true;
         });
-      }
-    });
+      },
+      onGameStateUpdate: (data) {
+        _updateGameState(data);
+      },
+    );
+
+    wsHandler.connect();
+  }
+
+  @override
+  void dispose() {
+    shieldMoveController.dispose();
+    wsHandler.disconnect();
+    super.dispose();
   }
 
   Future<void> fetchGameData() async {
@@ -235,6 +207,77 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       print("Failed to fetch game data. Status code: ${response.statusCode}");
       throw Exception('Failed to load game data');
     }
+  }
+
+  void _updateGameState(Map<String, dynamic> responseBody) {
+    setState(() {
+      currentTurnPlayerId = responseBody['currentTurnPlayerId'];
+      opponentId = responseBody['opponentId'];
+      playedMana = responseBody['playedMana'];
+
+      playerHand =
+          (responseBody['playerHand'] as List)
+              .map((c) => CardModel.fromJson(c))
+              .toList();
+
+      playerShields =
+          (responseBody['playerShields'] as List)
+              .map((c) => CardModel.fromJson(c))
+              .toList();
+
+      playerDeck =
+          (responseBody['playerDeck'] as List)
+              .map((c) => CardModel.fromJson(c))
+              .toList();
+
+      playerManaZone =
+          (responseBody['playerManaZone'] as List)
+              .map((c) => CardModel.fromJson(c))
+              .toList();
+
+      playerBattleZone =
+          (responseBody['playerBattleZone'] as List)
+              .map((c) => CardModel.fromJson(c))
+              .toList();
+
+      playerGraveyard =
+          (responseBody['playerGraveyard'] as List)
+              .map((c) => CardModel.fromJson(c))
+              .toList();
+
+      opponentHand =
+          (responseBody['opponentHand'] as List? ?? [])
+              .map((c) => CardModel.fromJson(c))
+              .toList();
+
+      opponentShields =
+          (responseBody['opponentShields'] as List? ?? [])
+              .map((c) => CardModel.fromJson(c))
+              .toList();
+
+      opponentDeck =
+          (responseBody['opponentDeck'] as List? ?? [])
+              .map((c) => CardModel.fromJson(c))
+              .toList();
+
+      opponentManaZone =
+          (responseBody['opponentManaZone'] as List? ?? [])
+              .map((c) => CardModel.fromJson(c))
+              .toList();
+
+      opponentBattleZone =
+          (responseBody['opponentBattleZone'] as List? ?? [])
+              .map((c) => CardModel.fromJson(c))
+              .toList();
+
+      opponentGraveyard =
+          (responseBody['opponentGraveyard'] as List? ?? [])
+              .map((c) => CardModel.fromJson(c))
+              .toList();
+
+      deckSize = playerDeck.length;
+      opponentDeckSize = opponentDeck.length;
+    });
   }
 
   // Connect with backend WS throgh STOMP
@@ -359,46 +402,25 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void _searchForMatch() {
-    if (stompClient.connected) {
-      final randomId = currentPlayerId;
-      final randomUsername = "player_$randomId";
-      stompClient.send(
-        destination: '/duel-masters/game/start',
-        body: jsonEncode({
-          "id": randomId,
-          "username": randomUsername,
-          "playerHand": playerHand.map((card) => card.toJson()).toList(),
-          "playerShields": playerShields.map((card) => card.toJson()).toList(),
-          "playerDeck": playerDeck.map((card) => card.toJson()).toList(),
-        }),
-        headers: {'content-type': 'application/json'},
-      );
-
-      print("🔄 Searching for match as $randomUsername ($randomId)");
-      log("🔄 Searching for match as $randomUsername ($randomId)");
-
-      setState(() {
-        hasJoinedMatch = true;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    shieldMoveController.dispose();
-    stompClient.deactivate();
-    super.dispose();
+    wsHandler.searchForMatch(
+      hand: playerHand,
+      shields: playerShields,
+      deck: playerDeck,
+      onSearching: () {
+        setState(() {
+          hasJoinedMatch = true;
+        });
+      },
+    );
   }
 
   bool hasPlayedManaThisTurn = false;
-
 
   Widget _buildZoneLabel(String label) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.black.
-        withOpacity(0.6),
+        color: Colors.black.withOpacity(0.6),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(color: Colors.black45, offset: Offset(0, 2), blurRadius: 4),
@@ -422,35 +444,45 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       );
       return;
     }
-
-    final payload = {
-      "gameId": currentGameId,
-      "playerId": currentPlayerId,
-      "playerTopic": myPlayerTopic,
-      "action": "SEND_CARD_TO_MANA",
-      "triggeredGameCardId": card.gameCardId,
-    };
-
-    if (stompClient.connected) {
-      stompClient.send(
-        destination: '/duel-masters/game/action',
-        body: jsonEncode(payload),
-      );
-    }
+    wsHandler.sendCardToMana(
+      gameId: currentGameId,
+      playerId: currentPlayerId,
+      playerTopic: myPlayerTopic,
+      triggeredGameCardId: card.gameCardId,
+      onAlreadyPlayedMana: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("You can only send one card to mana per turn."),
+          ),
+        );
+      },
+    );
   }
 
+  void endTurn() {
+    wsHandler.endTurn(
+      gameId: currentGameId,
+      playerId: currentPlayerId,
+      currentTurnPlayerId: currentTurnPlayerId,
+      opponentId: opponentId,
+      action: "END_TURN",
+      onSuccess: () {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Drew one card from deck")));
 
-  void sendToGraveyard(CardModel card) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("All cards untapped for new turn")),
+        );
+      },
+    );
   }
 
-  void resetTurn() {
-    setState(() {
-      hasPlayedManaThisTurn = false;
-    });
-  }
+  void sendToGraveyard(CardModel card) {}
 
-  void summonCard(CardModel card) {
-  }
+  void resetTurn() {}
+
+  void summonCard(CardModel card) {}
 
   void _showHandCardDialog(CardModel card) {
     showDialog(
@@ -462,12 +494,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ElevatedButton(
-                  onPressed: playedMana
-                    ? null
-                : () {
-                    Navigator.pop(context);
-                    sendToMana(card);
-                  },
+                  onPressed:
+                      playedMana
+                          ? null
+                          : () {
+                            Navigator.pop(context);
+                            sendToMana(card);
+                          },
                   child: Text("Send to Mana Zone"),
                 ),
                 if (playedMana)
@@ -548,45 +581,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     });
   }
 
-  void _startAttackSelection(CardModel attacker) {
-    setState(() {
-      isSelectingAttackTarget = true;
-      selectedAttacker = attacker;
-    });
-  }
-
-  void endTurn() {
-    final payload = {
-      "gameId": currentGameId,
-      "playerId": currentPlayerId,
-      "opponentId": opponentId,
-      "currentTurnPlayerId":currentTurnPlayerId,
-      "action": "END_TURN",
-    };
-
-    if (stompClient.connected) {
-      stompClient.send(
-        destination: '/duel-masters/game/action',
-        body: jsonEncode(payload),
-      );
-
-      setState(() {
-        // hasPlayedManaThisTurn = true;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Drew one card from deck")),
-      );
-    }
-
-    setState(() {
-    });
-
-    // Show a message that the turn has ended
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text("All cards untapped for new turn")));
-  }
+  void _startAttackSelection(CardModel attacker) {}
 
   @override
   Widget build(BuildContext context) {
@@ -603,9 +598,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     ? "Your Turn"
                     : "Opponent's Turn",
                 style: TextStyle(
-                  color: currentTurnPlayerId == currentPlayerId
-                      ? Colors.greenAccent
-                      : Colors.redAccent,
+                  color:
+                      currentTurnPlayerId == currentPlayerId
+                          ? Colors.greenAccent
+                          : Colors.redAccent,
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
@@ -681,8 +677,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                 color: Colors.black.withOpacity(0.3),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child:
-                              GameZone(
+                              child: GameZone(
                                 label: "Opponent Battle Zone",
                                 cards: opponentBattleZone,
                                 cardWidth: 100,
@@ -695,9 +690,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                   // if needed
                                 },
                               ),
-
                             ),
-
                           ),
                           SizedBox(height: 12),
                           Center(
@@ -714,13 +707,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                 scrollable: true,
                                 allowManaAction: false,
                                 onTap: (card) {
-                                  if (!card.isTapped) _startAttackSelection(card);
+                                  if (!card.isTapped)
+                                    _startAttackSelection(card);
                                 },
                                 onSecondaryTap: null,
                               ),
-
                             ),
-
                           ),
                         ],
                       ),
@@ -836,7 +828,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 color: Colors.black.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child:GameZone(
+              child: GameZone(
                 label: "Your Shields",
                 cards: playerShields,
                 cardWidth: 80,
@@ -846,7 +838,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 onTap: null,
                 onSecondaryTap: null,
               ),
-
             ),
           ],
         ),
@@ -876,7 +867,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                       _showHandCardDialog(card);
                     },
                   ),
-
                 ),
               ),
             ),
@@ -890,20 +880,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 label: "Graveyard",
                 cards: playerGraveyard,
               ),
-            )
-            ,
+            ),
             Container(
               padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: _buildManaZone(
-                label: "Your Mana",
-                cards: playerManaZone,
-              ),
-            )
-            ,
+              child: _buildManaZone(label: "Your Mana", cards: playerManaZone),
+            ),
             _buildDeckZone(deckSize: deckSize, label: "Your Deck"),
           ],
         ),
@@ -948,17 +933,14 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     color: Colors.black.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child:
-                  GameZone(
+                  child: GameZone(
                     label: "Opponent Hand",
                     cards: opponentHand,
                     cardWidth: 100,
                     scrollable: true,
                     hideCardFaces: true, // this shows card backs only
                   ),
-
-                )
-
+                ),
               ),
             ),
 
@@ -999,33 +981,34 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         // Opponent Shields centered
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [Container(
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(12),
+          children: [
+            Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: GameZone(
+                label: "Opponent Shields",
+                cards: opponentShields,
+                cardWidth: 100,
+                scrollable: true,
+                hideCardFaces: true,
+                allowManaAction: false,
+                // can't send to mana
+                onTap: (_) {},
+                // just disable preview (optional)
+                onSecondaryTap: (card) {
+                  if (isSelectingAttackTarget && selectedAttacker != null) {
+                    attackShield(selectedAttacker!, card);
+                    setState(() {
+                      isSelectingAttackTarget = false;
+                      selectedAttacker = null;
+                    });
+                  }
+                },
+              ),
             ),
-            child: GameZone(
-              label: "Opponent Shields",
-              cards: opponentShields,
-              cardWidth: 100,
-              scrollable: true,
-              hideCardFaces: true,
-              allowManaAction: false, // can't send to mana
-              onTap: (_) {},         // just disable preview (optional)
-              onSecondaryTap: (card) {
-                if (isSelectingAttackTarget && selectedAttacker != null) {
-                  attackShield(selectedAttacker!, card);
-                  setState(() {
-                    isSelectingAttackTarget = false;
-                    selectedAttacker = null;
-                  });
-                }
-              },
-            ),
-
-          )
-
           ],
         ),
         SizedBox(height: 12),
@@ -1047,9 +1030,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         body: jsonEncode(payload),
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("🔀 Randomizing Turn Player...")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("🔀 Randomizing Turn Player...")));
     }
   }
 
