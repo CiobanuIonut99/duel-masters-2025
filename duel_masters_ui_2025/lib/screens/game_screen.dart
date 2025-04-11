@@ -705,12 +705,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        if (isSelected) {
-
-                          selectedManaIds.add(manaCard.gameCardId);
-                        } else {
-
+                        if (selectedManaIds.contains(manaCard.gameCardId)) {
                           selectedManaIds.remove(manaCard.gameCardId);
+                        } else {
+                          selectedManaIds.add(manaCard.gameCardId);
                         }
                       });
                     },
@@ -739,6 +737,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                       ),
                     ),
                   );
+
                 }).toList(),
               ),
             ),

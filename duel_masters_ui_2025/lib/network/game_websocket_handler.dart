@@ -160,7 +160,7 @@ class GameWebSocketHandler {
     required VoidCallback onSucces,
   }) {
     stompClient.send(
-      destination: '/app/action',
+      destination: '/duel-masters/game/action',
       body: jsonEncode({
         "gameId": gameId,
         "playerId": playerId,
