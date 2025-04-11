@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../models/card_model.dart';
 
 class CardRow extends StatefulWidget {
@@ -85,7 +86,7 @@ class _CardRowState extends State<CardRow> {
                       children: [
                         if (card.summonable)
                           _actionButton(
-                            icon: Icons.sports_martial_arts,
+                            icon: LucideIcons.sword,
                             color: Colors.redAccent,
                             onPressed: () => widget.onSummon?.call(card),
                           ),
@@ -126,6 +127,7 @@ class _CardRowState extends State<CardRow> {
       ),
     );
   }
+
 
 
 }

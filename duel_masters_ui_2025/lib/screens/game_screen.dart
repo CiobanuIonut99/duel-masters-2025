@@ -488,17 +488,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void resetTurn() {}
 
-  void summonCard(CardModel card) {
-    wsHandler.summon(
-      gameId: currentGameId,
-      playerId: currentPlayerId,
-      playerTopic: myPlayerTopic,
-      triggeredGameCardId: card.gameCardId,
-      onSucces: () {
-        setState(() {});
-      },
-    );
-  }
+  // void summonCard(CardModel card) {
+  //   wsHandler.summon(
+  //     gameId: currentGameId,
+  //     playerId: currentPlayerId,
+  //     playerTopic: myPlayerTopic,
+  //     triggeredGameCardId: card.gameCardId,
+  //     onSucces: () {
+  //       setState(() {});
+  //     },
+  //   );
+  // }
 
   void attackShield(CardModel attacker, CardModel targetShield) {
     if (attacker.tapped) {
@@ -661,7 +661,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           "Graveyard",
                           playerGraveyard,
                         ),
-                        onSummonHandCard: (card) => summonCard(card),
+                        onSummonHandCard: (card) => _showManaSelectionDialog(card),
+
                         // right click -> summon
                         onSendToManaHandCard:
                             (card) => sendToMana(card), // right click -> mana
@@ -680,6 +681,99 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
+  void _showManaSelectionDialog(CardModel cardToSummon) {
+    List<String> selectedManaIds = [];
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey.shade900,
+          title: Text(
+            "Select Mana to Pay Cost",
+            style: TextStyle(color: Colors.white),
+          ),
+          content: SizedBox(
+            height: 120, // fix height for row
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: playerManaZone.map((manaCard) {
+                  final isSelected = selectedManaIds.contains(manaCard.gameCardId);
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isSelected) {
+
+                          selectedManaIds.add(manaCard.gameCardId);
+                        } else {
+
+                          selectedManaIds.remove(manaCard.gameCardId);
+                        }
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 200),
+                      margin: EdgeInsets.symmetric(horizontal: 6),
+                      padding: EdgeInsets.all(isSelected ? 4 : 0),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: isSelected ? Colors.greenAccent : Colors.transparent,
+                          width: 2,
+                        ),
+                        boxShadow: isSelected
+                            ? [
+                          BoxShadow(
+                            color: Colors.greenAccent.withOpacity(0.6),
+                            blurRadius: 8,
+                            spreadRadius: 2,
+                          ),
+                        ]
+                            : [],
+                      ),
+                      child: Image.asset(
+                        manaCard.imagePath,
+                        width: 80,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                summonCardWithMana(cardToSummon, selectedManaIds);
+              },
+              child: Text(
+                "Summon",
+                style: TextStyle(color: Colors.greenAccent),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  void summonCardWithMana(CardModel card, List<String> selectedManaIds) {
+    wsHandler.summonWithMana(
+      gameId: currentGameId,
+      playerId: currentPlayerId,
+      playerTopic: myPlayerTopic,
+      triggeredGameCardId: card.gameCardId,
+      selectedManaCardIds: selectedManaIds,
+      onSucces: () {
+        setState(() {});
+      },
+    );
+  }
+
 
   Widget _buildBattleZones() {
     return Column(
