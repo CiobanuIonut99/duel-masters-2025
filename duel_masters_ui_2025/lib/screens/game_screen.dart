@@ -734,9 +734,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               actions: [
                 TextButton(
                   onPressed: () {
+                    final selectedIds = List<String>.from(selectedManaIds); // clone to keep safe
                     Navigator.pop(context);
-                    summonCardWithMana(cardToSummon, selectedManaIds);
+                    summonCardWithMana(cardToSummon, selectedIds);
                   },
+
                   child: Text("Summon", style: TextStyle(color: Colors.greenAccent)),
                 ),
               ],
