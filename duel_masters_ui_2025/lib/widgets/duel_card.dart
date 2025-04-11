@@ -12,7 +12,7 @@ class DuelCard extends StatefulWidget {
 
 class _DuelCardState extends State<DuelCard> {
   bool revealed = false;
-  bool isTapped = false;
+  bool tapped = false;
 
   void _handleTap() {
     if (!revealed) {
@@ -36,11 +36,11 @@ class _DuelCardState extends State<DuelCard> {
               ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    isTapped = !isTapped;
+                    tapped = !tapped;
                   });
                   Navigator.pop(context);
                 },
-                child: Text(isTapped ? "Untap" : "Tap"),
+                child: Text(tapped ? "Untap" : "Tap"),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -80,7 +80,7 @@ class _DuelCardState extends State<DuelCard> {
         height: 200,
         child: Center( // centers the rotating card
           child: AnimatedRotation(
-            turns: isTapped ? 0.25 : 0.0,
+            turns: tapped ? 0.25 : 0.0,
             duration: Duration(milliseconds: 300),
             child: Container(
               width: 120,

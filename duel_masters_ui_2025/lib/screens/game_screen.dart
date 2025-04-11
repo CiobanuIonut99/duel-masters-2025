@@ -76,7 +76,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   bool isSelectingAttackTarget = false;
   bool animateShieldToHand = false;
-  bool isTapped = false;
+  bool tapped = false;
 
   double hoverScale = 1.0;
 
@@ -244,7 +244,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               .map((c) => CardModel.fromJson(c))
               .toList();
       print("Player battle zone : ${responseBody['playerBattleZone']}");
-      print("Player hand zone : ${responseBody['playerHand']}");
 
       playerGraveyard =
           (responseBody['playerGraveyard'] as List)
@@ -337,7 +336,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 final updatedPlayerBattleZone =
                 (responseBody['playerBattleZone'] as List)
                     .map((c) => CardModel.fromJson(c))
-                    .toList();
+                .toList();
 
                 print("UPDATED :::::::: PLAYER BATTLEZONE: : : : : : : :${responseBody['playerBattleZone']}");
                 final updatedPlayerGraveyard =
@@ -477,7 +476,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   manaNumber: card.manaNumber,
                   ability: card.ability,
                   specialAbility: card.specialAbility,
-                  isTapped: card.isTapped,
+                  tapped: card.tapped,
                   summonable: true, // or apply your condition here
                 );
               }).toList();
@@ -503,7 +502,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void attackShield(CardModel attacker, CardModel targetShield) {
-    if (attacker.isTapped) {
+    if (attacker.tapped) {
       showSnackBar("${attacker.name} is tapped and cannot attack!");
       return;
     }
@@ -535,7 +534,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         brokenShieldCard = actualShield;
         redGlowShield = actualShield;
         animateShieldToHand = true;
-        attacker.isTapped = true;
+        attacker.tapped = true;
       });
 
       shieldMoveController.reset();
@@ -700,7 +699,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           scrollable: true,
           glowingManaCardIds: glowingManaCardIds,
           onTap: (card) {
-            if (!card.isTapped) _startAttackSelection(card);
+            if (!card.tapped) _startAttackSelection(card);
           },
         ),
       ],

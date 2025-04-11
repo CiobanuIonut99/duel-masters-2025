@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import '../models/card_model.dart';
 
@@ -61,17 +63,23 @@ class _CardRowState extends State<CardRow> {
                           ? [BoxShadow(color: Colors.cyanAccent, blurRadius: 15, spreadRadius: 2)]
                           : [],
                     ),
-                    child: Transform.rotate(
-                      angle: (card.isTapped ? -1.57 : 0) + (widget.rotate180 ? 3.14 : 0),
-                      child: Transform.scale(
-                        scale: hoveredCard == card
-                            ? 1.15 : 1.0,
-                        child: Image.asset(
-                          widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
-                          width: widget.cardWidth,
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 200),
+                      width: card.tapped ? widget.cardWidth * 0.6 : widget.cardWidth,
+                      height: card.tapped ? widget.cardWidth : null, // wider when tapped
+                      child: Transform.rotate(
+                        angle: (card.tapped ? -math.pi / 2 : 0) + (widget.rotate180 ? math.pi : 0),
+                        child: Transform.scale(
+                          scale: hoveredCard == card ? 1.15 : 1.0,
+                          child: Image.asset(
+                            widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
+
+
                   ),
 
                   if (hoveredCard == card
