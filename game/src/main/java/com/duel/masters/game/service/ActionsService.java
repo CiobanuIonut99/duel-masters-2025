@@ -25,11 +25,13 @@ public class ActionsService {
 
     public void endTurn(GameStateDto currentState,
                         GameStateDto incomingDto) {
+
         currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
         currentState.setPlayedMana(false);
+
         drawCard(currentState, incomingDto);
-        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingDto);
-        setCreaturesSummonable(opponentCards, END_TURN);
+        setCreaturesSummonable(cardsUpdateService.getOpponentCards(currentState, incomingDto), END_TURN);
+
         topicService.sendGameStatesToTopics(currentState);
     }
 
@@ -45,30 +47,27 @@ public class ActionsService {
 
     public void sendCardToMana(GameStateDto currentState, GameStateDto incomingDto) {
 
-        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingDto);
-
-        if (!currentState.isPlayedMana()) {
-            playCard(ownCards.getHand(), incomingDto.getTriggeredGameCardId(), ownCards.getManaZone());
-            currentState.setPlayedMana(true);
-            setCreaturesSummonable(cardsUpdateService.getOwnCards(currentState, incomingDto), "");
-            topicService.sendGameStatesToTopics(currentState);
-            log.info("Mana card played");
-        } else {
+        if (currentState.isPlayedMana()) {
             throw new AlreadyPlayedManaException();
         }
+
+        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingDto);
+        playCard(ownCards.getHand(), incomingDto.getTriggeredGameCardId(), ownCards.getManaZone());
+        currentState.setPlayedMana(true);
+        setCreaturesSummonable(cardsUpdateService.getOwnCards(currentState, incomingDto), "");
+        topicService.sendGameStatesToTopics(currentState);
+        log.info("Mana card played");
     }
 
     public void playCard(List<CardDto> source, String triggeredGameCardId, List<CardDto> destination) {
-        log.info("Playing card source : {}", source);
-        CardDto toMoveAndRemove = null;
-        for (CardDto cardDto : source) {
-            if (cardDto.getGameCardId().equals(triggeredGameCardId)) {
-                toMoveAndRemove = cardDto;
-                break;
-            }
-        }
-        destination.add(toMoveAndRemove);
-        source.remove(toMoveAndRemove);
+        source
+                .stream()
+                .filter(cardDto -> cardDto.getGameCardId().equals(triggeredGameCardId))
+                .findFirst()
+                .ifPresent(cardDto -> {
+                    destination.add(cardDto);
+                    source.remove(cardDto);
+                });
     }
 
     public void setCreaturesSummonable(CardsUpdateDto cards, String actionType) {
@@ -115,6 +114,7 @@ public class ActionsService {
                 break;
             }
         }
+
         var manaZoneGameCardIds = manaZone
                 .stream()
                 .map(CardDto::getGameCardId)
