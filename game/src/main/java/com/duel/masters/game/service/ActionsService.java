@@ -60,6 +60,7 @@ public class ActionsService {
     }
 
     public void playCard(List<CardDto> source, String triggeredGameCardId, List<CardDto> destination) {
+        log.info("Playing card source : {}", source);
         CardDto toMoveAndRemove = null;
         for (CardDto cardDto : source) {
             if (cardDto.getGameCardId().equals(triggeredGameCardId)) {
@@ -99,5 +100,7 @@ public class ActionsService {
         var hand = cardsUpdateService.getOwnCards(currentState, incomingDto).getHand();
         var battleZone = cardsUpdateService.getOwnCards(currentState, incomingDto).getBattleZone();
         playCard(hand, incomingDto.getTriggeredGameCardId(), battleZone);
+        topicService.sendGameStatesToTopics(currentState);
+        log.info("Card summoned to battle zone : {}", battleZone);
     }
 }
