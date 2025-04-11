@@ -1,0 +1,99 @@
+import 'package:flutter/material.dart';
+import '../../models/card_model.dart';
+import '../screens/game_zone.dart';
+
+class PlayerField extends StatelessWidget {
+  final List<CardModel> hand;
+  final List<CardModel> shields;
+  final List<CardModel> manaZone;
+  final List<CardModel> graveyard;
+  final int deckSize;
+  final Function(CardModel) onTapHandCard;
+  final Function(CardModel) onSecondaryTapHandCard;
+  final VoidCallback onTapManaZone;
+  final VoidCallback onTapGraveyard;
+
+  const PlayerField({
+    super.key,
+    required this.hand,
+    required this.shields,
+    required this.manaZone,
+    required this.graveyard,
+    required this.deckSize,
+    required this.onTapHandCard,
+    required this.onSecondaryTapHandCard,
+    required this.onTapManaZone,
+    required this.onTapGraveyard,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildZoneContainer(
+              label: "Your Shields",
+              cards: shields,
+              hideFaces: true,
+            ),
+          ],
+        ),
+        SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: _buildZoneContainer(
+                label: "Your Hand",
+                cards: hand,
+                onTapCard: onTapHandCard,
+                onSecondaryTapCard: onSecondaryTapHandCard,
+              ),
+            ),
+            GestureDetector(
+              onTap: onTapGraveyard,
+              child: _buildZoneContainer(label: "Graveyard", cards: graveyard),
+            ),
+            GestureDetector(
+              onTap: onTapManaZone,
+              child: _buildZoneContainer(label: "Your Mana", cards: manaZone),
+            ),
+            Column(
+              children: [
+                Image.asset('assets/cards/0.jpg', width: 70),
+                Text('Your Deck ($deckSize)'),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildZoneContainer({
+    required String label,
+    required List<CardModel> cards,
+    bool hideFaces = false,
+    Function(CardModel)? onTapCard,
+    Function(CardModel)? onSecondaryTapCard,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: GameZone(
+        label: label,
+        cards: cards,
+        cardWidth: 100,
+        hideCardFaces: hideFaces,
+        allowManaAction: false,
+        onTap: onTapCard,
+        onSecondaryTap: onSecondaryTapCard,
+      ),
+    );
+  }
+}

@@ -11,6 +11,8 @@ import 'package:stomp_dart_client/stomp_handler.dart';
 import '../animations/fx_game.dart';
 import '../models/card_model.dart';
 import '../network/game_websocket_handler.dart';
+import '../widgets/opponent_field.dart';
+import '../widgets/player_field.dart';
 import 'game_zone.dart';
 
 class GameScreen extends StatefulWidget {
@@ -623,21 +625,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           ),
         ],
       ),
-
       body: Stack(
         children: [
-          // 🌲 Forest Background
           Positioned.fill(
             child: Image.asset(
               'assets/backgrounds/forest_board.png',
               fit: BoxFit.cover,
             ),
           ),
-
-          // 🔥 Flame animation FX layer (shield breaking, etc.)
           Positioned.fill(child: GameWidget(game: fxGame)),
-
-          // 🎴 Main game board UI
           SingleChildScrollView(
             child: ConstrainedBox(
               constraints: BoxConstraints(
@@ -649,58 +645,54 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildOpponentField(),
-                      SizedBox(height: 16),
-                      Column(
-                        children: [
-                          Center(
-                            child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: GameZone(
-                                label: "Opponent Battle Zone",
-                                cards: opponentBattleZone,
-                                cardWidth: 100,
-                                scrollable: true,
-                                allowManaAction: false,
-                                onTap: (card) {
-                                  // maybe just preview or nothing
-                                },
-                                onSecondaryTap: (card) {
-                                  // if needed
-                                },
-                              ),
+                      OpponentField(
+                        hand: opponentHand,
+                        shields: opponentShields,
+                        manaZone: opponentManaZone,
+                        graveyard: opponentGraveyard,
+                        deckSize: opponentDeckSize,
+                        isSelectingAttackTarget: isSelectingAttackTarget,
+                        selectedAttacker: selectedAttacker,
+                        onShieldAttack: attackShield,
+                        onTapManaZone:
+                            () => _showCardZoneDialog(
+                              "Opponent Mana",
+                              opponentManaZone,
+                              true,
                             ),
-                          ),
-                          SizedBox(height: 12),
-                          Center(
-                            child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: GameZone(
-                                label: "Your Battle Zone",
-                                cards: playerBattleZone,
-                                cardWidth: 100,
-                                scrollable: true,
-                                allowManaAction: false,
-                                onTap: (card) {
-                                  if (!card.isTapped)
-                                    _startAttackSelection(card);
-                                },
-                                onSecondaryTap: null,
-                              ),
+                        onTapGraveyard:
+                            () => _showCardZoneDialog(
+                              "Opponent Graveyard",
+                              opponentGraveyard,
+                              true,
                             ),
-                          ),
-                        ],
                       ),
+
                       SizedBox(height: 16),
-                      _buildPlayerField(),
+                      _buildBattleZones(),
+                      SizedBox(height: 16),
+                      PlayerField(
+                        hand: playerHand,
+                        shields: playerShields,
+                        manaZone: playerManaZone,
+                        graveyard: playerGraveyard,
+                        deckSize: deckSize,
+                        onTapHandCard:
+                            (card) => _showFullScreenCardPreview(card),
+                        onSecondaryTapHandCard:
+                            (card) => _showHandCardDialog(card),
+                        onTapManaZone:
+                            () => _showCardZoneDialog(
+                              "Your Mana",
+                              playerManaZone,
+                            ),
+                        onTapGraveyard:
+                            () => _showCardZoneDialog(
+                              "Graveyard",
+                              playerGraveyard,
+                            ),
+                      ),
+
                       SizedBox(height: 16),
                     ],
                   ),
@@ -708,12 +700,33 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ),
             ),
           ),
-
-          // 🛡️ Shield flying to hand animation
           if (animateShieldToHand && brokenShieldCard != null)
             _buildShieldBreakAnimation(),
         ],
       ),
+    );
+  }
+
+  Widget _buildBattleZones() {
+    return Column(
+      children: [
+        GameZone(
+          label: "Opponent Battle Zone",
+          cards: opponentBattleZone,
+          cardWidth: 100,
+          scrollable: true,
+        ),
+        SizedBox(height: 12),
+        GameZone(
+          label: "Your Battle Zone",
+          cards: playerBattleZone,
+          cardWidth: 100,
+          scrollable: true,
+          onTap: (card) {
+            if (!card.isTapped) _startAttackSelection(card);
+          },
+        ),
+      ],
     );
   }
 
