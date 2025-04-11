@@ -14,6 +14,7 @@ import 'card_row.dart';
 class GameZone extends StatelessWidget {
   final String label;
   final List<CardModel> cards;
+  final Set<String> glowingManaCardIds;
   final double cardWidth;
   final bool hideCardFaces;
   final bool rotate180;
@@ -33,6 +34,7 @@ class GameZone extends StatelessWidget {
     this.allowManaAction = false,
     this.onTap,
     this.onSecondaryTap,
+    this.glowingManaCardIds = const {}, // Add required
   });
 
   @override
@@ -46,6 +48,7 @@ class GameZone extends StatelessWidget {
       label: label,
       onTap: onTap,
       onSecondaryTap: onSecondaryTap,
+      glowingManaCardIds: glowingManaCardIds,
     );
 
     return Column(

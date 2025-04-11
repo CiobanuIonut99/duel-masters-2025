@@ -18,31 +18,17 @@ import '../models/card_model.dart';
 /// - Shield Zone
 /// - Mana Zone
 /// - Graveyard
-
+///
 class CardRow extends StatefulWidget {
-  /// List of cards to display
   final List<CardModel> cards;
-
-  /// Width of each card (defaults to 60)
   final double cardWidth;
-
-  /// Hide card faces? (if true -> show back image)
   final bool hideCardFaces;
-
-  /// Flip entire row upside down (for opponent zones)
   final bool rotate180;
-
-  /// Not directly used here, passed for parent use (like mana action highlight)
   final bool allowManaAction;
-
-  /// Label of the zone this CardRow belongs to
   final String label;
-
-  /// Left-click action handler
   final Function(CardModel)? onTap;
-
-  /// Right-click action handler
   final Function(CardModel)? onSecondaryTap;
+  final Set<String> glowingManaCardIds; // Accept glowingManaCardIds
 
   const CardRow({
     super.key,
@@ -54,6 +40,7 @@ class CardRow extends StatefulWidget {
     required this.label,
     this.onTap,
     this.onSecondaryTap,
+    required this.glowingManaCardIds, // Pass glowingManaCardIds
   });
 
   @override
@@ -61,7 +48,6 @@ class CardRow extends StatefulWidget {
 }
 
 class _CardRowState extends State<CardRow> {
-  /// For hover effect → scale card
   CardModel? hoveredCard;
 
   @override
@@ -69,6 +55,9 @@ class _CardRowState extends State<CardRow> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: widget.cards.map((card) {
+        // Check if the card is in the glowing set
+        bool isGlowing = widget.glowingManaCardIds.contains(card.gameCardId);
+
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: MouseRegion(
@@ -76,7 +65,6 @@ class _CardRowState extends State<CardRow> {
             onExit: (_) => setState(() => hoveredCard = null),
             child: GestureDetector(
               onTap: () {
-                // Hand cards → left click shows full preview
                 if (widget.label == "Your Hand" && !card.name.contains("Shield")) {
                   showDialog(
                     context: context,
@@ -96,19 +84,25 @@ class _CardRowState extends State<CardRow> {
                     ),
                   );
                 } else {
-                  widget.onTap?.call(card); // Else → parent defines behavior
+                  widget.onTap?.call(card); // Parent-defined behavior
                 }
               },
               onSecondaryTap: () {
-                widget.onSecondaryTap?.call(card); // Right click behavior
+                widget.onSecondaryTap?.call(card); // Right-click behavior
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
-                decoration: const BoxDecoration(), // No glow → pure image only
+                decoration: BoxDecoration(
+                  boxShadow: isGlowing
+                      ? [
+                    BoxShadow(color: Colors.cyanAccent, blurRadius: 15, spreadRadius: 2),
+                  ]
+                      : [],
+                ),
                 child: Transform.rotate(
                   angle: (card.isTapped ? -1.57 : 0) + (widget.rotate180 ? 3.14 : 0),
                   child: Transform.scale(
-                    scale: hoveredCard == card ? 1.15 : 1.0,
+                    scale: hoveredCard == card ? 1.15 : 1.0, // Hover scaling
                     child: Image.asset(
                       widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
                       width: widget.cardWidth,

@@ -39,6 +39,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   List<CardModel> opponentGraveyard = [];
   List<CardModel> opponentBattleZone = [];
 
+  Set<String> glowingManaCardIds = {};
+
   int deckSize = 0;
   int opponentDeckSize = 0;
 
@@ -450,7 +452,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       onAlreadyPlayedMana: () {
         showSnackBar("You can only send one card to mana per turn.");
       },
+      onSucces: () {
+        setState(() {
+          glowingManaCardIds.add(card.gameCardId);
+        });
+      },
+
     );
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        glowingManaCardIds.remove(card.gameCardId);
+      });
+    });
   }
 
   void showSnackBar(String message) {
@@ -722,6 +735,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           cards: playerBattleZone,
           cardWidth: 100,
           scrollable: true,
+          glowingManaCardIds: glowingManaCardIds,
           onTap: (card) {
             if (!card.isTapped) _startAttackSelection(card);
           },

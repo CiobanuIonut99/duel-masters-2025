@@ -110,6 +110,7 @@ class GameWebSocketHandler {
     required String? playerTopic,
     required String triggeredGameCardId,
     required VoidCallback onAlreadyPlayedMana,
+    required VoidCallback onSucces,
   }) {
     if (!stompClient.connected) return;
 
