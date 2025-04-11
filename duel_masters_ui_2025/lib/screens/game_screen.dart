@@ -495,7 +495,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ability: card.ability,
               specialAbility: card.specialAbility,
               isTapped: card.isTapped,
-              isSummonable: true, // or apply your condition here
+              summonable: true, // or apply your condition here
             );
           }).toList();
         });
