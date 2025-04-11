@@ -98,9 +98,12 @@ public class ActionsService {
     }
 
     public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingDto) {
-        var hand = cardsUpdateService.getOwnCards(currentState, incomingDto).getHand();
-        var battleZone = cardsUpdateService.getOwnCards(currentState, incomingDto).getBattleZone();
+        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingDto);
+        var hand = ownCards.getHand();
+        var battleZone = ownCards.getBattleZone();
+        log.info("Battle zone  before: {}", battleZone);
         var card = playCard(hand, incomingDto.getTriggeredGameCardId(), battleZone);
+        log.info("Battle zone after: {}", battleZone);
         card.setSummonable(false);
         card.setTapped(true);
         topicService.sendGameStatesToTopics(currentState);

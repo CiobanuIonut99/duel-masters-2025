@@ -338,6 +338,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     (responseBody['playerBattleZone'] as List)
                         .map((c) => CardModel.fromJson(c))
                         .toList();
+
+                print("UPDATED :::::::: PLAYER BATTLEZONE: : : : : : : :${responseBody['playerBattleZone']}");
                 final updatedPlayerGraveyard =
                     (responseBody['playerGraveyard'] as List)
                         .map((c) => CardModel.fromJson(c))
