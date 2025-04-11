@@ -38,6 +38,18 @@ public class GameService {
                             var gameStateOpponent = getGameStateDto(gameId, opponent, player, !isPlayer1Chosen, PLAYER_2_TOPIC);
                             var gameStates = List.of(gameStatePlayer, gameStateOpponent);
 
+                            gameStatePlayer
+                                    .getPlayerHand()
+                                            .forEach(cardDto -> cardDto.setManaCost(1));
+                            gameStatePlayer
+                                    .getPlayerHand()
+                                            .forEach(cardDto -> cardDto.setCivilization("DARKNESS"));
+                            gameStatePlayer
+                                    .getOpponentHand()
+                                            .forEach(cardDto -> cardDto.setManaCost(1));
+                            gameStatePlayer
+                                    .getOpponentHand()
+                                            .forEach(cardDto -> cardDto.setCivilization("DARKNESS"));
                             gameStateStore.saveGameState(gameStatePlayer);
                             simpMessagingTemplate.convertAndSend(MATCHMAKING_TOPIC, gameStates);
 

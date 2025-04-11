@@ -27,7 +27,6 @@ public class CardDto {
     private int power;
     private String ability;
     private String specialAbility;
-    @JsonAlias("isTapped")
-    private boolean isTapped;
+    private boolean tapped;
     private boolean summonable;
 }
