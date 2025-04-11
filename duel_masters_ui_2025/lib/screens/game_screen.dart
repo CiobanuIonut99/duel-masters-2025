@@ -691,12 +691,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                         graveyard: playerGraveyard,
                         deckSize: deckSize,
                         onTapHandCard: (card) => _showFullScreenCardPreview(card),
-                        onSecondaryTapHandCard: (card) => _showHandCardDialog(card),
+                        onSecondaryTapHandCard: (card) {}, // REMOVE DIALOG ON RIGHT CLICK
                         onTapManaZone: () => _showCardZoneDialog("Your Mana", playerManaZone),
                         onTapGraveyard: () => _showCardZoneDialog("Graveyard", playerGraveyard),
-                        onSummonHandCard: (card) => summonCard(card),         // NEW
-                        onSendToManaHandCard: (card) => sendToMana(card),     // NEW
+                        onSummonHandCard: (card) => summonCard(card),         // right click -> summon
+                        onSendToManaHandCard: (card) => sendToMana(card),     // right click -> mana
                       ),
+
 
 
                       SizedBox(height: 16),
@@ -816,86 +817,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildPlayerField() {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: GameZone(
-                label: "Your Shields",
-                cards: playerShields,
-                cardWidth: 80,
-                scrollable: true,
-                hideCardFaces: true,
-                allowManaAction: false,
-                onTap: null,
-                onSecondaryTap: null,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: GameZone(
-                    label: "Your Hand",
-                    cards: playerHand,
-                    cardWidth: 100,
-                    scrollable: true,
-                    allowManaAction: true,
-                    onTap: (card) {
-                      // _showFullScreenCardPreview(card);
-                    },
-                    onSecondaryTap: (card) {
-                      _showHandCardDialog(card);
-                    },
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: _buildGraveyardZone(
-                label: "Graveyard",
-                cards: playerGraveyard,
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: _buildManaZone(label: "Your Mana", cards: playerManaZone),
-            ),
-            _buildDeckZone(deckSize: deckSize, label: "Your Deck"),
-          ],
-        ),
-      ],
     );
   }
 
