@@ -75,25 +75,24 @@ class _CardRowState extends State<CardRow> {
 
                   if (hoveredCard?.gameCardId == card.gameCardId && widget.label == "Your Hand")
                     Positioned(
-                      bottom: 0,
+                      bottom: -10,
                       child: Row(
                         children: [
-                          IconButton(
-                            icon: Icon(Icons.visibility, color: Colors.white),
-                            onPressed: () => widget.onTap?.call(card),
-                          ),
                           if (card.summonable)
-                            IconButton(
-                              icon: Icon(Icons.sports, color: Colors.redAccent),
+                            _actionButton(
+                              icon: Icons.sports_martial_arts,
+                              color: Colors.redAccent,
                               onPressed: () => widget.onSummon?.call(card),
                             ),
-                          IconButton(
-                            icon: Icon(Icons.bolt, color: Colors.blueAccent),
+                          _actionButton(
+                            icon: Icons.bolt,
+                            color: Colors.blueAccent,
                             onPressed: () => widget.onSendToMana?.call(card),
                           ),
                         ],
                       ),
-                    )
+                    ),
+
                 ],
               ),
             ),
@@ -102,4 +101,25 @@ class _CardRowState extends State<CardRow> {
       }).toList(),
     );
   }
+
+  Widget _actionButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: Material(
+        color: Colors.black.withOpacity(0.8),
+        shape: const CircleBorder(),
+        elevation: 4,
+        child: IconButton(
+          icon: Icon(icon, color: color, size: 26),
+          onPressed: onPressed,
+          splashRadius: 24,
+        ),
+      ),
+    );
+  }
+
 }
