@@ -1,5 +1,6 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.dto.CardsUpdateDto;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import com.duel.masters.game.exception.AlreadyPlayedManaException;
@@ -23,7 +24,8 @@ public class ActionsService {
         currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
         currentState.setPlayedMana(false);
         drawCard(currentState, incomingDto);
-        setOpponentCreaturesSummonable(currentState, incomingDto);
+        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingDto);
+        setCreaturesSummonable(opponentCards);
         log.info("****************************".repeat(20));
         log.info("GAME STATE : {}", currentState);
         log.info("****************************".repeat(20));
@@ -49,6 +51,7 @@ public class ActionsService {
         if (!currentState.isPlayedMana()) {
             playMana(ownCards.getHand(), incomingDto.getTriggeredGameCardId(), ownCards.getManaZone());
             currentState.setPlayedMana(true);
+            setCreaturesSummonable(cardsUpdateService.getOwnCards(currentState, incomingDto));
             topicService.sendGameStatesToTopics(currentState);
             log.info("Mana card played");
         } else {
@@ -68,24 +71,23 @@ public class ActionsService {
         manaZone.add(toMoveAndRemove);
     }
 
-    public void setOpponentCreaturesSummonable(GameStateDto currentState, GameStateDto incomingDto) {
-        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingDto);
-        var opponentHand = opponentCards.getHand();
-        var opponentManaZone = opponentCards.getManaZone();
+    public void setCreaturesSummonable(CardsUpdateDto cards) {
+        var hand = cards.getHand();
+        var manaZone = cards.getManaZone();
 
-        if (!opponentManaZone.isEmpty()) {
-            opponentManaZone.forEach(cardDto -> cardDto.setTapped(false));
-            for (CardDto cardDto : opponentHand) {
-                var atLeastOneCardSameCivilizationPresent = opponentManaZone
+        if (!manaZone.isEmpty()) {
+            manaZone.forEach(cardDto -> cardDto.setTapped(false));
+            for (CardDto cardDto : hand) {
+                var atLeastOneCardSameCivilizationPresent = manaZone
                         .stream()
                         .anyMatch(card -> card.getCivilization().equalsIgnoreCase(cardDto.getCivilization()));
                 log.info("START LOG *************************************************************************");
                 log.info("At least one card same civilization present in mana : {}", atLeastOneCardSameCivilizationPresent);
                 log.info("CardDto mana needed to be summoned : {}", cardDto.getManaCost());
                 log.info("CardDto name : {}", cardDto.getName());
-                log.info("Opponent mana zone size : {}", opponentManaZone.size());
+                log.info("Opponent mana zone size : {}", manaZone.size());
                 log.info("STOP LOG *************************************************************************");
-                if (atLeastOneCardSameCivilizationPresent && opponentManaZone.size() >= cardDto.getManaCost()) {
+                if (atLeastOneCardSameCivilizationPresent && manaZone.size() >= cardDto.getManaCost()) {
                     cardDto.setSummonable(true);
                     log.info("Opponent summonable card : {}", cardDto.getName());
                 }
