@@ -9,7 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.function.Predicate;
+
+import static com.duel.masters.game.constant.Constant.END_TURN;
 
 @AllArgsConstructor
 @Service
@@ -21,22 +25,16 @@ public class ActionsService {
 
     public void endTurn(GameStateDto currentState,
                         GameStateDto incomingDto) {
-        log.info("Ending turn");
         currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
         currentState.setPlayedMana(false);
         drawCard(currentState, incomingDto);
         var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingDto);
-        setCreaturesSummonable(opponentCards);
-        log.info("****************************".repeat(20));
-        log.info("GAME STATE : {}", currentState);
-        log.info("****************************".repeat(20));
+        setCreaturesSummonable(opponentCards, END_TURN);
         topicService.sendGameStatesToTopics(currentState);
     }
 
     private void drawCard(GameStateDto currentState, GameStateDto incomingDto) {
-
-        final var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingDto);
-
+        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingDto);
         var opponentHand = opponentCards.getHand();
         var opponentDeck = opponentCards.getDeck();
         var opponentCard = opponentDeck.getFirst();
@@ -47,12 +45,12 @@ public class ActionsService {
 
     public void sendCardToMana(GameStateDto currentState, GameStateDto incomingDto) {
 
-        final var ownCards = cardsUpdateService.getOwnCards(currentState, incomingDto);
+        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingDto);
 
         if (!currentState.isPlayedMana()) {
             playCard(ownCards.getHand(), incomingDto.getTriggeredGameCardId(), ownCards.getManaZone());
             currentState.setPlayedMana(true);
-            setCreaturesSummonable(cardsUpdateService.getOwnCards(currentState, incomingDto));
+            setCreaturesSummonable(cardsUpdateService.getOwnCards(currentState, incomingDto), "");
             topicService.sendGameStatesToTopics(currentState);
             log.info("Mana card played");
         } else {
@@ -60,7 +58,7 @@ public class ActionsService {
         }
     }
 
-    public CardDto playCard(List<CardDto> source, String triggeredGameCardId, List<CardDto> destination) {
+    public void playCard(List<CardDto> source, String triggeredGameCardId, List<CardDto> destination) {
         log.info("Playing card source : {}", source);
         CardDto toMoveAndRemove = null;
         for (CardDto cardDto : source) {
@@ -71,28 +69,33 @@ public class ActionsService {
         }
         destination.add(toMoveAndRemove);
         source.remove(toMoveAndRemove);
-        return toMoveAndRemove;
     }
 
-    public void setCreaturesSummonable(CardsUpdateDto cards) {
+    public void setCreaturesSummonable(CardsUpdateDto cards, String actionType) {
         var hand = cards.getHand();
         var manaZone = cards.getManaZone();
 
+
         if (!manaZone.isEmpty()) {
-            manaZone.forEach(cardDto -> cardDto.setTapped(false));
+            if (actionType.equals(END_TURN)) {
+                manaZone.forEach(cardDto -> cardDto.setTapped(false));
+            }
             for (CardDto cardDto : hand) {
                 var atLeastOneCardSameCivilizationPresent = manaZone
                         .stream()
                         .anyMatch(card -> card.getCivilization().equalsIgnoreCase(cardDto.getCivilization()));
-                log.info("START LOG *************************************************************************");
-                log.info("At least one card same civilization present in mana : {}", atLeastOneCardSameCivilizationPresent);
-                log.info("CardDto mana needed to be summoned : {}", cardDto.getManaCost());
-                log.info("CardDto name : {}", cardDto.getName());
-                log.info("Opponent mana zone size : {}", manaZone.size());
-                log.info("STOP LOG *************************************************************************");
-                if (atLeastOneCardSameCivilizationPresent && manaZone.size() >= cardDto.getManaCost()) {
+                var untappedManaZoneCards = manaZone
+                        .stream()
+                        .filter(Predicate.not(CardDto::isTapped))
+                        .count();
+                if (atLeastOneCardSameCivilizationPresent &&
+                        manaZone.size() >= cardDto.getManaCost() &&
+                        untappedManaZoneCards >= cardDto.getManaCost()
+                ) {
                     cardDto.setSummonable(true);
                     log.info("Opponent summonable card : {}", cardDto.getName());
+                } else {
+                    cardDto.setSummonable(false);
                 }
             }
         }
@@ -117,24 +120,17 @@ public class ActionsService {
                 .map(CardDto::getGameCardId)
                 .toList();
 
-        boolean atLeastOneSelectedManaHasNecessaryCivilization = false;
         List<CardDto> selectedManaCards = new ArrayList<>();
-        for (int i = 0; i < manaZone.size(); i++) {
-            for (int j = 0; j < selectedManaCardIds.size(); j++) {
-                var selectedCard = manaZone.get(i);
-                if (selectedCard.getGameCardId().equals(selectedManaCardIds.get(j))) {
-                    selectedManaCards.add(selectedCard);
-                    if (selectedCard.getCivilization().equals(cardToBeSummoned.getCivilization())) {
-                        atLeastOneSelectedManaHasNecessaryCivilization = true;
-                    }
-                }
-            }
-        }
+        var atLeastOneSelectedManaCardHasNecessaryCivilization = atLeastOneSelectedManaCardHasNecessaryCivilization(manaZone,
+                selectedManaCardIds,
+                selectedManaCards,
+                cardToBeSummoned);
 
-        if (manaZoneGameCardIds.containsAll(incomingDto.getTriggeredGameCardIds()) &&
+        if (new HashSet<>(manaZoneGameCardIds)
+                .containsAll(incomingDto.getTriggeredGameCardIds()) &&
                 manaZone.size() >= selectedManaCardIds.size() &&
                 selectedManaCardIds.size() == cardToBeSummoned.getManaCost() &&
-                atLeastOneSelectedManaHasNecessaryCivilization
+                atLeastOneSelectedManaCardHasNecessaryCivilization
         ) {
             for (CardDto cardDto : selectedManaCards) {
                 cardDto.setTapped(true);
@@ -142,8 +138,24 @@ public class ActionsService {
             battleZone.add(cardToBeSummoned);
             hand.remove(cardToBeSummoned);
             cardToBeSummoned.setTapped(true);
+            setCreaturesSummonable(ownCards, "");
             topicService.sendGameStatesToTopics(currentState);
             log.info("Card summoned to battle zone : {}", battleZone);
         }
+    }
+
+    private boolean atLeastOneSelectedManaCardHasNecessaryCivilization(List<CardDto> manaZone, List<String> selectedManaCardIds, List<CardDto> selectedManaCards, CardDto cardToBeSummoned) {
+        var atLeastOneSelectedManaCardHasNecessaryCivilization = false;
+        for (CardDto manaCardDto : manaZone) {
+            for (String selectedManaCardId : selectedManaCardIds) {
+                if (manaCardDto.getGameCardId().equals(selectedManaCardId)) {
+                    selectedManaCards.add(manaCardDto);
+                    if (manaCardDto.getCivilization().equals(cardToBeSummoned.getCivilization())) {
+                        atLeastOneSelectedManaCardHasNecessaryCivilization = true;
+                    }
+                }
+            }
+        }
+        return atLeastOneSelectedManaCardHasNecessaryCivilization;
     }
 }
