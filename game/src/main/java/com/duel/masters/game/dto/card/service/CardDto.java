@@ -29,4 +29,5 @@ public class CardDto {
     private String specialAbility;
     @JsonAlias("isTapped")
     private boolean isTapped;
+    private boolean isSummonable;
 }
