@@ -82,11 +82,11 @@ class _CardRowState extends State<CardRow> {
                             icon: Icon(Icons.visibility, color: Colors.white),
                             onPressed: () => widget.onTap?.call(card),
                           ),
-                          if(card.isSummonable)
-                          IconButton(
-                            icon: Icon(Icons.sports, color: Colors.redAccent),
-                            onPressed: () => widget.onSummon?.call(card),
-                          ),
+                          if(card.summonable)
+                            IconButton(
+                              icon: Icon(Icons.sports, color: Colors.redAccent),
+                              onPressed: () => widget.onSummon?.call(card),
+                            ),
                           IconButton(
                             icon: Icon(Icons.bolt, color: Colors.blueAccent),
                             onPressed: () => widget.onSendToMana?.call(card),
@@ -94,6 +94,7 @@ class _CardRowState extends State<CardRow> {
                         ],
                       ),
                     ),
+
                 ],
               ),
             ),
