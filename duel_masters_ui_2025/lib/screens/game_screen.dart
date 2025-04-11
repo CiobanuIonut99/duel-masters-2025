@@ -414,8 +414,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  bool hasPlayedManaThisTurn = false;
-
   Widget _buildZoneLabel(String label) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -439,9 +437,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void sendToMana(CardModel card) {
     if (playedMana) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("You can only send one card to mana per turn.")),
-      );
+      showSnackBar("You can only send one card to mana per turn.");
       return;
     }
     wsHandler.sendCardToMana(
@@ -450,13 +446,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       playerTopic: myPlayerTopic,
       triggeredGameCardId: card.gameCardId,
       onAlreadyPlayedMana: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("You can only send one card to mana per turn."),
-          ),
-        );
+        showSnackBar("You can only send one card to mana per turn.");
       },
     );
+  }
+
+  void showSnackBar(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void endTurn() {
@@ -467,13 +465,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       opponentId: opponentId,
       action: "END_TURN",
       onSuccess: () {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Drew one card from deck")));
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("All cards untapped for new turn")),
-        );
+        //   maybe add some behaviour
       },
     );
   }
@@ -538,11 +530,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void attackShield(CardModel attacker, CardModel targetShield) {
     if (attacker.isTapped) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("${attacker.name} is tapped and cannot attack!"),
-        ),
-      );
+      showSnackBar("${attacker.name} is tapped and cannot attack!");
       return;
     }
 
@@ -619,12 +607,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           ? null
                           : () {
                             _searchForMatch();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("🔍 Looking for opponent..."),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
+                            showSnackBar("🔍 Looking for opponent...");
                           },
                   icon: Icon(Icons.person_search),
                   label: Text("Search Match"),
@@ -1014,26 +997,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         SizedBox(height: 12),
       ],
     );
-  }
-
-  void randomizeTurnPlayer() {
-    if (stompClient.connected) {
-      final payload = {
-        "gameId": currentGameId,
-        "playerId": currentPlayerId,
-        "playerTopic": myPlayerTopic,
-        "action": "RANDOMIZE_TURN_PLAYER",
-      };
-
-      stompClient.send(
-        destination: '/duel-masters/game/action',
-        body: jsonEncode(payload),
-      );
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("🔀 Randomizing Turn Player...")));
-    }
   }
 
   void _showFullScreenCardPreview(CardModel card) {
