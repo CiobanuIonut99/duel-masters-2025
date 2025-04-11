@@ -43,6 +43,8 @@ public class GameStateUtil {
                 .currentTurnPlayerId(gameStateDto.getCurrentTurnPlayerId())
                 .playerManaZone(gameStateDto.getPlayerManaZone())
                 .opponentManaZone(gameStateDto.getOpponentManaZone())
+                .playerBattleZone(gameStateDto.getPlayerBattleZone())
+                .opponentBattleZone(gameStateDto.getOpponentBattleZone())
                 .playerTopic(topic)
                 .build();
 
@@ -66,6 +68,8 @@ public class GameStateUtil {
                 .currentTurnPlayerId(gameStateDto.getCurrentTurnPlayerId())
                 .playerManaZone(gameStateDto.getOpponentManaZone())
                 .opponentManaZone(gameStateDto.getPlayerManaZone())
+                .playerBattleZone(gameStateDto.getOpponentBattleZone())
+                .opponentBattleZone(gameStateDto.getPlayerBattleZone())
                 .playerTopic(topic)
                 .build();
     }
