@@ -167,7 +167,7 @@ class GameWebSocketHandler {
         "playerTopic": playerTopic,
         "action": "SUMMON_TO_BATTLE_ZONE",
         "triggeredGameCardId": triggeredGameCardId,
-        "usedManaCardIds": selectedManaCardIds,
+        "triggeredGameCardIds": selectedManaCardIds,
       }),
     );
 
