@@ -41,75 +41,70 @@ class _CardRowState extends State<CardRow> {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: widget.cards.map((card) {
-        bool isGlowing = widget.glowingManaCardIds.contains(card.gameCardId);
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: widget.cards.map((card) {
+      bool isGlowing = widget.glowingManaCardIds.contains(card.gameCardId);
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: MouseRegion(
-            onEnter: (_) => setState(() => hoveredCard = card),
-            onExit: (_) => setState(() => hoveredCard = null),
-            child: GestureDetector(
-              onTap: () => widget.onTap?.call(card),
-              onSecondaryTap: () => widget.onSecondaryTap?.call(card),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    decoration: BoxDecoration(
-                      boxShadow: isGlowing
-                          ? [BoxShadow(color: Colors.cyanAccent, blurRadius: 15, spreadRadius: 2)]
-                          : [],
-                    ),
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 200),
-                      width: card.tapped ? widget.cardWidth * 0.6 : widget.cardWidth,
-                      height: card.tapped ? widget.cardWidth : null, // wider when tapped
-                      child: Transform.rotate(
-                        angle: (card.tapped ? -math.pi / 2 : 0) + (widget.rotate180 ? math.pi : 0),
-                        child: Transform.scale(
-                          scale: hoveredCard == card ? 1.15 : 1.0,
-                          child: Image.asset(
-                            widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-
-
+      return Padding(
+          padding: EdgeInsets.symmetric(horizontal: card.tapped ? 16 : 8),
+        child: MouseRegion(
+          onEnter: (_) => setState(() => hoveredCard = card),
+          onExit: (_) => setState(() => hoveredCard = null),
+          child: GestureDetector(
+            onTap: () => widget.onTap?.call(card),
+            onSecondaryTap: () => widget.onSecondaryTap?.call(card),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                AnimatedContainer(
+                  duration: Duration(milliseconds: 200),
+                  width: widget.cardWidth,
+                  height: widget.cardWidth * 1.4,
+                  decoration: BoxDecoration(
+                    boxShadow: isGlowing
+                        ? [BoxShadow(color: Colors.cyanAccent, blurRadius: 15, spreadRadius: 2)]
+                        : [],
+                    borderRadius: card.tapped ? BorderRadius.circular(8) : BorderRadius.zero,
                   ),
-
-                  if (hoveredCard == card
-                      && widget.label == "Your Hand")
-                    Positioned(
-                      bottom: -10,
-                      child: Row(
-                        children: [
-                          if (card.summonable)
-                            _actionButton(
-                              icon: Icons.sports_martial_arts,
-                              color: Colors.redAccent,
-                              onPressed: () => widget.onSummon?.call(card),
-                            ),
-                          _actionButton(
-                            icon: Icons.bolt,
-                            color: Colors.blueAccent,
-                            onPressed: () => widget.onSendToMana?.call(card),
-                          ),
-                        ],
+                  child: Transform.rotate(
+                    angle: (card.tapped ? -math.pi / 2 : 0) + (widget.rotate180 ? math.pi : 0),
+                    child: Transform.scale(
+                      scale: hoveredCard == card ? 1.15 : card.tapped ? 0.85 : 1.0,
+                      child: Image.asset(
+                        widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
+                        fit: BoxFit.cover,
                       ),
                     ),
+                  ),
+                ),
 
-                ],
-              ),
+                if (hoveredCard == card && widget.label == "Your Hand")
+                  Positioned(
+                    bottom: -10,
+                    child: Row(
+                      children: [
+                        if (card.summonable)
+                          _actionButton(
+                            icon: Icons.sports_martial_arts,
+                            color: Colors.redAccent,
+                            onPressed: () => widget.onSummon?.call(card),
+                          ),
+                        _actionButton(
+                          icon: Icons.bolt,
+                          color: Colors.blueAccent,
+                          onPressed: () => widget.onSendToMana?.call(card),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
             ),
           ),
-        );
-      }).toList(),
+        ),
+      );
+    }).toList(),
     );
+
   }
 
   Widget _actionButton({
