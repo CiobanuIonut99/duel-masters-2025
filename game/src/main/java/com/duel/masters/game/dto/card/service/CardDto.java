@@ -1,6 +1,5 @@
 package com.duel.masters.game.dto.card.service;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -28,5 +27,6 @@ public class CardDto {
     private String ability;
     private String specialAbility;
     private boolean tapped;
+    private boolean wantToTap;
     private boolean summonable;
 }

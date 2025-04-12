@@ -120,17 +120,19 @@ public class ActionsService {
                 .map(CardDto::getGameCardId)
                 .toList();
 
+
         List<CardDto> selectedManaCards = new ArrayList<>();
-        var atLeastOneSelectedManaCardHasNecessaryCivilization = atLeastOneSelectedManaCardHasNecessaryCivilization(manaZone,
+        var isValidForSummoning = isValidForSummoning(manaZone,
                 selectedManaCardIds,
                 selectedManaCards,
                 cardToBeSummoned);
+
 
         if (new HashSet<>(manaZoneGameCardIds)
                 .containsAll(incomingDto.getTriggeredGameCardIds()) &&
                 manaZone.size() >= selectedManaCardIds.size() &&
                 selectedManaCardIds.size() == cardToBeSummoned.getManaCost() &&
-                atLeastOneSelectedManaCardHasNecessaryCivilization
+                isValidForSummoning
         ) {
             for (CardDto cardDto : selectedManaCards) {
                 cardDto.setTapped(true);
@@ -144,18 +146,30 @@ public class ActionsService {
         }
     }
 
-    private boolean atLeastOneSelectedManaCardHasNecessaryCivilization(List<CardDto> manaZone, List<String> selectedManaCardIds, List<CardDto> selectedManaCards, CardDto cardToBeSummoned) {
+    private boolean isValidForSummoning(List<CardDto> manaZone, List<String> selectedManaCardIds, List<CardDto> selectedManaCards, CardDto cardToBeSummoned) {
         var atLeastOneSelectedManaCardHasNecessaryCivilization = false;
+        var countUntapped = 0;
         for (CardDto manaCardDto : manaZone) {
             for (String selectedManaCardId : selectedManaCardIds) {
                 if (manaCardDto.getGameCardId().equals(selectedManaCardId)) {
+                    manaCardDto.setWantToTap(true);
                     selectedManaCards.add(manaCardDto);
+
+                    if (!manaCardDto.isTapped()) {
+                        countUntapped++;
+                    }
+
                     if (manaCardDto.getCivilization().equals(cardToBeSummoned.getCivilization())) {
                         atLeastOneSelectedManaCardHasNecessaryCivilization = true;
                     }
                 }
             }
         }
-        return atLeastOneSelectedManaCardHasNecessaryCivilization;
+
+
+        return atLeastOneSelectedManaCardHasNecessaryCivilization &&
+                countUntapped == cardToBeSummoned.getManaCost();
+
+
     }
 }
