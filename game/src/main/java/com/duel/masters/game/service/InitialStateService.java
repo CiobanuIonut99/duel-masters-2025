@@ -3,6 +3,7 @@ package com.duel.masters.game.service;
 import com.duel.masters.game.dto.InitialStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import com.duel.masters.game.dto.deck.service.DeckDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,13 +40,17 @@ public class InitialStateService {
         }
     }
 
-    public InitialStateDto getInitialState() {
+    public InitialStateDto getInitialState() throws JsonProcessingException {
         var deckDto = getDeckCard();
         var deck = deckDto.getCards();
         var shields = get5Cards(deck);
         var hand = get5Cards(deck);
 
         log.info("Start getInitialState in GameService \n");
+        log.info("Deck: {}",
+                new ObjectMapper()
+                        .writerWithDefaultPrettyPrinter()
+                        .writeValueAsString(deck));
         deckDto
                 .getCards()
                 .forEach((cardDto) -> {

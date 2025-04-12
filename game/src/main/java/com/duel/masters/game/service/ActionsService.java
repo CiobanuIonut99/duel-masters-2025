@@ -73,11 +73,13 @@ public class ActionsService {
     public void setCreaturesSummonable(CardsUpdateDto cards, String actionType) {
         var hand = cards.getHand();
         var manaZone = cards.getManaZone();
+        var battlezone = cards.getBattleZone();
 
 
         if (!manaZone.isEmpty()) {
             if (actionType.equals(END_TURN)) {
                 manaZone.forEach(cardDto -> cardDto.setTapped(false));
+                battlezone.forEach(cardDto -> cardDto.setTapped(false));
             }
             for (CardDto cardDto : hand) {
                 var atLeastOneCardSameCivilizationPresent = manaZone

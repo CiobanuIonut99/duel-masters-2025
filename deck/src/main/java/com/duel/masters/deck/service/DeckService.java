@@ -91,7 +91,21 @@ public class DeckService {
 
     public void addCardToDeck(List<CardDto> cards, CardDto cardDto, int copiesOfCards) {
         for (int i = 0; i < copiesOfCards; i++) {
-            cards.add(cardDto);
+            var newCardDto =
+                    CardDto
+                    .builder()
+                            .id(cardDto.getId())
+                            .name(cardDto.getName())
+                            .type(cardDto.getType())
+                            .civilization(cardDto.getCivilization())
+                            .race(cardDto.getRace())
+                            .manaCost(cardDto.getManaCost())
+                            .manaNumber(cardDto.getManaNumber())
+                            .power(cardDto.getPower())
+                            .ability(cardDto.getAbility())
+                            .specialAbility(cardDto.getSpecialAbility())
+                    .build();
+            cards.add(newCardDto);
         }
     }
 
