@@ -13,6 +13,7 @@ class OpponentField extends StatelessWidget {
   final Function(CardModel attacker, CardModel shield) onShieldAttack;
   final VoidCallback onTapManaZone;
   final VoidCallback onTapGraveyard;
+  final Set<String> glowAttackableShields;
 
   const OpponentField({
     super.key,
@@ -26,6 +27,7 @@ class OpponentField extends StatelessWidget {
     required this.onShieldAttack,
     required this.onTapManaZone,
     required this.onTapGraveyard,
+    required this.glowAttackableShields,
   });
 
   @override
@@ -101,7 +103,7 @@ class OpponentField extends StatelessWidget {
     bool hideFaces = false,
     Function(CardModel)? onTapCard,
     Function(CardModel)? onSecondaryTapCard,
-    Function(CardModel)? onSummonCard,         // new
+    Function(CardModel)? onAttack,         // new
     Function(CardModel)? onSendToManaCard,     // new
   }) {
     return Container(
@@ -118,9 +120,11 @@ class OpponentField extends StatelessWidget {
         allowManaAction: false,
         onTap: onTapCard,
         onSecondaryTap: onSecondaryTapCard,
-        onSummon: onSummonCard,                // pass to GameZone
-        onSendToMana: onSendToManaCard,        // pass to GameZone
+        onAttack: onAttack,
+        onSendToMana: onSendToManaCard,
+        glowingManaCardIds: label == "Opponent Shields" ? glowAttackableShields : {},
       ),
+
     );
   }
 

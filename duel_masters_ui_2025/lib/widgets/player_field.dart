@@ -57,7 +57,7 @@ class PlayerField extends StatelessWidget {
                 cards: hand,
                 onTapCard: onTapHandCard,
                 onSecondaryTapCard: onSecondaryTapHandCard,
-                onSummonCard: onSummonHandCard,        // NEW
+                onAttack: onSummonHandCard,        // NEW
                 onSendToMana: onSendToManaHandCard,    // NEW
               ),
             ),
@@ -99,7 +99,7 @@ class PlayerField extends StatelessWidget {
     bool hideFaces = false,
     Function(CardModel)? onTapCard,
     Function(CardModel)? onSecondaryTapCard,
-    Function(CardModel)? onSummonCard,        // NEW
+    Function(CardModel)? onAttack,        // NEW
     Function(CardModel)? onSendToMana,        // NEW
   }) {
     return Container(
@@ -116,7 +116,7 @@ class PlayerField extends StatelessWidget {
         allowManaAction: false,
         onTap: onTapCard,
         onSecondaryTap: onSecondaryTapCard,
-        onSummon: onSummonCard,          // NEW
+        onAttack: onAttack,          // NEW
         onSendToMana: onSendToMana,      // NEW
       ),
     );

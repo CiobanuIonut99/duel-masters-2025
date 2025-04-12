@@ -22,7 +22,7 @@ class GameZone extends StatelessWidget {
   final bool allowManaAction;
   final Function(CardModel)? onTap;
   final Function(CardModel)? onSecondaryTap;
-  final Function(CardModel)? onSummon;        // NEW
+  final Function(CardModel)? onAttack;        // NEW
   final Function(CardModel)? onSendToMana;    // NEW
 
   const GameZone({
@@ -36,7 +36,7 @@ class GameZone extends StatelessWidget {
     this.allowManaAction = false,
     this.onTap,
     this.onSecondaryTap,
-    this.onSummon,        // NEW
+    this.onAttack,        // NEW
     this.onSendToMana,    // NEW
     this.glowingManaCardIds = const {},
   });
@@ -52,7 +52,7 @@ class GameZone extends StatelessWidget {
       label: label,
       onTap: onTap,
       onSecondaryTap: onSecondaryTap,
-      onSummon: onSummon,          // NEW
+      onSummon: onAttack,          // NEW
       onSendToMana: onSendToMana,  // NEW
       glowingManaCardIds: glowingManaCardIds,
     );

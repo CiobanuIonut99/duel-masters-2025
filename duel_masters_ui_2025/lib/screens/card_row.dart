@@ -52,7 +52,12 @@ class _CardRowState extends State<CardRow> {
           onEnter: (_) => setState(() => hoveredCard = card),
           onExit: (_) => setState(() => hoveredCard = null),
           child: GestureDetector(
-            onTap: () => widget.onTap?.call(card),
+            onTap: () {
+              if (widget.label == "Your Battle Zone" || widget.label == "Your Hand") {
+                widget.onTap?.call(card);
+              }
+            },
+
             onSecondaryTap: () => widget.onSecondaryTap?.call(card),
             child: Stack(
               alignment: Alignment.center,
@@ -63,8 +68,15 @@ class _CardRowState extends State<CardRow> {
                   height: widget.cardWidth * 1.4,
                   decoration: BoxDecoration(
                     boxShadow: isGlowing
-                        ? [BoxShadow(color: Colors.cyanAccent, blurRadius: 15, spreadRadius: 2)]
+                        ? [
+                      BoxShadow(
+                        color: Colors.greenAccent.withOpacity(0.6),
+                        blurRadius: 8,
+                        spreadRadius: 2,
+                      ),
+                    ]
                         : [],
+
                     borderRadius: card.tapped ? BorderRadius.circular(8) : BorderRadius.zero,
                   ),
                   child: Transform.rotate(
@@ -79,25 +91,27 @@ class _CardRowState extends State<CardRow> {
                   ),
                 ),
 
-                if (hoveredCard == card && widget.label == "Your Hand")
-                  Positioned(
-                    bottom: -10,
-                    child: Row(
-                      children: [
-                        if (card.summonable)
+                if (hoveredCard == card && widget.label == "Your Hand" )
+                  if (hoveredCard == card && widget.label == "Your Hand")
+                    Positioned(
+                      bottom: -10,
+                      child: Row(
+                        children: [
+                          if (card.summonable)
+                            _actionButton(
+                              icon: LucideIcons.wand,
+                              color: Colors.redAccent,
+                              onPressed: () => widget.onSummon?.call(card),
+                            ),
                           _actionButton(
-                            icon: LucideIcons.wand,
-                            color: Colors.redAccent,
-                            onPressed: () => widget.onSummon?.call(card),
+                            icon: Icons.bolt,
+                            color: Colors.blueAccent,
+                            onPressed: () => widget.onSendToMana?.call(card),
                           ),
-                        _actionButton(
-                          icon: Icons.bolt,
-                          color: Colors.blueAccent,
-                          onPressed: () => widget.onSendToMana?.call(card),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+
 
                 if (hoveredCard == card && widget.label == "Your Battle Zone" && !card.tapped)
                   Positioned(
@@ -105,9 +119,10 @@ class _CardRowState extends State<CardRow> {
                     child: _actionButton(
                       icon: LucideIcons.sword,
                       color: Colors.redAccent,
-                      onPressed: () => widget.onSummon?.call(card), // or new attack callback
+                      onPressed: () => widget.onSummon?.call(card), // or attack callback
                     ),
                   ),
+
               ],
             ),
           ),

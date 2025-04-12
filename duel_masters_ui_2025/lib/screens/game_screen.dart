@@ -40,6 +40,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   List<CardModel> opponentBattleZone = [];
 
   Set<String> glowingManaCardIds = {};
+  Set<String> glowAttackableShields = {};
 
   int deckSize = 0;
   int opponentDeckSize = 0;
@@ -591,7 +592,20 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     });
   }
 
-  void _startAttackSelection(CardModel attacker) {}
+  void _startAttackSelection(CardModel attacker) {
+    setState(() {
+      selectedAttacker = attacker;
+      isSelectingAttackTarget = true;
+      glowAttackableShields = opponentShields.map((c) => c.gameCardId).toSet();
+    });
+  }
+  void _cancelAttackSelection() {
+    setState(() {
+      selectedAttacker = null;
+      isSelectingAttackTarget = false;
+      glowAttackableShields.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -608,10 +622,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     ? "Your Turn"
                     : "Opponent's Turn",
                 style: TextStyle(
-                  color:
-                      currentTurnPlayerId == currentPlayerId
-                          ? Colors.greenAccent
-                          : Colors.redAccent,
+                  color: currentTurnPlayerId == currentPlayerId
+                      ? Colors.greenAccent
+                      : Colors.redAccent,
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
@@ -624,13 +637,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             child: Row(
               children: [
                 ElevatedButton.icon(
-                  onPressed:
-                      hasJoinedMatch
-                          ? null
-                          : () {
-                            _searchForMatch();
-                            showSnackBar("🔍 Looking for opponent...");
-                          },
+                  onPressed: hasJoinedMatch
+                      ? null
+                      : () {
+                    _searchForMatch();
+                    showSnackBar("🔍 Looking for opponent...");
+                  },
                   icon: Icon(Icons.person_search),
                   label: Text("Search Match"),
                 ),
@@ -645,93 +657,82 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/backgrounds/forest_board.png',
-              fit: BoxFit.cover,
-            ),
-          ),
-          Positioned.fill(child: GameWidget(game: fxGame)),
-          SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height,
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          if (isSelectingAttackTarget) {
+            _cancelAttackSelection();
+          }
+        },
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset(
+                'assets/backgrounds/forest_board.png',
+                fit: BoxFit.cover,
               ),
-              child: IntrinsicHeight(
-                child: Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      OpponentField(
-                        hand: opponentHand,
-                        shields: opponentShields,
-                        manaZone: opponentManaZone,
-                        graveyard: opponentGraveyard,
-                        deckSize: opponentDeckSize,
-                        isSelectingAttackTarget: isSelectingAttackTarget,
-                        selectedAttacker: selectedAttacker,
-                        onShieldAttack: attackShield,
-                        onTapManaZone:
-                            () => _showCardZoneDialog(
-                              "Opponent Mana",
-                              opponentManaZone,
-                              true,
-                            ),
-                        onTapGraveyard:
-                            () => _showCardZoneDialog(
-                              "Opponent Graveyard",
-                              opponentGraveyard,
-                              true,
-                            ),
-                      ),
-
-                      SizedBox(height: 16),
-                      _buildBattleZones(),
-                      SizedBox(height: 16),
-                      PlayerField(
-                        hand: playerHand,
-                        shields: playerShields,
-                        manaZone: playerManaZone,
-                        graveyard: playerGraveyard,
-                        deckSize: deckSize,
-                        onTapHandCard:
-                            (card) => _showFullScreenCardPreview(card),
-                        onSecondaryTapHandCard: (card) {},
-                        // REMOVE DIALOG ON RIGHT CLICK
-                        onTapManaZone:
-                            () => _showCardZoneDialog(
-                              "Your Mana",
-                              playerManaZone,
-                            ),
-                        onTapGraveyard:
-                            () => _showCardZoneDialog(
-                              "Graveyard",
-                              playerGraveyard,
-                            ),
-                        onSummonHandCard:
-                            (card) => _showManaSelectionDialog(card),
-
-                        // right click -> summon
-                        onSendToManaHandCard:
-                            (card) => sendToMana(card), // right click -> mana
-                      ),
-
-                      SizedBox(height: 16),
-                    ],
+            ),
+            Positioned.fill(child: GameWidget(game: fxGame)),
+            SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height,
+                ),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        OpponentField(
+                          hand: opponentHand,
+                          shields: opponentShields,
+                          manaZone: opponentManaZone,
+                          graveyard: opponentGraveyard,
+                          deckSize: opponentDeckSize,
+                          isSelectingAttackTarget: isSelectingAttackTarget,
+                          selectedAttacker: selectedAttacker,
+                          onShieldAttack: attackShield,
+                          onTapManaZone: () => _showCardZoneDialog(
+                              "Opponent Mana", opponentManaZone, true),
+                          onTapGraveyard: () => _showCardZoneDialog(
+                              "Opponent Graveyard", opponentGraveyard, true),
+                          glowAttackableShields: glowAttackableShields,
+                        ),
+                        SizedBox(height: 16),
+                        _buildBattleZones(),
+                        SizedBox(height: 16),
+                        PlayerField(
+                          hand: playerHand,
+                          shields: playerShields,
+                          manaZone: playerManaZone,
+                          graveyard: playerGraveyard,
+                          deckSize: deckSize,
+                          onTapHandCard: (card) => _showFullScreenCardPreview(card),
+                          onSecondaryTapHandCard: (card) {},
+                          onTapManaZone: () =>
+                              _showCardZoneDialog("Your Mana", playerManaZone),
+                          onTapGraveyard: () =>
+                              _showCardZoneDialog("Graveyard", playerGraveyard),
+                          onSummonHandCard: (card) =>
+                              _showManaSelectionDialog(card),
+                          onSendToManaHandCard: (card) => sendToMana(card),
+                        ),
+                        SizedBox(height: 16),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          if (animateShieldToHand && brokenShieldCard != null)
-            _buildShieldBreakAnimation(),
-        ],
+            if (animateShieldToHand && brokenShieldCard != null)
+              _buildShieldBreakAnimation(),
+          ],
+        ),
       ),
     );
   }
+
 
   void _showManaSelectionDialog(CardModel cardToSummon) {
     Set<CardModel> selectedManaCards = {}; // <-- object-based tracking
@@ -866,6 +867,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           scrollable: true,
           glowingManaCardIds: glowingManaCardIds,
           onTap: (card) {
+            if (!card.tapped) _showFullScreenCardPreview(card);
+          },
+          onAttack: (card) {
             if (!card.tapped) _startAttackSelection(card);
           },
         ),

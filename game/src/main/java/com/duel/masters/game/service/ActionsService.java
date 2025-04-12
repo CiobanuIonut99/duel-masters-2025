@@ -142,7 +142,7 @@ public class ActionsService {
             battleZone.add(cardToBeSummoned);
             hand.remove(cardToBeSummoned);
             if (cardToBeSummoned.getType().equalsIgnoreCase("CREATURE")) {
-                cardToBeSummoned.setTapped(true);
+//                cardToBeSummoned.setTapped(true);
             }
             setCreaturesSummonable(ownCards, "");
             topicService.sendGameStatesToTopics(currentState);
