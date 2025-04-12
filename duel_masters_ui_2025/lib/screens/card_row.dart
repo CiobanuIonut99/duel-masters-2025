@@ -42,92 +42,93 @@ class _CardRowState extends State<CardRow> {
   @override
   Widget build(BuildContext context) {
     return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: widget.cards.map((card) {
-      bool isGlowing = widget.glowingManaCardIds.contains(card.gameCardId);
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: widget.cards.map((card) {
+        bool isGlowing = widget.glowingManaCardIds.contains(card.gameCardId);
 
-      return Padding(
+        return Padding(
           padding: EdgeInsets.symmetric(horizontal: card.tapped ? 16 : 8),
-        child: MouseRegion(
-          onEnter: (_) => setState(() => hoveredCard = card),
-          onExit: (_) => setState(() => hoveredCard = null),
-          child: GestureDetector(
-            onTap: () {
-              if (widget.label == "Your Battle Zone" || widget.label == "Your Hand") {
-                widget.onTap?.call(card);
-              }
-            },
+          child: MouseRegion(
+            onEnter: (_) => setState(() => hoveredCard = card),
+            onExit: (_) => setState(() => hoveredCard = null),
+            child: GestureDetector(
+              onTap: () {
+                if (widget.label == "Your Battle Zone" || widget.label == "Your Hand") {
+                  widget.onTap?.call(card);
+                }
+              },
 
-            onSecondaryTap: () => widget.onSecondaryTap?.call(card),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                AnimatedContainer(
-                  duration: Duration(milliseconds: 200),
-                  width: widget.cardWidth,
-                  height: widget.cardWidth * 1.4,
-                  decoration: BoxDecoration(
-                    boxShadow: isGlowing
-                        ? [
-                      BoxShadow(
-                        color: Colors.greenAccent.withOpacity(0.6),
-                        blurRadius: 8,
-                        spreadRadius: 2,
-                      ),
-                    ]
-                        : [],
-                    borderRadius: card.tapped ? BorderRadius.circular(8) : BorderRadius.zero,
-                  ),
-                  child: Transform.rotate(
-                    angle: (card.tapped ? -math.pi / 2 : 0) + (widget.rotate180 ? math.pi : 0),
-                    child: Transform.scale(
-                      scale: hoveredCard == card ? 1.15 : card.tapped ? 0.85 : 1.0,
-                      child: Image.asset(
-                        widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
-                        fit: BoxFit.cover,
+              onSecondaryTap: () => widget.onSecondaryTap?.call(card),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 200),
+                    width: widget.cardWidth,
+                    height: widget.cardWidth * 1.4,
+                    decoration: BoxDecoration(
+                      boxShadow: isGlowing
+                          ? [
+                        BoxShadow(
+                          color: Colors.greenAccent.withOpacity(0.6),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        ),
+                      ]
+                          : [],
+
+                      borderRadius: card.tapped ? BorderRadius.circular(8) : BorderRadius.zero,
+                    ),
+                    child: Transform.rotate(
+                      angle: (card.tapped ? -math.pi / 2 : 0) + (widget.rotate180 ? math.pi : 0),
+                      child: Transform.scale(
+                        scale: hoveredCard == card ? 1.15 : card.tapped ? 0.85 : 1.0,
+                        child: Image.asset(
+                          widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                if (hoveredCard == card && widget.label == "Your Hand" )
-                  if (hoveredCard == card && widget.label == "Your Hand")
+                  if (hoveredCard == card && widget.label == "Your Hand" )
+                    if (hoveredCard == card && widget.label == "Your Hand")
+                      Positioned(
+                        bottom: -10,
+                        child: Row(
+                          children: [
+                            if (card.summonable)
+                              _actionButton(
+                                icon: LucideIcons.wand,
+                                color: Colors.redAccent,
+                                onPressed: () => widget.onSummon?.call(card),
+                              ),
+                            _actionButton(
+                              icon: Icons.bolt,
+                              color: Colors.blueAccent,
+                              onPressed: () => widget.onSendToMana?.call(card),
+                            ),
+                          ],
+                        ),
+                      ),
+
+
+                  if (hoveredCard == card && widget.label == "Your Battle Zone" && !card.tapped)
                     Positioned(
                       bottom: -10,
-                      child: Row(
-                        children: [
-                          if (card.summonable)
-                            _actionButton(
-                              icon: LucideIcons.wand,
-                              color: Colors.redAccent,
-                              onPressed: () => widget.onSummon?.call(card),
-                            ),
-                          _actionButton(
-                            icon: Icons.bolt,
-                            color: Colors.blueAccent,
-                            onPressed: () => widget.onSendToMana?.call(card),
-                          ),
-                        ],
+                      child: _actionButton(
+                        icon: LucideIcons.sword,
+                        color: Colors.redAccent,
+                        onPressed: () => widget.onSummon?.call(card), // or attack callback
                       ),
                     ),
 
-
-                if (hoveredCard == card && widget.label == "Your Battle Zone" && !card.tapped)
-                  Positioned(
-                    bottom: -10,
-                    child: _actionButton(
-                      icon: LucideIcons.sword,
-                      color: Colors.redAccent,
-                      onPressed: () => widget.onSummon?.call(card), // or attack callback
-                    ),
-                  ),
-
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    }).toList(),
+        );
+      }).toList(),
     );
 
   }
