@@ -86,7 +86,7 @@ class _CardRowState extends State<CardRow> {
                       children: [
                         if (card.summonable)
                           _actionButton(
-                            icon: LucideIcons.sword,
+                            icon: LucideIcons.wand,
                             color: Colors.redAccent,
                             onPressed: () => widget.onSummon?.call(card),
                           ),
