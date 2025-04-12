@@ -29,7 +29,7 @@ class GameZone extends StatelessWidget {
     super.key,
     required this.label,
     required this.cards,
-    this.cardWidth = 60,
+    this.cardWidth = 80,
     this.hideCardFaces = false,
     this.rotate180 = false,
     this.scrollable = false,

@@ -698,6 +698,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           onTapGraveyard: () => _showCardZoneDialog(
                               "Opponent Graveyard", opponentGraveyard, true),
                           glowAttackableShields: glowAttackableShields,
+                          cardWidth: 80,
                         ),
                         SizedBox(height: 16),
                         _buildBattleZones(),
@@ -717,6 +718,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           onSummonHandCard: (card) =>
                               _showManaSelectionDialog(card),
                           onSendToManaHandCard: (card) => sendToMana(card),
+                          cardWidth: 70,
                         ),
                         SizedBox(height: 16),
                       ],
@@ -856,14 +858,14 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         GameZone(
           label: "Opponent Battle Zone",
           cards: opponentBattleZone,
-          cardWidth: 100,
+          cardWidth: 80,
           scrollable: true,
         ),
         SizedBox(height: 12),
         GameZone(
           label: "Your Battle Zone",
           cards: playerBattleZone,
-          cardWidth: 100,
+          cardWidth: 80,
           scrollable: true,
           glowingManaCardIds: glowingManaCardIds,
           onTap: (card) {

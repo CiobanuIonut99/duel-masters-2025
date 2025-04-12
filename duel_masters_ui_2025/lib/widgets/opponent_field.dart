@@ -15,6 +15,8 @@ class OpponentField extends StatelessWidget {
   final VoidCallback onTapGraveyard;
   final Set<String> glowAttackableShields;
 
+  final double cardWidth;
+
   const OpponentField({
     super.key,
     required this.hand,
@@ -28,7 +30,9 @@ class OpponentField extends StatelessWidget {
     required this.onTapManaZone,
     required this.onTapGraveyard,
     required this.glowAttackableShields,
+    this.cardWidth = 80,
   });
+
 
   @override
   Widget build(BuildContext context) {
@@ -103,8 +107,8 @@ class OpponentField extends StatelessWidget {
     bool hideFaces = false,
     Function(CardModel)? onTapCard,
     Function(CardModel)? onSecondaryTapCard,
-    Function(CardModel)? onAttack,         // new
-    Function(CardModel)? onSendToManaCard,     // new
+    Function(CardModel)? onAttack,
+    Function(CardModel)? onSendToMana,
   }) {
     return Container(
       padding: EdgeInsets.all(8),
@@ -115,17 +119,16 @@ class OpponentField extends StatelessWidget {
       child: GameZone(
         label: label,
         cards: cards,
-        cardWidth: 100,
+        cardWidth: cardWidth,  // <<<< use it here
         hideCardFaces: hideFaces,
         allowManaAction: false,
         onTap: onTapCard,
         onSecondaryTap: onSecondaryTapCard,
         onAttack: onAttack,
-        onSendToMana: onSendToManaCard,
-        glowingManaCardIds: label == "Opponent Shields" ? glowAttackableShields : {},
+        onSendToMana: onSendToMana,
       ),
-
     );
   }
+
 
 }

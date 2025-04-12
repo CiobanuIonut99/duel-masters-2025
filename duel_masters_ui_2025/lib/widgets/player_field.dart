@@ -15,6 +15,7 @@ class PlayerField extends StatelessWidget {
   final Function(CardModel) onSendToManaHandCard; // NEW
   final VoidCallback onTapManaZone;
   final VoidCallback onTapGraveyard;
+  final double cardWidth;
 
   const PlayerField({
     super.key,
@@ -25,12 +26,12 @@ class PlayerField extends StatelessWidget {
     required this.deckSize,
     required this.onTapHandCard,
     required this.onSecondaryTapHandCard,
-    required this.onSummonHandCard,        // NEW
-    required this.onSendToManaHandCard,    // NEW
+    required this.onSummonHandCard,
+    required this.onSendToManaHandCard,
     required this.onTapManaZone,
     required this.onTapGraveyard,
+    this.cardWidth = 80,   // <<<< add this
   });
-
   @override
   Widget build(BuildContext context) {
     return Column(
