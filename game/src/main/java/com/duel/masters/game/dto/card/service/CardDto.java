@@ -27,6 +27,5 @@ public class CardDto {
     private String ability;
     private String specialAbility;
     private boolean tapped;
-    private boolean wantToTap;
     private boolean summonable;
 }

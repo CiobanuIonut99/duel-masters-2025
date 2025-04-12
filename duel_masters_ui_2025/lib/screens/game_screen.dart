@@ -683,7 +683,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void _showManaSelectionDialog(CardModel cardToSummon) {
-    List<String> selectedManaIds = [];
+    Set<CardModel> selectedManaCards = {}; // <-- object-based tracking
 
     showDialog(
       context: context,
@@ -700,14 +700,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: playerManaZone.map((manaCard) {
-                      final isSelected = selectedManaIds.contains(manaCard.gameCardId);
+                      final isTapped = manaCard.tapped;
+                      final isSelected = selectedManaCards.contains(manaCard);
+
                       return GestureDetector(
-                        onTap: () {
+                        onTap: isTapped
+                            ? null  // Disable interaction if tapped
+                            : () {
                           setState(() {
                             if (isSelected) {
-                              selectedManaIds.remove(manaCard.gameCardId);
+                              selectedManaCards.remove(manaCard);
                             } else {
-                              selectedManaIds.add(manaCard.gameCardId);
+                              selectedManaCards.add(manaCard);
                             }
                           });
                         },
@@ -724,21 +728,30 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                 ? [BoxShadow(color: Colors.greenAccent.withOpacity(0.6), blurRadius: 8, spreadRadius: 2)]
                                 : [],
                           ),
-                          child: Image.asset(manaCard.imagePath, width: 80),
+                          child: Transform.rotate(
+                            angle: isTapped ? 3.14 / 2 : 0,  // rotate tapped cards
+                            child: Opacity(
+                              opacity: isTapped ? 0.4 : 1,   // fade tapped cards
+                              child: Image.asset(
+                                manaCard.imagePath,
+                                width: 80,
+                              ),
+                            ),
+                          ),
                         ),
                       );
                     }).toList(),
+
                   ),
                 ),
               ),
               actions: [
                 TextButton(
                   onPressed: () {
-                    final selectedIds = List<String>.from(selectedManaIds); // clone to keep safe
+                    final selectedIds = selectedManaCards.map((c) => c.gameCardId).toList();
                     Navigator.pop(context);
                     summonCardWithMana(cardToSummon, selectedIds);
                   },
-
                   child: Text("Summon", style: TextStyle(color: Colors.greenAccent)),
                 ),
               ],
@@ -748,6 +761,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       },
     );
   }
+
 
 
 

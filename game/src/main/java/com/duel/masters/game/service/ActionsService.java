@@ -152,7 +152,6 @@ public class ActionsService {
         for (CardDto manaCardDto : manaZone) {
             for (String selectedManaCardId : selectedManaCardIds) {
                 if (manaCardDto.getGameCardId().equals(selectedManaCardId)) {
-                    manaCardDto.setWantToTap(true);
                     selectedManaCards.add(manaCardDto);
 
                     if (!manaCardDto.isTapped()) {
