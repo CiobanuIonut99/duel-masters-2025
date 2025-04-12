@@ -37,14 +37,40 @@ class OpponentField extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Align(
-              alignment: Alignment.centerRight,
+            _buildZoneContainer(
+              label: "Opponent Hand",
+              cards: hand,
+              hideFaces: true,
+            ),
+            GestureDetector(
+              onTap: onTapManaZone,
               child: _buildZoneContainer(
-                label: "Opponent Hand",
-                cards: hand,
-                hideFaces: true,
+                label: "Opponent Mana",
+                cards: manaZone,
               ),
             ),
+          ],
+        ),
+
+        SizedBox(height: 12),
+
+        // Row 2 → Empty left | Shields center | Deck + Graveyard right
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(width: 70),
+
+            _buildZoneContainer(
+              label: "Opponent Shields",
+              cards: shields,
+              hideFaces: true,
+              onSecondaryTapCard: (shield) {
+                if (isSelectingAttackTarget && selectedAttacker != null) {
+                  onShieldAttack(selectedAttacker!, shield);
+                }
+              },
+            ),
+
             Row(
               children: [
                 GestureDetector(
@@ -52,14 +78,6 @@ class OpponentField extends StatelessWidget {
                   child: _buildZoneContainer(
                     label: "Graveyard",
                     cards: graveyard,
-                  ),
-                ),
-                SizedBox(width: 8),
-                GestureDetector(
-                  onTap: onTapManaZone,
-                  child: _buildZoneContainer(
-                    label: "Opponent Mana",
-                    cards: manaZone,
                   ),
                 ),
                 SizedBox(width: 8),
@@ -74,23 +92,7 @@ class OpponentField extends StatelessWidget {
                 ),
               ],
             ),
-          ],
-        ),
 
-        SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildZoneContainer(
-              label: "Opponent Shields",
-              cards: shields,
-              hideFaces: true,
-              onSecondaryTapCard: (shield) {
-                if (isSelectingAttackTarget && selectedAttacker != null) {
-                  onShieldAttack(selectedAttacker!, shield);
-                }
-              },
-            ),
           ],
         ),
       ],
@@ -103,8 +105,8 @@ class OpponentField extends StatelessWidget {
     bool hideFaces = false,
     Function(CardModel)? onTapCard,
     Function(CardModel)? onSecondaryTapCard,
-    Function(CardModel)? onAttack,         // new
-    Function(CardModel)? onSendToManaCard,     // new
+    Function(CardModel)? onAttack,
+    Function(CardModel)? onSendToManaCard,
   }) {
     return Container(
       padding: EdgeInsets.all(8),
@@ -124,8 +126,6 @@ class OpponentField extends StatelessWidget {
         onSendToMana: onSendToManaCard,
         glowingManaCardIds: label == "Opponent Shields" ? glowAttackableShields : {},
       ),
-
     );
   }
-
 }

@@ -31,18 +31,41 @@ class PlayerField extends StatelessWidget {
     required this.onTapManaZone,
     required this.onTapGraveyard,
   });
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            // Empty left side to center shields
+            SizedBox(width: 70), // adjust as needed for spacing
+
+            // Shields in center
             _buildZoneContainer(
               label: "Your Shields",
               cards: shields,
               hideFaces: true,
+            ),
+
+            // Graveyard + Deck on right
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: onTapGraveyard,
+                  child: _buildZoneContainer(
+                    label: "Graveyard",
+                    cards: graveyard,
+                  ),
+                ),
+                SizedBox(width: 8),
+                Column(
+                  children: [
+                    Image.asset('assets/cards/0.jpg', width: 70),
+                    Text('Your Deck ($deckSize)'),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
@@ -57,41 +80,23 @@ class PlayerField extends StatelessWidget {
                 cards: hand,
                 onTapCard: onTapHandCard,
                 onSecondaryTapCard: onSecondaryTapHandCard,
-                onAttack: onSummonHandCard,        // NEW
-                onSendToMana: onSendToManaHandCard,    // NEW
+                onAttack: onSummonHandCard,
+                onSendToMana: onSendToManaHandCard,
               ),
             ),
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: onTapGraveyard,
-                  child: _buildZoneContainer(
-                    label: "Graveyard",
-                    cards: graveyard,
-                  ),
-                ),
-                SizedBox(width: 8),
-                GestureDetector(
-                  onTap: onTapManaZone,
-                  child: _buildZoneContainer(
-                    label: "Your Mana",
-                    cards: manaZone,
-                  ),
-                ),
-                SizedBox(width: 8),
-                Column(
-                  children: [
-                    Image.asset('assets/cards/0.jpg', width: 70),
-                    Text('Your Deck ($deckSize)'),
-                  ],
-                ),
-              ],
+            GestureDetector(
+              onTap: onTapManaZone,
+              child: _buildZoneContainer(
+                label: "Your Mana",
+                cards: manaZone,
+              ),
             ),
           ],
         ),
       ],
     );
   }
+
 
   Widget _buildZoneContainer({
     required String label,
