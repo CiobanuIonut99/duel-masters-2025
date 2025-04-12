@@ -76,7 +76,6 @@ class _CardRowState extends State<CardRow> {
                       ),
                     ]
                         : [],
-
                     borderRadius: card.tapped ? BorderRadius.circular(8) : BorderRadius.zero,
                   ),
                   child: Transform.rotate(

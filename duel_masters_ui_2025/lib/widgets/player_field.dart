@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../../models/card_model.dart';
 import '../screens/game_zone.dart';
-import 'package:flutter/material.dart';
-import '../../models/card_model.dart';
-import '../screens/game_zone.dart';
+
 class PlayerField extends StatelessWidget {
   final List<CardModel> hand;
   final List<CardModel> shields;
@@ -12,8 +11,8 @@ class PlayerField extends StatelessWidget {
   final int deckSize;
   final Function(CardModel) onTapHandCard;
   final Function(CardModel) onSecondaryTapHandCard;
-  final Function(CardModel) onSummonHandCard;        // NEW
-  final Function(CardModel) onSendToManaHandCard;    // NEW
+  final Function(CardModel) onSummonHandCard; // NEW
+  final Function(CardModel) onSendToManaHandCard; // NEW
   final VoidCallback onTapManaZone;
   final VoidCallback onTapGraveyard;
 
@@ -57,8 +56,9 @@ class PlayerField extends StatelessWidget {
                 cards: hand,
                 onTapCard: onTapHandCard,
                 onSecondaryTapCard: onSecondaryTapHandCard,
-                onAttack: onSummonHandCard,        // NEW
-                onSendToMana: onSendToManaHandCard,    // NEW
+                onAttack: onSummonHandCard,
+                // NEW
+                onSendToMana: onSendToManaHandCard, // NEW
               ),
             ),
             Row(
