@@ -98,6 +98,16 @@ class _CardRowState extends State<CardRow> {
                       ],
                     ),
                   ),
+
+                if (hoveredCard == card && widget.label == "Your Battle Zone" && !card.tapped)
+                  Positioned(
+                    bottom: -10,
+                    child: _actionButton(
+                      icon: LucideIcons.sword,
+                      color: Colors.redAccent,
+                      onPressed: () => widget.onSummon?.call(card), // or new attack callback
+                    ),
+                  ),
               ],
             ),
           ),

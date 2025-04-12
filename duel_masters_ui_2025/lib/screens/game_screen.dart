@@ -292,12 +292,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       deckSize = playerDeck.length;
       opponentDeckSize = opponentDeck.length;
     });
-
-    // if (currentTurnPlayerId == currentPlayerId) {
-    //   _showTurnBanner("Your Turn");
-    // }else{
-    //   _showTurnBanner("Opponent Turn");
-    // }
   }
 
   void _showTurnBanner(String text) {
