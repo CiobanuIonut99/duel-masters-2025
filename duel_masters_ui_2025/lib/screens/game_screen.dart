@@ -717,6 +717,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           onSummonHandCard: (card) =>
                               _showManaSelectionDialog(card),
                           onSendToManaHandCard: (card) => sendToMana(card),
+                          playedMana: playedMana,
                         ),
                         SizedBox(height: 16),
                       ],

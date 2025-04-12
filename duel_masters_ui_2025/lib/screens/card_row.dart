@@ -16,6 +16,7 @@ class CardRow extends StatefulWidget {
   final Function(CardModel)? onSummon;          // Sword
   final Function(CardModel)? onSendToMana;      // Bolt
   final Set<String> glowingManaCardIds;
+  final bool playedMana;
 
   const CardRow({
     super.key,
@@ -30,6 +31,7 @@ class CardRow extends StatefulWidget {
     this.onSummon,
     this.onSendToMana,
     required this.glowingManaCardIds,
+    required this.playedMana,
   });
 
   @override
@@ -103,6 +105,7 @@ class _CardRowState extends State<CardRow> {
                                 color: Colors.redAccent,
                                 onPressed: () => widget.onSummon?.call(card),
                               ),
+                            if(!widget.playedMana)
                             _actionButton(
                               icon: Icons.bolt,
                               color: Colors.blueAccent,

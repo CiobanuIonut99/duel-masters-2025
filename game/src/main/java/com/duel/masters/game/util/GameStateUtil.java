@@ -46,6 +46,7 @@ public class GameStateUtil {
                 .playerBattleZone(gameStateDto.getPlayerBattleZone())
                 .opponentBattleZone(gameStateDto.getOpponentBattleZone())
                 .playerTopic(topic)
+                .playedMana(gameStateDto.isPlayedMana())
                 .build();
 
 
@@ -71,6 +72,7 @@ public class GameStateUtil {
                 .playerBattleZone(gameStateDto.getOpponentBattleZone())
                 .opponentBattleZone(gameStateDto.getPlayerBattleZone())
                 .playerTopic(topic)
+                .playedMana(gameStateDto.isPlayedMana())
                 .build();
     }
 

@@ -24,6 +24,7 @@ class GameZone extends StatelessWidget {
   final Function(CardModel)? onSecondaryTap;
   final Function(CardModel)? onAttack;        // NEW
   final Function(CardModel)? onSendToMana;    // NEW
+  final bool playedMana;    // NEW
 
   const GameZone({
     super.key,
@@ -39,6 +40,7 @@ class GameZone extends StatelessWidget {
     this.onAttack,        // NEW
     this.onSendToMana,    // NEW
     this.glowingManaCardIds = const {},
+    this.playedMana = false,
   });
 
   @override
@@ -55,6 +57,7 @@ class GameZone extends StatelessWidget {
       onSummon: onAttack,          // NEW
       onSendToMana: onSendToMana,  // NEW
       glowingManaCardIds: glowingManaCardIds,
+      playedMana: playedMana,
     );
 
     return Column(

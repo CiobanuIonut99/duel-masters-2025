@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/card_model.dart';
 import '../screens/game_zone.dart';
-import 'package:flutter/material.dart';
-import '../../models/card_model.dart';
-import '../screens/game_zone.dart';
+
 class PlayerField extends StatelessWidget {
   final List<CardModel> hand;
   final List<CardModel> shields;
@@ -16,6 +14,7 @@ class PlayerField extends StatelessWidget {
   final Function(CardModel) onSendToManaHandCard;    // NEW
   final VoidCallback onTapManaZone;
   final VoidCallback onTapGraveyard;
+  final bool playedMana;
 
   const PlayerField({
     super.key,
@@ -30,6 +29,7 @@ class PlayerField extends StatelessWidget {
     required this.onSendToManaHandCard,    // NEW
     required this.onTapManaZone,
     required this.onTapGraveyard,
+    required this.playedMana,
   });
   @override
   Widget build(BuildContext context) {
@@ -82,6 +82,7 @@ class PlayerField extends StatelessWidget {
                 onSecondaryTapCard: onSecondaryTapHandCard,
                 onAttack: onSummonHandCard,
                 onSendToMana: onSendToManaHandCard,
+
               ),
             ),
             GestureDetector(
@@ -123,6 +124,7 @@ class PlayerField extends StatelessWidget {
         onSecondaryTap: onSecondaryTapCard,
         onAttack: onAttack,          // NEW
         onSendToMana: onSendToMana,      // NEW
+        playedMana: playedMana,
       ),
     );
   }
