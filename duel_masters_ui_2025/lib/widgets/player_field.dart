@@ -1,3 +1,4 @@
+import 'package:duel_masters_ui_2025/widgets/zone_container.dart';
 import 'package:flutter/material.dart';
 import '../../models/card_model.dart';
 import '../screens/game_zone.dart';
@@ -101,34 +102,31 @@ class PlayerField extends StatelessWidget {
     );
   }
 
-
   Widget _buildZoneContainer({
     required String label,
     required List<CardModel> cards,
     bool hideFaces = false,
     Function(CardModel)? onTapCard,
     Function(CardModel)? onSecondaryTapCard,
-    Function(CardModel)? onAttack,        // NEW
-    Function(CardModel)? onSendToMana,        // NEW
+    Function(CardModel)? onAttack,
+    Function(CardModel)? onSendToMana,
   }) {
-    return Container(
-      padding: EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return ZoneContainer(
+      label: label,
+      borderColor: Colors.white24,
       child: GameZone(
-        label: label,
+        label: label,  // Important! Pass it here for CardRow to know
         cards: cards,
-        cardWidth: 100,
         hideCardFaces: hideFaces,
         allowManaAction: false,
         onTap: onTapCard,
         onSecondaryTap: onSecondaryTapCard,
-        onAttack: onAttack,          // NEW
-        onSendToMana: onSendToMana,      // NEW
+        onAttack: onAttack,
+        onSendToMana: onSendToMana,
         playedMana: playedMana,
       ),
     );
   }
+
+
 }

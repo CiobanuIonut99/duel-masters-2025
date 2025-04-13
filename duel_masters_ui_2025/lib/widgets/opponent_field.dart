@@ -1,3 +1,4 @@
+import 'package:duel_masters_ui_2025/widgets/zone_container.dart';
 import 'package:flutter/material.dart';
 import '../../models/card_model.dart';
 import '../screens/game_zone.dart';
@@ -106,24 +107,20 @@ class OpponentField extends StatelessWidget {
     Function(CardModel)? onTapCard,
     Function(CardModel)? onSecondaryTapCard,
     Function(CardModel)? onAttack,
-    Function(CardModel)? onSendToManaCard,
+    Function(CardModel)? onSendToMana,
   }) {
-    return Container(
-      padding: EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(12),
-      ),
+    return ZoneContainer(
+      label: label,
+      borderColor: Colors.white24,
       child: GameZone(
-        label: label,
+        label: label,  // Important! Pass it here for CardRow to know
         cards: cards,
-        cardWidth: 100,
         hideCardFaces: hideFaces,
         allowManaAction: false,
         onTap: onTapCard,
         onSecondaryTap: onSecondaryTapCard,
         onAttack: onAttack,
-        onSendToMana: onSendToManaCard,
+        onSendToMana: onSendToMana,
         glowingManaCardIds: label == "Opponent Shields" ? glowAttackableShields : {},
       ),
     );
