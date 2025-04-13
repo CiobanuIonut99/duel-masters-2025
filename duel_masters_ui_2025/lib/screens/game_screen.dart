@@ -97,7 +97,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     fxGame = FxGame();
 
     wsHandler = GameWebSocketHandler(
-      url: 'wss://d7a1-5-12-128-179.ngrok-free.app/duel-masters-ws',
+      url: 'wss://bdd1-5-12-128-179.ngrok-free.app/duel-masters-ws',
       currentPlayerId: currentPlayerId,
       onMatchFound: (gameId, playerTopic) {
         setState(() {
@@ -125,7 +125,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     print("Fetching game data from the backend...");
 
     final response = await http.get(
-      Uri.parse('https://d7a1-5-12-128-179.ngrok-free.app/api/games'),
+      Uri.parse('https://bdd1-5-12-128-179.ngrok-free.app/api/games'),
     );
 
     if (response.statusCode == 200) {
@@ -710,8 +710,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           deckSize: deckSize,
                           onTapHandCard: (card) => _showFullScreenCardPreview(card),
                           onSecondaryTapHandCard: (card) {},
-                          onTapManaZone: () =>
-                              _showCardZoneDialog("Your Mana", playerManaZone),
+                          onTapManaCard: (card) => _showFullScreenCardPreview(card),
                           onTapGraveyard: () =>
                               _showCardZoneDialog("Graveyard", playerGraveyard),
                           onSummonHandCard: (card) =>

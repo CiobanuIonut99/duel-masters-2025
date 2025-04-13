@@ -55,10 +55,12 @@ class _CardRowState extends State<CardRow> {
             onExit: (_) => setState(() => hoveredCard = null),
             child: GestureDetector(
               onTap: () {
-                if (widget.label == "Your Battle Zone" || widget.label == "Your Hand") {
+                // Always allow tap to enlarge except for opponent zones
+                if (!widget.hideCardFaces) {
                   widget.onTap?.call(card);
                 }
               },
+
 
               onSecondaryTap: () => widget.onSecondaryTap?.call(card),
               child: Stack(

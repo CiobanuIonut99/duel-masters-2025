@@ -12,7 +12,7 @@ class PlayerField extends StatelessWidget {
   final Function(CardModel) onSecondaryTapHandCard;
   final Function(CardModel) onSummonHandCard;        // NEW
   final Function(CardModel) onSendToManaHandCard;    // NEW
-  final VoidCallback onTapManaZone;
+  final Function(CardModel) onTapManaCard;
   final VoidCallback onTapGraveyard;
   final bool playedMana;
 
@@ -27,7 +27,7 @@ class PlayerField extends StatelessWidget {
     required this.onSecondaryTapHandCard,
     required this.onSummonHandCard,        // NEW
     required this.onSendToManaHandCard,    // NEW
-    required this.onTapManaZone,
+    required this.onTapManaCard,
     required this.onTapGraveyard,
     required this.playedMana,
   });
@@ -86,11 +86,14 @@ class PlayerField extends StatelessWidget {
               ),
             ),
             GestureDetector(
-              onTap: onTapManaZone,
               child: _buildZoneContainer(
                 label: "Your Mana",
                 cards: manaZone,
+                onTapCard: onTapManaCard,
               ),
+
+
+
             ),
           ],
         ),

@@ -175,4 +175,34 @@ public class ActionsService {
 
 
     }
+
+//    public void attack(GameStateDto currentState, GameStateDto incomingDto) {
+//        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingDto);
+//        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingDto);
+//
+//        var cardToAttack = new CardDto();
+//
+//        var ownBattleZone = ownCards.getBattleZone();
+//        var triggeredId = incomingDto.getTriggeredGameCardId();
+//
+//        for (CardDto cardInMyOwnBattlezone : ownBattleZone) {
+//            if (cardInMyOwnBattlezone.getGameCardId().equals(triggeredId)) {
+//                cardToAttack = cardInMyOwnBattlezone;
+//            }
+//        }
+//
+//
+//        if (cardToAttack.getSpecialAbility().equalsIgnoreCase(DOUBLE_BREAKER)) {
+//            cardToAttack.canSelectOneOpponentShield(true);
+//            cardToAttack.canSelectTwoOpponentShields(true);
+//
+//        } else if (cardToAttack.getSpecialAbility().equalsIgnoreCase(SHIELD_BREAKER)) {
+//            cardToAttack.canSelectOneOpponentShield(true);
+//        } else if (cardToAttack.getSpecialAbility().equalsIgnoreCase(BLOCKER)) {
+//            if (cardToAttack.getAbility().equalsIgnoreCase("")) {
+//
+//            }
+//        }
+//
+//    }
 }
