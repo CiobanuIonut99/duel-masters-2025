@@ -53,19 +53,23 @@ class CardModel {
     return CardModel(
       id: json['id'],
       gameCardId: json['gameCardId'],
-      name: json['name'],
-      type: json['type'],
+      name: json['name'] ?? "Unknown",
+      type: json['type'] ?? "UNKNOWN",
       civilization: json['civilization'],
-      race: json['race'],
+      race: json['race'] ?? "UNKNOWN",
       manaCost: json['manaCost'],
       manaNumber: json['manaNumber'],
       power: json['power'],
-      ability: json['ability'],
-      specialAbility: json['specialAbility'],
+      ability: json['ability'] ?? "",
+      specialAbility: json['specialAbility'] ?? "",
       tapped: json['tapped'] ?? false,
       summonable: json['summonable'] ?? false,
     );
   }
+
+  static List<CardModel> fromList(List<dynamic> jsonList) =>
+      jsonList.map((e) => CardModel.fromJson(e)).toList();
+
 
   String get imagePath => 'assets/cards/$id.jpg';
 }

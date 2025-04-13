@@ -134,56 +134,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         if (data.containsKey('deck') &&
             data.containsKey('shields') &&
             data.containsKey('hand')) {
-          List<CardModel> fetchedDeck =
-              (data['deck'] as List).map((cardData) {
-                return CardModel(
-                  id: cardData['id'],
-                  power: cardData['power'],
-                  gameCardId: cardData['gameCardId'],
-                  name: cardData['name'] ?? "Unknown",
-                  type: cardData['type'] ?? "UNKNOWN",
-                  civilization: cardData['civilization'] ?? "NONE",
-                  race: cardData['race'] ?? "UNKNOWN",
-                  manaCost: cardData['manaCost'] ?? 0,
-                  manaNumber: cardData['manaNumber'] ?? 0,
-                  ability: cardData['ability'] ?? "",
-                  specialAbility: cardData['specialAbility'] ?? "",
-                );
-              }).toList();
-
-          List<CardModel> fetchedShields =
-              (data['shields'] as List).map((cardData) {
-                return CardModel(
-                  id: cardData['id'],
-                  power: cardData['power'],
-                  gameCardId: cardData['gameCardId'],
-                  name: cardData['name'] ?? "Unknown",
-                  type: cardData['type'] ?? "UNKNOWN",
-                  civilization: cardData['civilization'] ?? "NONE",
-                  race: cardData['race'] ?? "UNKNOWN",
-                  manaCost: cardData['manaCost'] ?? 0,
-                  manaNumber: cardData['manaNumber'] ?? 0,
-                  ability: cardData['ability'] ?? "",
-                  specialAbility: cardData['specialAbility'] ?? "",
-                );
-              }).toList();
-
-          List<CardModel> fetchedHand =
-              (data['hand'] as List).map((cardData) {
-                return CardModel(
-                  id: cardData['id'],
-                  power: cardData['power'],
-                  gameCardId: cardData['gameCardId'],
-                  name: cardData['name'] ?? "Unknown",
-                  type: cardData['type'] ?? "UNKNOWN",
-                  civilization: cardData['civilization'] ?? "NONE",
-                  race: cardData['race'] ?? "UNKNOWN",
-                  manaCost: cardData['manaCost'] ?? 0,
-                  manaNumber: cardData['manaNumber'] ?? 0,
-                  ability: cardData['ability'] ?? "",
-                  specialAbility: cardData['specialAbility'] ?? "",
-                );
-              }).toList();
+          List<CardModel> fetchedDeck = CardModel.fromList(data['deck']);
+          List<CardModel> fetchedShields = CardModel.fromList(data['shields']);
+          List<CardModel> fetchedHand = CardModel.fromList(data['hand']);
 
           setState(() {
             playerHand = fetchedHand;
