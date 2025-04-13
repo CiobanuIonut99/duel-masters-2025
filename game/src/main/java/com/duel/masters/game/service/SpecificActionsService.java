@@ -1,6 +1,7 @@
 package com.duel.masters.game.service;
 
 import com.duel.masters.game.dto.CardsDto;
+import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +52,11 @@ public class SpecificActionsService {
                     destination.add(cardDto);
                     source.remove(cardDto);
                 });
+    }
+
+    public void prepareOpponentTurn(GameStateDto currentState, GameStateDto incomingDto) {
+        currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
+        currentState.setPlayedMana(false);
     }
 
 }

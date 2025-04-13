@@ -22,8 +22,7 @@ public class ActionsService {
                         GameStateDto incomingDto) {
 
         var opponentCards = cardsDtoService.getOpponentCards(currentState, incomingDto);
-        currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
-        currentState.setPlayedMana(false);
+        specificActionsService.prepareOpponentTurn(currentState, incomingDto);
         specificActionsService.drawCard(opponentCards);
         specificActionsService.untapCards(opponentCards.getManaZone());
         specificActionsService.untapCards(opponentCards.getBattleZone());
@@ -31,6 +30,7 @@ public class ActionsService {
         topicService.sendGameStatesToTopics(currentState);
 
     }
+
 
     public void sendCardToMana(GameStateDto currentState, GameStateDto incomingDto) {
 
