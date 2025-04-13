@@ -55,11 +55,10 @@ public class ActionsService {
         var battleZone = ownCards.getBattleZone();
         var manaZone = ownCards.getManaZone();
 
-        var triggeredGameCardIdsFromUi = incomingDto.getTriggeredGameCardIds();
         var cardToBeSummoned = getCardToBeSummonedByTriggeredId(hand, incomingDto.getTriggeredGameCardId());
 
         var manaZoneCardsIds = getManaZoneCardsIds(manaZone);
-        var manaCardsToPayForSummon = getManaCardsToPayForSummon(triggeredGameCardIdsFromUi, manaZone);
+        var manaCardsToPayForSummon = getManaCardsToPayForSummon(incomingDto.getTriggeredGameCardIds(), manaZone);
 
         var canCardBeSummonedToBattleZone = canSummonToBattleZone(
                 cardToBeSummoned,
