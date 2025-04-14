@@ -12,7 +12,6 @@ class CardRow extends StatefulWidget {
   final bool allowManaAction;
   final String label;
   final Function(CardModel)? onTap;             // Enlarge
-  final Function(CardModel)? onSecondaryTap;    // Right-click (optional fallback)
   final Function(CardModel)? onSummon;          // Sword
   final Function(CardModel)? onAttack;          // Sword
   final Function(CardModel)? onSendToMana;      // Bolt
@@ -28,7 +27,6 @@ class CardRow extends StatefulWidget {
     required this.hideCardFaces,
     required this.allowManaAction,
     this.onTap,
-    this.onSecondaryTap,
     this.onSummon,
     this.onAttack,
     this.onSendToMana,
@@ -63,14 +61,14 @@ class _CardRowState extends State<CardRow> {
             onExit: (_) => setState(() => hoveredCard = null),
             child: GestureDetector(
               onTap: () {
-                // Always allow tap to enlarge except for opponent zones
-                if (!widget.hideCardFaces) {
-                  widget.onTap?.call(card);
+                if (isGlowing) {
+                  widget.onConfirmAttack?.call(card);   // Prioritize attack if glowing
+                } else if (!widget.hideCardFaces) {
+                  widget.onTap?.call(card);             // Else enlarge
                 }
               },
 
 
-              onSecondaryTap: () => widget.onSecondaryTap?.call(card),
               child: Stack(
                 alignment: Alignment.center,
                 children: [

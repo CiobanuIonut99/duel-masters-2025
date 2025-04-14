@@ -22,7 +22,6 @@ class GameZone extends StatelessWidget {
   final bool scrollable;
   final bool allowManaAction;
   final Function(CardModel)? onTap;
-  final Function(CardModel)? onSecondaryTap;
   final Function(CardModel)? onSummon;        // NEW
   final Function(CardModel)? onAttack;        // NEW
   final Function(CardModel)? onSendToMana;    // NEW
@@ -39,7 +38,6 @@ class GameZone extends StatelessWidget {
     this.scrollable = false,
     this.allowManaAction = false,
     this.onTap,
-    this.onSecondaryTap,
     this.onSummon,
     this.onAttack,
     this.onSendToMana,
@@ -57,7 +55,6 @@ class GameZone extends StatelessWidget {
       hideCardFaces: hideCardFaces,
       allowManaAction: allowManaAction,
       onTap: onTap,
-      onSecondaryTap: onSecondaryTap,
       onSummon: onSummon,
       onAttack: onAttack,
       onSendToMana: onSendToMana,

@@ -10,7 +10,6 @@ class PlayerField extends StatelessWidget {
   final List<CardModel> graveyard;
   final int deckSize;
   final Function(CardModel) onTapHandCard;
-  final Function(CardModel) onSecondaryTapHandCard;
   final Function(CardModel) onSummonHandCard;        // NEW
   final Function(CardModel) onAttack;        // NEW
   final Function(CardModel) onSendToManaHandCard;    // NEW
@@ -27,7 +26,6 @@ class PlayerField extends StatelessWidget {
     required this.graveyard,
     required this.deckSize,
     required this.onTapHandCard,
-    required this.onSecondaryTapHandCard,
     required this.onTapManaCard,
     required this.onTapGraveyard,
     required this.onSummonHandCard,
@@ -96,7 +94,6 @@ class PlayerField extends StatelessWidget {
                 label: "Your Hand",
                 cards: hand,
                 onTap: onTapHandCard,
-                onSecondaryTap: onSecondaryTapHandCard,
                 onSummon: onSummonHandCard,
                 onSendToMana: onSendToManaHandCard,
 
@@ -120,7 +117,6 @@ class PlayerField extends StatelessWidget {
     required List<CardModel> cards,
     bool hideCardFaces = false,
     Function(CardModel)? onTap,
-    Function(CardModel)? onSecondaryTap,
     Function(CardModel)? onSummon,
     Function(CardModel)? onAttack,
     Function(CardModel)? onSendToMana,
@@ -134,7 +130,6 @@ class PlayerField extends StatelessWidget {
         hideCardFaces: hideCardFaces,
         allowManaAction: false,
         onTap: onTap,
-        onSecondaryTap: onSecondaryTap,
         onSummon: onSummon,
         onAttack: onAttack,
         onSendToMana: onSendToMana,

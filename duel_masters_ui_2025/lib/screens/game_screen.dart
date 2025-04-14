@@ -662,7 +662,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           deckSize: deckSize,
                           onTapHandCard:
                               (card) => _showFullScreenCardPreview(card),
-                          onSecondaryTapHandCard: (card) {},
                           onTapManaCard:
                               (card) => _showFullScreenCardPreview(card),
                           onTapGraveyard:

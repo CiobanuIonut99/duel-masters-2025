@@ -92,8 +92,9 @@ class OpponentField extends StatelessWidget {
               label: "Opponent Shields",
               cards: shields,
               hideCardFaces: true,
-              onSecondaryTap: (shield) {
+              onConfirmAttack: (shield) {
                 if (isSelectingAttackTarget && selectedAttacker != null) {
+                  onConfirmAttack(shield);
                 }
               },
             ),
@@ -123,7 +124,6 @@ class OpponentField extends StatelessWidget {
     required List<CardModel> cards,
     bool hideCardFaces = false,
     Function(CardModel)? onTap,
-    Function(CardModel)? onSecondaryTap,
     Function(CardModel)? onSummon,
     Function(CardModel)? onAttack,
     Function(CardModel)? onConfirmAttack,
@@ -138,7 +138,6 @@ class OpponentField extends StatelessWidget {
         hideCardFaces: hideCardFaces,
         allowManaAction: false,
         onTap: onTap,
-        onSecondaryTap: onSecondaryTap,
         onSummon: onSummon,
         onAttack: onAttack,
         onConfirmAttack: onConfirmAttack,
