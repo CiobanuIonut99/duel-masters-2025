@@ -17,6 +17,8 @@ class PlayerField extends StatelessWidget {
   final VoidCallback onTapGraveyard;
   final bool playedMana;
 
+  final List<CardModel> playerBattleZone;
+
   const PlayerField({
     super.key,
     required this.hand,
@@ -24,32 +26,37 @@ class PlayerField extends StatelessWidget {
     required this.manaZone,
     required this.graveyard,
     required this.deckSize,
+    required this.playerBattleZone,  // ADD THIS
     required this.onTapHandCard,
     required this.onSecondaryTapHandCard,
-    required this.onSummonHandCard,        // NEW
-    required this.onSendToManaHandCard,    // NEW
+    required this.onSummonHandCard,
+    required this.onSendToManaHandCard,
     required this.onTapManaCard,
     required this.onTapGraveyard,
     required this.playedMana,
   });
+
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
+        _buildZoneContainer(
+          label: "Your Battle Zone",
+          cards: playerBattleZone,
+        ),
+
+        SizedBox(height: 4),
+
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Empty left side to center shields
-            SizedBox(width: 70), // adjust as needed for spacing
-
-            // Shields in center
+            SizedBox(width: 70),
             _buildZoneContainer(
               label: "Your Shields",
               cards: shields,
               hideFaces: true,
             ),
-
-            // Graveyard + Deck on right
             Row(
               children: [
                 GestureDetector(
@@ -70,7 +77,7 @@ class PlayerField extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 12),
+
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -92,9 +99,6 @@ class PlayerField extends StatelessWidget {
                 cards: manaZone,
                 onTapCard: onTapManaCard,
               ),
-
-
-
             ),
           ],
         ),

@@ -94,7 +94,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     fxGame = FxGame();
 
     wsHandler = GameWebSocketHandler(
-      url: 'wss://2be8-213-170-209-87.ngrok-free.app/duel-masters-ws',
+      url: 'wss://7d45-213-170-209-87.ngrok-free.app/duel-masters-ws',
       currentPlayerId: currentPlayerId,
       onMatchFound: (gameId, playerTopic) {
         setState(() {
@@ -122,7 +122,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     print("Fetching game data from the backend...");
 
     final response = await http.get(
-      Uri.parse('https://2be8-213-170-209-87.ngrok-free.app/api/games'),
+      Uri.parse('https://7d45-213-170-209-87.ngrok-free.app/api/games'),
     );
 
     if (response.statusCode == 200) {
@@ -610,7 +610,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           glowAttackableShields: glowAttackableShields,
                         ),
                         SizedBox(height: 16),
-                        _buildBattleZones(),
+                        // _buildBattleZones(),
                         SizedBox(height: 16),
                         PlayerField(
                           hand: playerHand,
@@ -632,6 +632,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                               (card) => _showManaSelectionDialog(card),
                           onSendToManaHandCard: (card) => sendToMana(card),
                           playedMana: playedMana,
+                          playerBattleZone: playerBattleZone,
                         ),
                         SizedBox(height: 16),
                       ],
@@ -762,25 +763,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildBattleZones() {
-    return Column(
-      children: [
-        GameZone(label: "Opponent Battle Zone", cards: opponentBattleZone),
-        SizedBox(height: 12),
-        GameZone(
-          label: "Your Battle Zone",
-          cards: playerBattleZone,
-          glowingManaCardIds: glowingManaCardIds,
-          onTap: (card) {
-            if (!card.tapped) _showFullScreenCardPreview(card);
-          },
-          onAttack: (card) {
-            if (!card.tapped) _startAttackSelection(card);
-          },
-        ),
-      ],
-    );
-  }
 
   void _showFullScreenCardPreview(CardModel card) {
     showDialog(
