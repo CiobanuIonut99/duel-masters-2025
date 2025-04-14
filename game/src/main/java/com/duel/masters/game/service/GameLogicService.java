@@ -30,7 +30,7 @@ public class GameLogicService {
             case END_TURN -> actionsService.endTurn(currentState, incomingState);
             case SEND_CARD_TO_MANA -> actionsService.sendCardToMana(currentState, incomingState);
             case SUMMON_TO_BATTLE_ZONE -> actionsService.summonToBattleZone(currentState, incomingState);
-//            case "ATTACL" -> actionsService.attack(currentState, incomingState);
+            case ATTACK -> actionsService.attack(currentState, incomingState);
         }
     }
 

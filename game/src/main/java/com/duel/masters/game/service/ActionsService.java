@@ -133,6 +133,10 @@ public class ActionsService {
 
     }
 
+    public void attack(GameStateDto currentState, GameStateDto incomingState) {
+
+    }
+
 //    public void attack(GameStateDto currentState, GameStateDto incomingState) {
 //        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
 //        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
