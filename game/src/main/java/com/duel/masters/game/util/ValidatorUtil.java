@@ -19,4 +19,11 @@ public class ValidatorUtil {
         return checkAtLeastOneCardSameCivilizationPresent(manaZOne, card) &&
                 untappedCards(manaZOne) >= card.getManaCost();
     }
+
+    public static boolean canAttack(CardDto card) {
+        return card.getType().equalsIgnoreCase("CREATURE") &&
+                !card.isSummoningSickness() &&
+                !card.isTapped();
+    }
 }
+

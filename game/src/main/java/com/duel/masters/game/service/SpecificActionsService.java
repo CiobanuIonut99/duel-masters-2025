@@ -43,4 +43,12 @@ public class SpecificActionsService {
         currentState.setCurrentTurnPlayerId(opponentId);
         currentState.setPlayedMana(false);
     }
+
+    public void setOpponentAttackableCards(List<CardDto> opponentBattleZone, List<CardDto> opponentShields) {
+        opponentShields.forEach(cardDto -> cardDto.setCanBeAttacked(true));
+        opponentBattleZone
+                .stream()
+                .filter(CardDto::isTapped)
+                .forEach(cardDto -> cardDto.setCanBeAttacked(true));
+    }
 }

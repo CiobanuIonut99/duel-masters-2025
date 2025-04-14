@@ -1,7 +1,6 @@
 package com.duel.masters.game.util;
 
 import com.duel.masters.game.dto.CardsDto;
-import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,7 +12,8 @@ public class CardsDtoUtil {
                                        List<CardDto> manaZone,
                                        List<CardDto> deck,
                                        List<CardDto> graveyard,
-                                       List<CardDto> battleZone) {
+                                       List<CardDto> battleZone,
+                                       List<CardDto> shields) {
         return
                 CardsDto
                         .builder()
@@ -22,6 +22,7 @@ public class CardsDtoUtil {
                         .deck(deck)
                         .graveyard(graveyard)
                         .battleZone(battleZone)
+                        .shields(shields)
                         .build();
     }
 
@@ -30,5 +31,13 @@ public class CardsDtoUtil {
                 .stream()
                 .filter(cardDto1 -> !cardDto1.isTapped())
                 .count();
+    }
+
+    public static CardDto getCardDtoFromList(List<CardDto> cards, String cardId) {
+        return cards
+                .stream()
+                .filter(cardDto -> cardDto.getGameCardId().equals(cardId))
+                .findFirst()
+                .orElseThrow();
     }
 }

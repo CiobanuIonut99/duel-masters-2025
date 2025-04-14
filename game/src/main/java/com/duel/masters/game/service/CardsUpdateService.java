@@ -22,8 +22,9 @@ public class CardsUpdateService {
         var deck = isPlayer ? currentState.getPlayerDeck() : currentState.getOpponentDeck();
         var graveyard = isPlayer ? currentState.getPlayerGraveyard() : currentState.getOpponentGraveyard();
         var battleZone = isPlayer ? currentState.getPlayerBattleZone() : currentState.getOpponentBattleZone();
+        var shields = isPlayer ? currentState.getPlayerShields() : currentState.getOpponentShields();
 
-        return getCardsDto(hand, manaZone, deck, graveyard, battleZone);
+        return getCardsDto(hand, manaZone, deck, graveyard, battleZone, shields);
     }
 
     public CardsDto getOpponentCards(GameStateDto currentState, GameStateDto incomingState) {
@@ -33,7 +34,8 @@ public class CardsUpdateService {
         var deck = isPlayer ? currentState.getOpponentDeck() : currentState.getPlayerDeck();
         var graveyard = isPlayer ? currentState.getOpponentGraveyard() : currentState.getPlayerGraveyard();
         var battleZone = isPlayer ? currentState.getOpponentBattleZone() : currentState.getPlayerBattleZone();
+        var shields = isPlayer ? currentState.getOpponentShields() : currentState.getPlayerShields();
 
-        return getCardsDto(hand, manaZone, deck, graveyard, battleZone);
+        return getCardsDto(hand, manaZone, deck, graveyard, battleZone, shields);
     }
 }

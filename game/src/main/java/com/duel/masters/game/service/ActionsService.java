@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import static com.duel.masters.game.util.CardsDtoUtil.getCardDtoFromList;
+import static com.duel.masters.game.util.ValidatorUtil.canAttack;
+
 @AllArgsConstructor
 @Service
 @Slf4j
@@ -20,8 +23,7 @@ public class ActionsService {
     private final CardsUpdateService cardsUpdateService;
     private final SpecificActionsService specificActionsService;
 
-    public void endTurn(GameStateDto currentState,
-                        GameStateDto incomingState) {
+    public void endTurn(GameStateDto currentState, GameStateDto incomingState) {
 
         var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
 
@@ -49,14 +51,10 @@ public class ActionsService {
     }
 
     public void playCard(List<CardDto> source, String triggeredGameCardId, List<CardDto> destination) {
-        source
-                .stream()
-                .filter(cardDto -> cardDto.getGameCardId().equals(triggeredGameCardId))
-                .findFirst()
-                .ifPresent(cardDto -> {
-                    destination.add(cardDto);
-                    source.remove(cardDto);
-                });
+        source.stream().filter(cardDto -> cardDto.getGameCardId().equals(triggeredGameCardId)).findFirst().ifPresent(cardDto -> {
+            destination.add(cardDto);
+            source.remove(cardDto);
+        });
     }
 
     public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingState) {
@@ -65,42 +63,22 @@ public class ActionsService {
         var battleZone = ownCards.getBattleZone();
         var manaZone = ownCards.getManaZone();
         var selectedManaCardIds = incomingState.getTriggeredGameCardIds();
-        var cardToBeSummoned = new CardDto();
+        var cardToBeSummoned = getCardDtoFromList(hand, incomingState.getTriggeredGameCardId());
 
-        for (CardDto cardDto : hand) {
-            if (cardDto.getGameCardId().equals(incomingState.getTriggeredGameCardId())) {
-                cardToBeSummoned = cardDto;
-                break;
-            }
-        }
-
-        var manaZoneGameCardIds = manaZone
-                .stream()
-                .map(CardDto::getGameCardId)
-                .toList();
+        var manaZoneGameCardIds = manaZone.stream().map(CardDto::getGameCardId).toList();
 
 
         List<CardDto> selectedManaCards = new ArrayList<>();
-        var isValidForSummoning = isValidForSummoning(manaZone,
-                selectedManaCardIds,
-                selectedManaCards,
-                cardToBeSummoned);
+        var isValidForSummoning = isValidForSummoning(manaZone, selectedManaCardIds, selectedManaCards, cardToBeSummoned);
 
 
-        if (new HashSet<>(manaZoneGameCardIds)
-                .containsAll(incomingState.getTriggeredGameCardIds()) &&
-                manaZone.size() >= selectedManaCardIds.size() &&
-                selectedManaCardIds.size() == cardToBeSummoned.getManaCost() &&
-                isValidForSummoning
-        ) {
+        if (new HashSet<>(manaZoneGameCardIds).containsAll(incomingState.getTriggeredGameCardIds()) && manaZone.size() >= selectedManaCardIds.size() && selectedManaCardIds.size() == cardToBeSummoned.getManaCost() && isValidForSummoning) {
             for (CardDto cardDto : selectedManaCards) {
                 cardDto.setTapped(true);
             }
             battleZone.add(cardToBeSummoned);
+            cardToBeSummoned.setSummoningSickness(true);
             hand.remove(cardToBeSummoned);
-            if (cardToBeSummoned.getType().equalsIgnoreCase("CREATURE")) {
-                cardToBeSummoned.setTapped(true);
-            }
             specificActionsService.setCreaturesSummonable(ownCards);
             topicService.sendGameStatesToTopics(currentState);
             log.info("Card summoned to battle zone : {}", battleZone);
@@ -127,43 +105,25 @@ public class ActionsService {
         }
 
 
-        return atLeastOneSelectedManaCardHasNecessaryCivilization &&
-                countUntapped == cardToBeSummoned.getManaCost();
+        return atLeastOneSelectedManaCardHasNecessaryCivilization && countUntapped == cardToBeSummoned.getManaCost();
 
 
     }
 
     public void attack(GameStateDto currentState, GameStateDto incomingState) {
+        var ownBattleZone = cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone();
+        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
+        var opponentBattleZone = opponentCards.getBattleZone();
+        var opponentShields = opponentCards.getShields();
 
+        var attackerCard = getCardDtoFromList(ownBattleZone, incomingState.getAttackerId());
+//        var atLeastOneBlockerIntoBattleZone = opponentBattleZone
+//                .stream()
+//                .anyMatch(cardDto -> cardDto.getSpecialAbility().equalsIgnoreCase("BLOCKER")
+//                        && !cardDto.isTapped());
+
+        if (canAttack(attackerCard)) {
+            specificActionsService.setOpponentAttackableCards(opponentBattleZone, opponentShields);
+        }
     }
-
-//    public void attack(GameStateDto currentState, GameStateDto incomingState) {
-//        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
-//        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
-//
-//        var cardToAttack = new CardDto();
-//
-//        var ownBattleZone = ownCards.getBattleZone();
-//        var triggeredId = incomingState.getTriggeredGameCardId();
-//
-//        for (CardDto cardInMyOwnBattlezone : ownBattleZone) {
-//            if (cardInMyOwnBattlezone.getGameCardId().equals(triggeredId)) {
-//                cardToAttack = cardInMyOwnBattlezone;
-//            }
-//        }
-//
-//
-//        if (cardToAttack.getSpecialAbility().equalsIgnoreCase(DOUBLE_BREAKER)) {
-//            cardToAttack.canSelectOneOpponentShield(true);
-//            cardToAttack.canSelectTwoOpponentShields(true);
-//
-//        } else if (cardToAttack.getSpecialAbility().equalsIgnoreCase(SHIELD_BREAKER)) {
-//            cardToAttack.canSelectOneOpponentShield(true);
-//        } else if (cardToAttack.getSpecialAbility().equalsIgnoreCase(BLOCKER)) {
-//            if (cardToAttack.getAbility().equalsIgnoreCase("")) {
-//
-//            }
-//        }
-//
-//    }
 }

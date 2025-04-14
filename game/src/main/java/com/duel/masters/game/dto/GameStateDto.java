@@ -22,6 +22,8 @@ public class GameStateDto {
 
     private String gameId;
     private String triggeredGameCardId;
+    private String attackerId;
+    private String targetId;
     private List<String> triggeredGameCardIds;
 
     private Long playerId;
@@ -31,6 +33,7 @@ public class GameStateDto {
     private String opponentName;
 
     private boolean playedMana;
+    private boolean canBlock;
 
     private String playerTopic;
 

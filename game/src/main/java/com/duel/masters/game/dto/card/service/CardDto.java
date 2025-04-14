@@ -28,4 +28,6 @@ public class CardDto {
     private String specialAbility;
     private boolean tapped;
     private boolean summonable;
+    private boolean summoningSickness;
+    private boolean canBeAttacked;
 }

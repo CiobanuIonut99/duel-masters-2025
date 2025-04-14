@@ -22,4 +22,5 @@ public class CardsDto {
     private List<CardDto> deck;
     private List<CardDto> graveyard;
     private List<CardDto> battleZone;
+    private List<CardDto> shields;
 }
