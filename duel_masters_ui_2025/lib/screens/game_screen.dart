@@ -592,23 +592,23 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           manaZone: opponentManaZone,
                           graveyard: opponentGraveyard,
                           deckSize: opponentDeckSize,
+                          opponentBattleZone: opponentBattleZone, // <- ADD THIS
                           isSelectingAttackTarget: isSelectingAttackTarget,
                           selectedAttacker: selectedAttacker,
                           onShieldAttack: attackShield,
-                          onTapManaZone:
-                              () => _showCardZoneDialog(
-                                "Opponent Mana",
-                                opponentManaZone,
-                                true,
-                              ),
-                          onTapGraveyard:
-                              () => _showCardZoneDialog(
-                                "Opponent Graveyard",
-                                opponentGraveyard,
-                                true,
-                              ),
+                          onTapManaZone: () => _showCardZoneDialog(
+                            "Opponent Mana",
+                            opponentManaZone,
+                            true,
+                          ),
+                          onTapGraveyard: () => _showCardZoneDialog(
+                            "Opponent Graveyard",
+                            opponentGraveyard,
+                            true,
+                          ),
                           glowAttackableShields: glowAttackableShields,
                         ),
+
                         SizedBox(height: 16),
                         // _buildBattleZones(),
                         SizedBox(height: 16),

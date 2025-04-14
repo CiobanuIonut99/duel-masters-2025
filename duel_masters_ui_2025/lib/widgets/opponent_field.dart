@@ -109,7 +109,7 @@ class OpponentField extends StatelessWidget {
           ],
         ),
       ],
-    );
+    );]
   }
 
   Widget _buildZoneContainer({
