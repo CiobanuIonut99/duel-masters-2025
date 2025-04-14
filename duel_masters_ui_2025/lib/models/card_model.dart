@@ -10,8 +10,12 @@ class CardModel {
   final int power;
   final String ability;
   final String specialAbility;
+
   bool tapped;
-  bool summonable;  // NEW
+  bool summonable;
+  bool summoningSickness; // NEW
+  bool canBeAttacked;     // NEW
+  bool canAttack;         // NEW
 
   CardModel({
     required this.id,
@@ -26,7 +30,10 @@ class CardModel {
     required this.ability,
     required this.specialAbility,
     this.tapped = false,
-    this.summonable = false, // NEW
+    this.summonable = false,
+    this.summoningSickness = false,
+    this.canBeAttacked = false,
+    this.canAttack = false,
   });
 
   void toggleTap() {
@@ -46,7 +53,10 @@ class CardModel {
     'ability': ability,
     'specialAbility': specialAbility,
     'tapped': tapped,
-    'summonable': summonable, // NEW
+    'summonable': summonable,
+    'summoningSickness': summoningSickness,
+    'canBeAttacked': canBeAttacked,
+    'canAttack': canAttack,
   };
 
   factory CardModel.fromJson(Map<String, dynamic> json) {
@@ -64,12 +74,14 @@ class CardModel {
       specialAbility: json['specialAbility'] ?? "",
       tapped: json['tapped'] ?? false,
       summonable: json['summonable'] ?? false,
+      summoningSickness: json['summoningSickness'] ?? false,
+      canBeAttacked: json['canBeAttacked'] ?? false,
+      canAttack: json['canAttack'] ?? false,
     );
   }
 
   static List<CardModel> fromList(List<dynamic> jsonList) =>
       jsonList.map((e) => CardModel.fromJson(e)).toList();
-
 
   String get imagePath => 'assets/cards/$id.jpg';
 }

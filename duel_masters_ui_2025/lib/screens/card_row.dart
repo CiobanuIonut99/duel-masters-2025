@@ -105,7 +105,7 @@ class _CardRowState extends State<CardRow> {
                           children: [
                             if (card.summonable)
                               _actionButton(
-                                icon: LucideIcons.wand,
+                                icon: LucideIcons.flame,
                                 color: Colors.redAccent,
                                 onPressed: () => widget.onSummon?.call(card),
                               ),
@@ -120,16 +120,18 @@ class _CardRowState extends State<CardRow> {
                       ),
 
 
-                  if (hoveredCard == card && widget.label == "Your Battle Zone" && !card.tapped)
+                  if (hoveredCard == card &&
+                      widget.label == "Your Battle Zone" &&
+                      !card.tapped && card.canAttack)
                     Positioned(
                       bottom: -10,
-                      child: _actionButton(
-                        icon: LucideIcons.sword,
+                      child:
+                      _actionButton(
+                        icon: LucideIcons.crosshair,
                         color: Colors.redAccent,
                         onPressed: () => widget.onAttack?.call(card), // or attack callback
                       ),
                     ),
-
                 ],
               ),
             ),
