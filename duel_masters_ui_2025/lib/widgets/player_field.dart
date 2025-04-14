@@ -12,6 +12,7 @@ class PlayerField extends StatelessWidget {
   final Function(CardModel) onTapHandCard;
   final Function(CardModel) onSecondaryTapHandCard;
   final Function(CardModel) onSummonHandCard;        // NEW
+  final Function(CardModel) onAttack;        // NEW
   final Function(CardModel) onSendToManaHandCard;    // NEW
   final Function(CardModel) onTapManaCard;
   final VoidCallback onTapGraveyard;
@@ -31,6 +32,7 @@ class PlayerField extends StatelessWidget {
     required this.onTapManaCard,
     required this.onTapGraveyard,
     required this.onSummonHandCard,
+    required this.onAttack,
     required this.onSendToManaHandCard,
     required this.playedMana,
     required this.playerBattleZone,
@@ -49,6 +51,7 @@ class PlayerField extends StatelessWidget {
           child: _buildZoneContainer(
             label: "Your Battle Zone",
             cards: playerBattleZone,
+            onAttack: onAttack
           ),
         ),
 
@@ -120,6 +123,7 @@ class PlayerField extends StatelessWidget {
     Function(CardModel)? onTap,
     Function(CardModel)? onSecondaryTap,
     Function(CardModel)? onSummon,
+    Function(CardModel)? onAttack,
     Function(CardModel)? onSendToMana,
   }) {
     return ZoneContainer(
@@ -133,6 +137,7 @@ class PlayerField extends StatelessWidget {
         onTap: onTap,
         onSecondaryTap: onSecondaryTap,
         onSummon: onSummon,
+        onAttack: onAttack,
         onSendToMana: onSendToMana,
         playedMana: playedMana,
       ),

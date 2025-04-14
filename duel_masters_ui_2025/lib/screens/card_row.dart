@@ -14,6 +14,7 @@ class CardRow extends StatefulWidget {
   final Function(CardModel)? onTap;             // Enlarge
   final Function(CardModel)? onSecondaryTap;    // Right-click (optional fallback)
   final Function(CardModel)? onSummon;          // Sword
+  final Function(CardModel)? onAttack;          // Sword
   final Function(CardModel)? onSendToMana;      // Bolt
   final Set<String> glowingManaCardIds;
   final bool playedMana;
@@ -27,6 +28,7 @@ class CardRow extends StatefulWidget {
     this.onTap,
     this.onSecondaryTap,
     this.onSummon,
+    this.onAttack,
     this.onSendToMana,
     required this.playedMana,
     this.cardWidth = 60,
@@ -124,7 +126,7 @@ class _CardRowState extends State<CardRow> {
                       child: _actionButton(
                         icon: LucideIcons.sword,
                         color: Colors.redAccent,
-                        onPressed: () => widget.onSummon?.call(card), // or attack callback
+                        onPressed: () => widget.onAttack?.call(card), // or attack callback
                       ),
                     ),
 

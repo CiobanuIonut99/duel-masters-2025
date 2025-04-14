@@ -14,6 +14,7 @@ class OpponentField extends StatelessWidget {
   final CardModel? selectedAttacker;
   final Function(CardModel attacker, CardModel shield) onShieldAttack;
   final VoidCallback onTapManaZone;
+  final Function(CardModel) onAttack;
   final VoidCallback onTapGraveyard;
   final Set<String> glowAttackableShields;
 
@@ -23,6 +24,7 @@ class OpponentField extends StatelessWidget {
     required this.shields,
     required this.manaZone,
     required this.graveyard,
+    required this.onAttack,
     required this.deckSize,
     required this.opponentBattleZone,
     required this.isSelectingAttackTarget,
@@ -107,6 +109,7 @@ class OpponentField extends StatelessWidget {
           child: _buildZoneContainer(
             label: "Opponent Battle Zone",
             cards: opponentBattleZone,
+            onAttack: onAttack
           ),
         ),
       ],
@@ -120,6 +123,7 @@ class OpponentField extends StatelessWidget {
     Function(CardModel)? onTap,
     Function(CardModel)? onSecondaryTap,
     Function(CardModel)? onSummon,
+    Function(CardModel)? onAttack,
     Function(CardModel)? onSendToMana,
   }) {
     return ZoneContainer(
@@ -133,6 +137,7 @@ class OpponentField extends StatelessWidget {
         onTap: onTap,
         onSecondaryTap: onSecondaryTap,
         onSummon: onSummon,
+        onAttack: onAttack,
         onSendToMana: onSendToMana,
         glowingManaCardIds:
         label == "Opponent Shields" ? glowAttackableShields : {},

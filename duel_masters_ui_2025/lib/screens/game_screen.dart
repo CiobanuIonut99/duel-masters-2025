@@ -593,24 +593,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           graveyard: opponentGraveyard,
                           deckSize: opponentDeckSize,
                           opponentBattleZone: opponentBattleZone,
-                          // <- ADD THIS
                           isSelectingAttackTarget: isSelectingAttackTarget,
                           selectedAttacker: selectedAttacker,
                           onShieldAttack: attackShield,
-                          onTapManaZone:
-                              () => _showCardZoneDialog(
-                                "Opponent Mana",
-                                opponentManaZone,
-                                true,
-                              ),
-                          onTapGraveyard:
-                              () => _showCardZoneDialog(
-                                "Opponent Graveyard",
-                                opponentGraveyard,
-                                true,
-                              ),
+                          onTapManaZone: () => _showCardZoneDialog("Opponent Mana", opponentManaZone, true),
+                          onTapGraveyard: () => _showCardZoneDialog("Opponent Graveyard", opponentGraveyard, true),
                           glowAttackableShields: glowAttackableShields,
+                          onAttack: (card) => _startAttackSelection(card),  // <- ADD THIS
                         ),
+
 
                         SizedBox(height: 16),
                         // _buildBattleZones(),
@@ -634,6 +625,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           onSummonHandCard:
                               (card) => _showManaSelectionDialog(card),
                           onSendToManaHandCard: (card) => sendToMana(card),
+                          onAttack: (card) => _startAttackSelection(card),
                           playedMana: playedMana,
                           playerBattleZone: playerBattleZone,
                         ),
