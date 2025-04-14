@@ -41,10 +41,17 @@ class PlayerField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _buildZoneContainer(
-          label: "Your Battle Zone",
-          cards: playerBattleZone,
+        Container(
+          constraints: BoxConstraints(
+            minHeight: 100,  // tweak this value if needed (depends on your card size)
+          ),
+          width: double.infinity, // optional for full width
+          child: _buildZoneContainer(
+            label: "Your Battle Zone",
+            cards: playerBattleZone,
+          ),
         ),
+
 
         SizedBox(height: 4),
 

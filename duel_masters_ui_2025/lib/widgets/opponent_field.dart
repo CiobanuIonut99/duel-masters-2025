@@ -9,6 +9,7 @@ class OpponentField extends StatelessWidget {
   final List<CardModel> manaZone;
   final List<CardModel> graveyard;
   final int deckSize;
+  final List<CardModel> opponentBattleZone;
   final bool isSelectingAttackTarget;
   final CardModel? selectedAttacker;
   final Function(CardModel attacker, CardModel shield) onShieldAttack;
@@ -23,6 +24,7 @@ class OpponentField extends StatelessWidget {
     required this.manaZone,
     required this.graveyard,
     required this.deckSize,
+    required this.opponentBattleZone,
     required this.isSelectingAttackTarget,
     required this.selectedAttacker,
     required this.onShieldAttack,
@@ -35,32 +37,23 @@ class OpponentField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildZoneContainer(
-              label: "Opponent Hand",
-              cards: hand,
-              hideFaces: true,
-            ),
-            GestureDetector(
-              onTap: onTapManaZone,
-              child: _buildZoneContainer(
-                label: "Opponent Mana",
-                cards: manaZone,
-              ),
-            ),
-          ],
+        Container(
+          constraints: BoxConstraints(
+            minHeight: 100,  // same as PlayerField
+          ),
+          width: double.infinity,
+          child: _buildZoneContainer(
+            label: "Opponent Battle Zone",
+            cards: opponentBattleZone,
+          ),
         ),
 
-        SizedBox(height: 12),
+        SizedBox(height: 4),
 
-        // Row 2 → Empty left | Shields center | Deck + Graveyard right
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(width: 70),
-
             _buildZoneContainer(
               label: "Opponent Shields",
               cards: shields,
@@ -71,7 +64,6 @@ class OpponentField extends StatelessWidget {
                 }
               },
             ),
-
             Row(
               children: [
                 GestureDetector(
@@ -93,7 +85,27 @@ class OpponentField extends StatelessWidget {
                 ),
               ],
             ),
+          ],
+        ),
 
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: _buildZoneContainer(
+                label: "Opponent Hand",
+                cards: hand,
+                hideFaces: true,
+              ),
+            ),
+            GestureDetector(
+              onTap: onTapManaZone,
+              child: _buildZoneContainer(
+                label: "Opponent Mana",
+                cards: manaZone,
+              ),
+            ),
           ],
         ),
       ],
@@ -113,7 +125,7 @@ class OpponentField extends StatelessWidget {
       label: label,
       borderColor: Colors.white24,
       child: GameZone(
-        label: label,  // Important! Pass it here for CardRow to know
+        label: label,
         cards: cards,
         hideCardFaces: hideFaces,
         allowManaAction: false,
