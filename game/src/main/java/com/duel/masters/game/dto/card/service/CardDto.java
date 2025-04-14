@@ -30,4 +30,5 @@ public class CardDto {
     private boolean summonable;
     private boolean summoningSickness;
     private boolean canBeAttacked;
+    private boolean canAttack;
 }
