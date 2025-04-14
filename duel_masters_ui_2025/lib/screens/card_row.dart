@@ -137,6 +137,22 @@ class _CardRowState extends State<CardRow> {
                         onPressed: () => widget.onAttack?.call(card), // or attack callback
                       ),
                     ),
+
+                  if (hoveredCard == card && isGlowing)
+                    Positioned(
+                      bottom: -10,
+                      child: IconButton(
+                        icon: Icon(
+                          LucideIcons.sword,
+                          color: Colors.red,
+                          size: 28,
+                        ),
+                        onPressed: () => widget.onConfirmAttack?.call(card),
+                        splashRadius: 24,
+                        tooltip: 'Attack',
+                      ),
+                    ),
+
                 ],
               ),
             ),

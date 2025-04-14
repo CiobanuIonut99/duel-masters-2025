@@ -110,7 +110,8 @@ class OpponentField extends StatelessWidget {
           child: _buildZoneContainer(
             label: "Opponent Battle Zone",
             cards: opponentBattleZone,
-            onAttack: onAttack
+            onAttack: onAttack,
+            onConfirmAttack: onConfirmAttack
           ),
         ),
       ],
