@@ -26,12 +26,14 @@ public class ActionsService {
     public void endTurn(GameStateDto currentState, GameStateDto incomingState) {
 
         var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
+        var opponentBattleZone = opponentCards.getBattleZone();
 
         specificActionsService.prepareTurnForOpponent(currentState, incomingState.getOpponentId());
         specificActionsService.drawCard(opponentCards);
         specificActionsService.untapCards(opponentCards.getManaZone());
         specificActionsService.untapCards(opponentCards.getBattleZone());
         specificActionsService.setCreaturesSummonable(opponentCards);
+        opponentBattleZone.forEach(cardDto -> cardDto.setCanAttack(true));
         topicService.sendGameStatesToTopics(currentState);
     }
 
