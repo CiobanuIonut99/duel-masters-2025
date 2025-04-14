@@ -30,10 +30,11 @@ public class SpecificActionsService {
 
     public void setCreaturesSummonable(CardsDto cards) {
         var hand = cards.getHand();
+        var manaZone = cards.getManaZone();
 
-        if (!cards.getManaZone().isEmpty()) {
+        if (!manaZone.isEmpty()) {
             for (CardDto cardDto : hand) {
-                cardDto.setSummonable(isSummonable(hand, cardDto));
+                cardDto.setSummonable(isSummonable(manaZone, cardDto));
             }
         }
     }
