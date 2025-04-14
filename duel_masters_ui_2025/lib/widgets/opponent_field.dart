@@ -25,8 +25,6 @@ class OpponentField extends StatelessWidget {
     required this.shields,
     required this.manaZone,
     required this.graveyard,
-    required this.onAttack,
-    required this.onConfirmAttack,
     required this.deckSize,
     required this.opponentBattleZone,
     required this.isSelectingAttackTarget,
@@ -35,6 +33,8 @@ class OpponentField extends StatelessWidget {
     required this.onTapGraveyard,
     required this.glowAttackableShields,
     required this.glowAttackableCreatures,
+    required this.onAttack,
+    required this.onConfirmAttack,
   });
 
   @override

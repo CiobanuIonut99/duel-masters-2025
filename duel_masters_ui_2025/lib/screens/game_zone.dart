@@ -4,29 +4,59 @@ import 'card_row.dart';
 
 /// GameZone Widget
 ///
-/// Pure Card Container for any zone.
-/// Handles:
-/// - Cards Layout (via CardRow)
-/// - Optional Horizontal Scroll
+/// Reusable, pure layout widget for any card zone:
+/// (Hand, Mana, Shields, Battle Zone, Graveyard, Deck visual)
 ///
-/// Styling like background, padding, shadows → belongs to parent (Field).
+/// Does NOT handle any logic.
+/// Does NOT style with background or borders (that's Field's job).
+///
+/// Responsibilities:
+/// - Renders cards in a row (via CardRow)
+/// - Supports optional horizontal scrolling
+/// - Passes card interaction callbacks down to CardRow
+/// - Accepts glow / highlight states for specific cards
+///
+/// Usage:
+/// GameZone is a visual wrapper only.
+/// Think of it like a clean lane of cards.
 
 class GameZone extends StatelessWidget {
+  /// Zone label (example: "Your Hand", "Opponent Mana")
   final String label;
+
+  /// Cards to display in the zone
   final List<CardModel> cards;
+
+  /// Glowing IDs → Green glow (used for mana selection / shields / targets)
   final Set<String> glowingManaCardIds;
+
+  /// Glowing IDs → Green glow (used for attackable creatures)
   final Set<String> glowAttackableCreatures;
+
+  /// Width of each card
   final double cardWidth;
+
+  /// Whether to hide card faces (example: Opponent Hand, Shields)
   final bool hideCardFaces;
+
+  /// Flip cards 180° (used for opponent zones)
   final bool rotate180;
+
+  /// Whether the row should scroll horizontally (true for Hand usually)
   final bool scrollable;
+
+  /// Whether to allow sending cards to mana (mainly for Hand)
   final bool allowManaAction;
-  final Function(CardModel)? onTap;
-  final Function(CardModel)? onSummon;        // NEW
-  final Function(CardModel)? onAttack;        // NEW
-  final Function(CardModel)? onSendToMana;    // NEW
-  final Function(CardModel)? onConfirmAttack;    // NEW
-  final bool playedMana;    // NEW
+
+  /// Interaction Callbacks
+  final Function(CardModel)? onTap;            // Enlarge
+  final Function(CardModel)? onSummon;         // Summon Creature
+  final Function(CardModel)? onAttack;         // Start Attack
+  final Function(CardModel)? onSendToMana;     // Send to Mana
+  final Function(CardModel)? onConfirmAttack;  // Confirm Target Attack
+
+  /// Whether player already played a mana this turn
+  final bool playedMana;
 
   const GameZone({
     super.key,
@@ -49,6 +79,7 @@ class GameZone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The actual row of cards
     final content = CardRow(
       label: label,
       cards: cards,
@@ -69,13 +100,17 @@ class GameZone extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        // Either scrollable or fixed row
         scrollable
             ? SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: content,
         )
             : content,
+
         const SizedBox(height: 4),
+
+        // Zone Label Text
         Text(
           label,
           style: const TextStyle(
