@@ -39,7 +39,10 @@ public class SpecificActionsService {
         }
     }
 
-    public void prepareTurnForOpponent(GameStateDto currentState, Long opponentId) {
+    public void prepareTurnForOpponent(GameStateDto currentState, Long opponentId, List<CardDto> opponentBattleZone, List<CardDto> ownBattleZone) {
+
+        ownBattleZone.stream().filter(CardDto::isTapped).forEach(cardDto -> cardDto.setCanBeAttacked(true));
+        opponentBattleZone.forEach(cardDto -> cardDto.setCanAttack(true));
         currentState.setCurrentTurnPlayerId(opponentId);
         currentState.setPlayedMana(false);
     }

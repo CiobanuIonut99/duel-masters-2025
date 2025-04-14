@@ -28,12 +28,15 @@ public class ActionsService {
         var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
         var opponentBattleZone = opponentCards.getBattleZone();
 
-        specificActionsService.prepareTurnForOpponent(currentState, incomingState.getOpponentId());
+        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
+        var ownBattleZone = ownCards.getBattleZone();
+
+        specificActionsService.prepareTurnForOpponent(currentState, incomingState.getOpponentId(), opponentBattleZone, ownBattleZone);
         specificActionsService.drawCard(opponentCards);
         specificActionsService.untapCards(opponentCards.getManaZone());
         specificActionsService.untapCards(opponentCards.getBattleZone());
         specificActionsService.setCreaturesSummonable(opponentCards);
-        opponentBattleZone.forEach(cardDto -> cardDto.setCanAttack(true));
+
         topicService.sendGameStatesToTopics(currentState);
     }
 
