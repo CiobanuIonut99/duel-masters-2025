@@ -17,6 +17,7 @@ class CardRow extends StatefulWidget {
   final Function(CardModel)? onAttack;          // Sword
   final Function(CardModel)? onSendToMana;      // Bolt
   final Set<String> glowingManaCardIds;
+  final Set<String> glowAttackableCreatures;
   final bool playedMana;
 
   const CardRow({
@@ -34,6 +35,7 @@ class CardRow extends StatefulWidget {
     this.cardWidth = 60,
     required this.rotate180,
     required this.glowingManaCardIds,
+    required this.glowAttackableCreatures,
   });
 
   @override
@@ -48,7 +50,9 @@ class _CardRowState extends State<CardRow> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: widget.cards.map((card) {
-        bool isGlowing = widget.glowingManaCardIds.contains(card.gameCardId);
+        bool isGlowing = widget.glowingManaCardIds.contains(card.gameCardId)
+            || widget.glowAttackableCreatures.contains(card.gameCardId);
+
 
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: card.tapped ? 16 : 8),

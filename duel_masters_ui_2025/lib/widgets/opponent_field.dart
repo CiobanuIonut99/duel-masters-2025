@@ -17,6 +17,7 @@ class OpponentField extends StatelessWidget {
   final Function(CardModel) onAttack;
   final VoidCallback onTapGraveyard;
   final Set<String> glowAttackableShields;
+  final Set<String> glowAttackableCreatures;
 
   const OpponentField({
     super.key,
@@ -33,6 +34,7 @@ class OpponentField extends StatelessWidget {
     required this.onTapManaZone,
     required this.onTapGraveyard,
     required this.glowAttackableShields,
+    required this.glowAttackableCreatures,
   });
 
   @override
@@ -139,9 +141,14 @@ class OpponentField extends StatelessWidget {
         onSummon: onSummon,
         onAttack: onAttack,
         onSendToMana: onSendToMana,
-        glowingManaCardIds:
-        label == "Opponent Shields" ? glowAttackableShields : {},
+        glowingManaCardIds: (label == "Opponent Shields")
+            ? glowAttackableShields
+            : (label == "Opponent Battle Zone")
+            ? glowAttackableCreatures
+            : {},
+
       ),
     );
   }
+
 }

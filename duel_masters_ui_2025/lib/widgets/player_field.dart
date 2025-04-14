@@ -17,7 +17,6 @@ class PlayerField extends StatelessWidget {
   final Function(CardModel) onTapManaCard;
   final VoidCallback onTapGraveyard;
   final bool playedMana;
-
   final List<CardModel> playerBattleZone;
 
   const PlayerField({
@@ -51,7 +50,7 @@ class PlayerField extends StatelessWidget {
           child: _buildZoneContainer(
             label: "Your Battle Zone",
             cards: playerBattleZone,
-            onAttack: onAttack
+            onAttack: onAttack,
           ),
         ),
 

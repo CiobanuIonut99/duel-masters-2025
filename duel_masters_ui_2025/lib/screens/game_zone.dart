@@ -15,6 +15,7 @@ class GameZone extends StatelessWidget {
   final String label;
   final List<CardModel> cards;
   final Set<String> glowingManaCardIds;
+  final Set<String> glowAttackableCreatures;
   final double cardWidth;
   final bool hideCardFaces;
   final bool rotate180;
@@ -42,6 +43,7 @@ class GameZone extends StatelessWidget {
     this.onAttack,
     this.onSendToMana,
     this.glowingManaCardIds = const {},
+    this.glowAttackableCreatures = const {},
     this.playedMana = false,
   });
 
@@ -61,6 +63,7 @@ class GameZone extends StatelessWidget {
       cardWidth: cardWidth,
       rotate180: rotate180,
       glowingManaCardIds: glowingManaCardIds,
+      glowAttackableCreatures: glowAttackableCreatures,
     );
 
     return Column(

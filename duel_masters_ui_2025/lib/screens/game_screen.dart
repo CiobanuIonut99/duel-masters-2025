@@ -13,7 +13,6 @@ import '../models/card_model.dart';
 import '../network/game_websocket_handler.dart';
 import '../widgets/opponent_field.dart';
 import '../widgets/player_field.dart';
-import 'game_zone.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -41,6 +40,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   Set<String> glowingManaCardIds = {};
   Set<String> glowAttackableShields = {};
+  Set<String> glowAttackableCreatures = {};
 
   int deckSize = 0;
   int opponentDeckSize = 0;
@@ -495,7 +495,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     setState(() {
       selectedAttacker = attacker;
       isSelectingAttackTarget = true;
-      glowAttackableShields = opponentShields.map((c) => c.gameCardId).toSet();
+
+      // Make opponent creatures glow (just like mana selection)
+      glowAttackableShields = opponentShields
+          .where((c) => c.canBeAttacked)
+          .map((c) => c.gameCardId)
+          .toSet();
+
+      glowAttackableCreatures = opponentBattleZone
+          .where((c) => c.canBeAttacked)
+          .map((c) => c.gameCardId)
+          .toSet();
     });
   }
 
@@ -504,8 +514,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       selectedAttacker = null;
       isSelectingAttackTarget = false;
       glowAttackableShields.clear();
+      glowAttackableCreatures.clear();
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -599,6 +611,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           onTapManaZone: () => _showCardZoneDialog("Opponent Mana", opponentManaZone, true),
                           onTapGraveyard: () => _showCardZoneDialog("Opponent Graveyard", opponentGraveyard, true),
                           glowAttackableShields: glowAttackableShields,
+                          glowAttackableCreatures: glowAttackableCreatures, // ✅
                           onAttack: (card) => _startAttackSelection(card),  // <- ADD THIS
                         ),
 
