@@ -1,7 +1,7 @@
-import 'package:duel_masters_ui_2025/widgets/zone_container.dart';
 import 'package:flutter/material.dart';
 import '../../models/card_model.dart';
 import '../screens/game_zone.dart';
+import 'zone_container.dart';
 
 class OpponentField extends StatelessWidget {
   final List<CardModel> hand;
@@ -37,23 +37,53 @@ class OpponentField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          constraints: BoxConstraints(
-            minHeight: 100,  // same as PlayerField
-          ),
-          width: double.infinity,
-          child: _buildZoneContainer(
-            label: "Opponent Battle Zone",
-            cards: opponentBattleZone,
-          ),
+        // Row 1: Opponent Mana | (spacer) | Opponent Hand
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            GestureDetector(
+              onTap: onTapManaZone,
+              child: _buildZoneContainer(
+                label: "Opponent Mana",
+                cards: manaZone,
+              ),
+            ),
+            SizedBox(width: 50), // empty center space
+            _buildZoneContainer(
+              label: "Opponent Hand",
+              cards: hand,
+              hideFaces: true,
+            ),
+          ],
         ),
 
         SizedBox(height: 4),
 
+        // Row 2: Deck + Graveyard | Centered Shields
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(width: 70),
+            Row(
+              children: [
+                Column(
+                  children: [
+                    Transform.rotate(
+                      angle: 3.14,
+                      child: Image.asset('assets/cards/0.jpg', width: 70),
+                    ),
+                    Text('Opponent Deck ($deckSize)'),
+                  ],
+                ),
+                SizedBox(width: 8),
+                GestureDetector(
+                  onTap: onTapGraveyard,
+                  child: _buildZoneContainer(
+                    label: "Graveyard",
+                    cards: graveyard,
+                  ),
+                ),
+              ],
+            ),
             _buildZoneContainer(
               label: "Opponent Shields",
               cards: shields,
@@ -64,49 +94,20 @@ class OpponentField extends StatelessWidget {
                 }
               },
             ),
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: onTapGraveyard,
-                  child: _buildZoneContainer(
-                    label: "Graveyard",
-                    cards: graveyard,
-                  ),
-                ),
-                SizedBox(width: 8),
-                Column(
-                  children: [
-                    Transform.rotate(
-                      angle: 3.14,
-                      child: Image.asset('assets/cards/0.jpg', width: 70),
-                    ),
-                    Text('Opponent Deck ($deckSize)'),
-                  ],
-                ),
-              ],
-            ),
+            SizedBox(width: 70), // balance row width
           ],
         ),
 
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: _buildZoneContainer(
-                label: "Opponent Hand",
-                cards: hand,
-                hideFaces: true,
-              ),
-            ),
-            GestureDetector(
-              onTap: onTapManaZone,
-              child: _buildZoneContainer(
-                label: "Opponent Mana",
-                cards: manaZone,
-              ),
-            ),
-          ],
+        SizedBox(height: 4),
+
+        // Row 3: Opponent Battle Zone (same width as player)
+        Container(
+          constraints: BoxConstraints(minHeight: 100),
+          width: double.infinity,
+          child: _buildZoneContainer(
+            label: "Opponent Battle Zone",
+            cards: opponentBattleZone,
+          ),
         ),
       ],
     );
@@ -133,7 +134,8 @@ class OpponentField extends StatelessWidget {
         onSecondaryTap: onSecondaryTapCard,
         onAttack: onAttack,
         onSendToMana: onSendToMana,
-        glowingManaCardIds: label == "Opponent Shields" ? glowAttackableShields : {},
+        glowingManaCardIds:
+        label == "Opponent Shields" ? glowAttackableShields : {},
       ),
     );
   }
