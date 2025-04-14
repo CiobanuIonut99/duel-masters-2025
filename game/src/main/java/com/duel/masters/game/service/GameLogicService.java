@@ -18,19 +18,19 @@ public class GameLogicService {
     private final GameStateStore gameStateStore;
 
     public void doAction(Map<String, Object> payload) {
-        var incomingDto = convertToGameStateDto(payload);
-        var currentState = gameStateStore.getGameState(incomingDto.getGameId());
+        var incomingState = convertToGameStateDto(payload);
+        var currentState = gameStateStore.getGameState(incomingState.getGameId());
 
         if (currentState == null) {
-            log.error("❌ No game state found for gameId: {}", incomingDto.getGameId());
+            log.error("❌ No game state found for gameId: {}", incomingState.getGameId());
             return;
         }
 
-        switch (incomingDto.getAction()) {
-            case END_TURN -> actionsService.endTurn(currentState, incomingDto);
-            case SEND_CARD_TO_MANA -> actionsService.sendCardToMana(currentState, incomingDto);
-            case SUMMON_TO_BATTLE_ZONE -> actionsService.summonToBattleZone(currentState, incomingDto);
-//            case "ATTACL" -> actionsService.attack(currentState, incomingDto);
+        switch (incomingState.getAction()) {
+            case END_TURN -> actionsService.endTurn(currentState, incomingState);
+            case SEND_CARD_TO_MANA -> actionsService.sendCardToMana(currentState, incomingState);
+            case SUMMON_TO_BATTLE_ZONE -> actionsService.summonToBattleZone(currentState, incomingState);
+//            case "ATTACL" -> actionsService.attack(currentState, incomingState);
         }
     }
 

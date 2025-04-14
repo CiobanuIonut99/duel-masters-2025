@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CardsUpdateDto {
+public class CardsDto {
     private List<CardDto> hand;
     private List<CardDto> manaZone;
     private List<CardDto> deck;

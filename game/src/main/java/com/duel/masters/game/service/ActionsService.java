@@ -1,6 +1,5 @@
 package com.duel.masters.game.service;
 
-import com.duel.masters.game.dto.CardsUpdateDto;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import com.duel.masters.game.exception.AlreadyPlayedManaException;
@@ -11,9 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.function.Predicate;
-
-import static com.duel.masters.game.constant.Constant.END_TURN;
 
 @AllArgsConstructor
 @Service
@@ -22,39 +18,32 @@ public class ActionsService {
 
     private final TopicService topicService;
     private final CardsUpdateService cardsUpdateService;
+    private final SpecificActionsService specificActionsService;
 
     public void endTurn(GameStateDto currentState,
-                        GameStateDto incomingDto) {
+                        GameStateDto incomingState) {
 
-        currentState.setCurrentTurnPlayerId(incomingDto.getOpponentId());
-        currentState.setPlayedMana(false);
+        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
 
-        drawCard(currentState, incomingDto);
-        setCreaturesSummonable(cardsUpdateService.getOpponentCards(currentState, incomingDto), END_TURN);
-
+        specificActionsService.prepareTurnForOpponent(currentState, incomingState.getOpponentId());
+        specificActionsService.drawCard(opponentCards);
+        specificActionsService.untapCards(opponentCards.getManaZone());
+        specificActionsService.untapCards(opponentCards.getBattleZone());
+        specificActionsService.setCreaturesSummonable(opponentCards);
         topicService.sendGameStatesToTopics(currentState);
     }
 
-    private void drawCard(GameStateDto currentState, GameStateDto incomingDto) {
-        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingDto);
-        var opponentHand = opponentCards.getHand();
-        var opponentDeck = opponentCards.getDeck();
-        var opponentCard = opponentDeck.getFirst();
-        opponentHand.add(opponentCard);
-        opponentDeck.remove(opponentCard);
-        log.info("Opponent draws card");
-    }
 
-    public void sendCardToMana(GameStateDto currentState, GameStateDto incomingDto) {
+    public void sendCardToMana(GameStateDto currentState, GameStateDto incomingState) {
 
         if (currentState.isPlayedMana()) {
             throw new AlreadyPlayedManaException();
         }
 
-        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingDto);
-        playCard(ownCards.getHand(), incomingDto.getTriggeredGameCardId(), ownCards.getManaZone());
+        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
+        playCard(ownCards.getHand(), incomingState.getTriggeredGameCardId(), ownCards.getManaZone());
         currentState.setPlayedMana(true);
-        setCreaturesSummonable(cardsUpdateService.getOwnCards(currentState, incomingDto), "");
+        specificActionsService.setCreaturesSummonable(ownCards);
         topicService.sendGameStatesToTopics(currentState);
         log.info("Mana card played");
     }
@@ -70,48 +59,16 @@ public class ActionsService {
                 });
     }
 
-    public void setCreaturesSummonable(CardsUpdateDto cards, String actionType) {
-        var hand = cards.getHand();
-        var manaZone = cards.getManaZone();
-        var battlezone = cards.getBattleZone();
-
-
-        if (!manaZone.isEmpty()) {
-            if (actionType.equals(END_TURN)) {
-                manaZone.forEach(cardDto -> cardDto.setTapped(false));
-                battlezone.forEach(cardDto -> cardDto.setTapped(false));
-            }
-            for (CardDto cardDto : hand) {
-                var atLeastOneCardSameCivilizationPresent = manaZone
-                        .stream()
-                        .anyMatch(card -> card.getCivilization().equalsIgnoreCase(cardDto.getCivilization()));
-                var untappedManaZoneCards = manaZone
-                        .stream()
-                        .filter(Predicate.not(CardDto::isTapped))
-                        .count();
-                if (atLeastOneCardSameCivilizationPresent &&
-                        manaZone.size() >= cardDto.getManaCost() &&
-                        untappedManaZoneCards >= cardDto.getManaCost()
-                ) {
-                    cardDto.setSummonable(true);
-                    log.info("Opponent summonable card : {}", cardDto.getName());
-                } else {
-                    cardDto.setSummonable(false);
-                }
-            }
-        }
-    }
-
-    public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingDto) {
-        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingDto);
+    public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingState) {
+        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
         var hand = ownCards.getHand();
         var battleZone = ownCards.getBattleZone();
         var manaZone = ownCards.getManaZone();
-        var selectedManaCardIds = incomingDto.getTriggeredGameCardIds();
+        var selectedManaCardIds = incomingState.getTriggeredGameCardIds();
         var cardToBeSummoned = new CardDto();
 
         for (CardDto cardDto : hand) {
-            if (cardDto.getGameCardId().equals(incomingDto.getTriggeredGameCardId())) {
+            if (cardDto.getGameCardId().equals(incomingState.getTriggeredGameCardId())) {
                 cardToBeSummoned = cardDto;
                 break;
             }
@@ -131,7 +88,7 @@ public class ActionsService {
 
 
         if (new HashSet<>(manaZoneGameCardIds)
-                .containsAll(incomingDto.getTriggeredGameCardIds()) &&
+                .containsAll(incomingState.getTriggeredGameCardIds()) &&
                 manaZone.size() >= selectedManaCardIds.size() &&
                 selectedManaCardIds.size() == cardToBeSummoned.getManaCost() &&
                 isValidForSummoning
@@ -142,9 +99,9 @@ public class ActionsService {
             battleZone.add(cardToBeSummoned);
             hand.remove(cardToBeSummoned);
             if (cardToBeSummoned.getType().equalsIgnoreCase("CREATURE")) {
-//                cardToBeSummoned.setTapped(true);
+                cardToBeSummoned.setTapped(true);
             }
-            setCreaturesSummonable(ownCards, "");
+            specificActionsService.setCreaturesSummonable(ownCards);
             topicService.sendGameStatesToTopics(currentState);
             log.info("Card summoned to battle zone : {}", battleZone);
         }
@@ -176,14 +133,14 @@ public class ActionsService {
 
     }
 
-//    public void attack(GameStateDto currentState, GameStateDto incomingDto) {
-//        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingDto);
-//        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingDto);
+//    public void attack(GameStateDto currentState, GameStateDto incomingState) {
+//        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
+//        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
 //
 //        var cardToAttack = new CardDto();
 //
 //        var ownBattleZone = ownCards.getBattleZone();
-//        var triggeredId = incomingDto.getTriggeredGameCardId();
+//        var triggeredId = incomingState.getTriggeredGameCardId();
 //
 //        for (CardDto cardInMyOwnBattlezone : ownBattleZone) {
 //            if (cardInMyOwnBattlezone.getGameCardId().equals(triggeredId)) {
