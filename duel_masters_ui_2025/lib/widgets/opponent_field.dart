@@ -12,9 +12,9 @@ class OpponentField extends StatelessWidget {
   final List<CardModel> opponentBattleZone;
   final bool isSelectingAttackTarget;
   final CardModel? selectedAttacker;
-  final Function(CardModel attacker, CardModel shield) onShieldAttack;
   final VoidCallback onTapManaZone;
   final Function(CardModel) onAttack;
+  final Function(CardModel) onConfirmAttack;
   final VoidCallback onTapGraveyard;
   final Set<String> glowAttackableShields;
   final Set<String> glowAttackableCreatures;
@@ -26,11 +26,11 @@ class OpponentField extends StatelessWidget {
     required this.manaZone,
     required this.graveyard,
     required this.onAttack,
+    required this.onConfirmAttack,
     required this.deckSize,
     required this.opponentBattleZone,
     required this.isSelectingAttackTarget,
     required this.selectedAttacker,
-    required this.onShieldAttack,
     required this.onTapManaZone,
     required this.onTapGraveyard,
     required this.glowAttackableShields,
@@ -94,7 +94,6 @@ class OpponentField extends StatelessWidget {
               hideCardFaces: true,
               onSecondaryTap: (shield) {
                 if (isSelectingAttackTarget && selectedAttacker != null) {
-                  onShieldAttack(selectedAttacker!, shield);
                 }
               },
             ),
@@ -126,6 +125,7 @@ class OpponentField extends StatelessWidget {
     Function(CardModel)? onSecondaryTap,
     Function(CardModel)? onSummon,
     Function(CardModel)? onAttack,
+    Function(CardModel)? onConfirmAttack,
     Function(CardModel)? onSendToMana,
   }) {
     return ZoneContainer(
@@ -140,6 +140,7 @@ class OpponentField extends StatelessWidget {
         onSecondaryTap: onSecondaryTap,
         onSummon: onSummon,
         onAttack: onAttack,
+        onConfirmAttack: onConfirmAttack,
         onSendToMana: onSendToMana,
         glowingManaCardIds: (label == "Opponent Shields")
             ? glowAttackableShields

@@ -26,6 +26,7 @@ class GameZone extends StatelessWidget {
   final Function(CardModel)? onSummon;        // NEW
   final Function(CardModel)? onAttack;        // NEW
   final Function(CardModel)? onSendToMana;    // NEW
+  final Function(CardModel)? onConfirmAttack;    // NEW
   final bool playedMana;    // NEW
 
   const GameZone({
@@ -42,6 +43,7 @@ class GameZone extends StatelessWidget {
     this.onSummon,
     this.onAttack,
     this.onSendToMana,
+    this.onConfirmAttack,
     this.glowingManaCardIds = const {},
     this.glowAttackableCreatures = const {},
     this.playedMana = false,
@@ -59,6 +61,7 @@ class GameZone extends StatelessWidget {
       onSummon: onSummon,
       onAttack: onAttack,
       onSendToMana: onSendToMana,
+      onConfirmAttack: onConfirmAttack,
       playedMana: playedMana,
       cardWidth: cardWidth,
       rotate180: rotate180,

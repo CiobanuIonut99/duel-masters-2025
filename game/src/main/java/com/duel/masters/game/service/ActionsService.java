@@ -113,6 +113,7 @@ public class ActionsService {
     }
 
     public void attack(GameStateDto currentState, GameStateDto incomingState) {
+
         var ownBattleZone = cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone();
         var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
         var opponentBattleZone = opponentCards.getBattleZone();

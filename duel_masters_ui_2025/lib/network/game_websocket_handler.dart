@@ -174,7 +174,6 @@ class GameWebSocketHandler {
     onSucces();
   }
 
-
   void endTurn({
     required String? gameId,
     required int playerId,
@@ -191,6 +190,30 @@ class GameWebSocketHandler {
       "opponentId": opponentId,
       "currentTurnPlayerId": currentTurnPlayerId,
       "action": "END_TURN",
+    };
+    stompClient.send(
+      destination: '/duel-masters/game/action',
+      body: jsonEncode(payload),
+    );
+  }
+
+  void attackShieldOrCreature({
+    required String? gameId,
+    required int playerId,
+    required int? currentTurnPlayerId,
+    required String? action,
+    required String attackerId,
+    required String targetId,
+    required Null Function() onSucces,
+  }) {
+    if (!stompClient.connected) return;
+    final payload = {
+      "gameId": gameId,
+      "playerId": currentPlayerId,
+      "currentTurnPlayerId": currentTurnPlayerId,
+      "action": "ATTACK",
+      "attackerId": attackerId,
+      "targetId": targetId,
     };
     stompClient.send(
       destination: '/duel-masters/game/action',

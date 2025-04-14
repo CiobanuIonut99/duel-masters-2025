@@ -16,6 +16,7 @@ class CardRow extends StatefulWidget {
   final Function(CardModel)? onSummon;          // Sword
   final Function(CardModel)? onAttack;          // Sword
   final Function(CardModel)? onSendToMana;      // Bolt
+  final Function(CardModel)? onConfirmAttack;      // Bolt
   final Set<String> glowingManaCardIds;
   final Set<String> glowAttackableCreatures;
   final bool playedMana;
@@ -31,6 +32,7 @@ class CardRow extends StatefulWidget {
     this.onSummon,
     this.onAttack,
     this.onSendToMana,
+    this.onConfirmAttack,
     required this.playedMana,
     this.cardWidth = 60,
     required this.rotate180,
@@ -101,7 +103,6 @@ class _CardRowState extends State<CardRow> {
                     ),
                   ),
 
-                  if (hoveredCard == card && widget.label == "Your Hand" )
                     if (hoveredCard == card && widget.label == "Your Hand")
                       Positioned(
                         bottom: -10,
