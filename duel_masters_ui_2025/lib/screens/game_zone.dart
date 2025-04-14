@@ -22,7 +22,7 @@ class GameZone extends StatelessWidget {
   final bool allowManaAction;
   final Function(CardModel)? onTap;
   final Function(CardModel)? onSecondaryTap;
-  final Function(CardModel)? onAttack;        // NEW
+  final Function(CardModel)? onSummon;        // NEW
   final Function(CardModel)? onSendToMana;    // NEW
   final bool playedMana;    // NEW
 
@@ -37,8 +37,8 @@ class GameZone extends StatelessWidget {
     this.allowManaAction = false,
     this.onTap,
     this.onSecondaryTap,
-    this.onAttack,        // NEW
-    this.onSendToMana,    // NEW
+    this.onSummon,
+    this.onSendToMana,
     this.glowingManaCardIds = const {},
     this.playedMana = false,
   });
@@ -46,18 +46,18 @@ class GameZone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = CardRow(
-      cards: cards,
-      cardWidth: cardWidth,
-      hideCardFaces: hideCardFaces,
-      rotate180: rotate180,
-      allowManaAction: allowManaAction,
       label: label,
+      cards: cards,
+      hideCardFaces: hideCardFaces,
+      allowManaAction: allowManaAction,
       onTap: onTap,
       onSecondaryTap: onSecondaryTap,
-      onSummon: onAttack,          // NEW
-      onSendToMana: onSendToMana,  // NEW
-      glowingManaCardIds: glowingManaCardIds,
+      onSummon: onSummon,
+      onSendToMana: onSendToMana,
       playedMana: playedMana,
+      cardWidth: cardWidth,
+      rotate180: rotate180,
+      glowingManaCardIds: glowingManaCardIds,
     );
 
     return Column(

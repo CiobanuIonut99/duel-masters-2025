@@ -592,20 +592,23 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           manaZone: opponentManaZone,
                           graveyard: opponentGraveyard,
                           deckSize: opponentDeckSize,
-                          opponentBattleZone: opponentBattleZone, // <- ADD THIS
+                          opponentBattleZone: opponentBattleZone,
+                          // <- ADD THIS
                           isSelectingAttackTarget: isSelectingAttackTarget,
                           selectedAttacker: selectedAttacker,
                           onShieldAttack: attackShield,
-                          onTapManaZone: () => _showCardZoneDialog(
-                            "Opponent Mana",
-                            opponentManaZone,
-                            true,
-                          ),
-                          onTapGraveyard: () => _showCardZoneDialog(
-                            "Opponent Graveyard",
-                            opponentGraveyard,
-                            true,
-                          ),
+                          onTapManaZone:
+                              () => _showCardZoneDialog(
+                                "Opponent Mana",
+                                opponentManaZone,
+                                true,
+                              ),
+                          onTapGraveyard:
+                              () => _showCardZoneDialog(
+                                "Opponent Graveyard",
+                                opponentGraveyard,
+                                true,
+                              ),
                           glowAttackableShields: glowAttackableShields,
                         ),
 
@@ -648,7 +651,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void _showManaSelectionDialog(CardModel cardToSummon) {
-    Set<CardModel> selectedManaCards = {}; // <-- object-based tracking
+    Set<CardModel> selectedManaCards = {};
 
     showDialog(
       context: context,
@@ -762,7 +765,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       },
     );
   }
-
 
   void _showFullScreenCardPreview(CardModel card) {
     showDialog(

@@ -20,18 +20,18 @@ class CardRow extends StatefulWidget {
 
   const CardRow({
     super.key,
-    required this.cards,
-    this.cardWidth = 60,
-    this.hideCardFaces = false,
-    this.rotate180 = false,
-    this.allowManaAction = false,
     required this.label,
+    required this.cards,
+    required this.hideCardFaces,
+    required this.allowManaAction,
     this.onTap,
     this.onSecondaryTap,
     this.onSummon,
     this.onSendToMana,
-    required this.glowingManaCardIds,
     required this.playedMana,
+    this.cardWidth = 60,
+    required this.rotate180,
+    required this.glowingManaCardIds,
   });
 
   @override

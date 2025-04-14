@@ -26,14 +26,14 @@ class PlayerField extends StatelessWidget {
     required this.manaZone,
     required this.graveyard,
     required this.deckSize,
-    required this.playerBattleZone,  // ADD THIS
     required this.onTapHandCard,
     required this.onSecondaryTapHandCard,
-    required this.onSummonHandCard,
-    required this.onSendToManaHandCard,
     required this.onTapManaCard,
     required this.onTapGraveyard,
+    required this.onSummonHandCard,
+    required this.onSendToManaHandCard,
     required this.playedMana,
+    required this.playerBattleZone,
   });
 
 
@@ -62,7 +62,7 @@ class PlayerField extends StatelessWidget {
             _buildZoneContainer(
               label: "Your Shields",
               cards: shields,
-              hideFaces: true,
+              hideCardFaces: true,
             ),
             Row(
               children: [
@@ -93,9 +93,9 @@ class PlayerField extends StatelessWidget {
               child: _buildZoneContainer(
                 label: "Your Hand",
                 cards: hand,
-                onTapCard: onTapHandCard,
-                onSecondaryTapCard: onSecondaryTapHandCard,
-                onAttack: onSummonHandCard,
+                onTap: onTapHandCard,
+                onSecondaryTap: onSecondaryTapHandCard,
+                onSummon: onSummonHandCard,
                 onSendToMana: onSendToManaHandCard,
 
               ),
@@ -104,7 +104,7 @@ class PlayerField extends StatelessWidget {
               child: _buildZoneContainer(
                 label: "Your Mana",
                 cards: manaZone,
-                onTapCard: onTapManaCard,
+                onTap: onTapManaCard,
               ),
             ),
           ],
@@ -116,23 +116,23 @@ class PlayerField extends StatelessWidget {
   Widget _buildZoneContainer({
     required String label,
     required List<CardModel> cards,
-    bool hideFaces = false,
-    Function(CardModel)? onTapCard,
-    Function(CardModel)? onSecondaryTapCard,
-    Function(CardModel)? onAttack,
+    bool hideCardFaces = false,
+    Function(CardModel)? onTap,
+    Function(CardModel)? onSecondaryTap,
+    Function(CardModel)? onSummon,
     Function(CardModel)? onSendToMana,
   }) {
     return ZoneContainer(
       label: label,
       borderColor: Colors.white24,
       child: GameZone(
-        label: label,  // Important! Pass it here for CardRow to know
+        label: label,
         cards: cards,
-        hideCardFaces: hideFaces,
+        hideCardFaces: hideCardFaces,
         allowManaAction: false,
-        onTap: onTapCard,
-        onSecondaryTap: onSecondaryTapCard,
-        onAttack: onAttack,
+        onTap: onTap,
+        onSecondaryTap: onSecondaryTap,
+        onSummon: onSummon,
         onSendToMana: onSendToMana,
         playedMana: playedMana,
       ),

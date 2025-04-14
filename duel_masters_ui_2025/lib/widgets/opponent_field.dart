@@ -52,7 +52,7 @@ class OpponentField extends StatelessWidget {
             _buildZoneContainer(
               label: "Opponent Hand",
               cards: hand,
-              hideFaces: true,
+              hideCardFaces: true,
             ),
           ],
         ),
@@ -87,8 +87,8 @@ class OpponentField extends StatelessWidget {
             _buildZoneContainer(
               label: "Opponent Shields",
               cards: shields,
-              hideFaces: true,
-              onSecondaryTapCard: (shield) {
+              hideCardFaces: true,
+              onSecondaryTap: (shield) {
                 if (isSelectingAttackTarget && selectedAttacker != null) {
                   onShieldAttack(selectedAttacker!, shield);
                 }
@@ -116,10 +116,10 @@ class OpponentField extends StatelessWidget {
   Widget _buildZoneContainer({
     required String label,
     required List<CardModel> cards,
-    bool hideFaces = false,
-    Function(CardModel)? onTapCard,
-    Function(CardModel)? onSecondaryTapCard,
-    Function(CardModel)? onAttack,
+    bool hideCardFaces = false,
+    Function(CardModel)? onTap,
+    Function(CardModel)? onSecondaryTap,
+    Function(CardModel)? onSummon,
     Function(CardModel)? onSendToMana,
   }) {
     return ZoneContainer(
@@ -128,11 +128,11 @@ class OpponentField extends StatelessWidget {
       child: GameZone(
         label: label,
         cards: cards,
-        hideCardFaces: hideFaces,
+        hideCardFaces: hideCardFaces,
         allowManaAction: false,
-        onTap: onTapCard,
-        onSecondaryTap: onSecondaryTapCard,
-        onAttack: onAttack,
+        onTap: onTap,
+        onSecondaryTap: onSecondaryTap,
+        onSummon: onSummon,
         onSendToMana: onSendToMana,
         glowingManaCardIds:
         label == "Opponent Shields" ? glowAttackableShields : {},
