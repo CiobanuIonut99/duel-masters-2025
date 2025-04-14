@@ -16,6 +16,8 @@ import static com.duel.masters.game.util.ValidatorUtil.isSummonable;
 @Slf4j
 public class SpecificActionsService {
 
+    private final CardsUpdateService cardsUpdateService;
+
     public void drawCard(CardsDto cardsDto) {
         var deck = cardsDto.getDeck();
         var card = deck.getFirst();
@@ -39,11 +41,15 @@ public class SpecificActionsService {
         }
     }
 
-    public void prepareTurnForOpponent(GameStateDto currentState, Long opponentId, List<CardDto> opponentBattleZone, List<CardDto> ownBattleZone) {
+    public void prepareTurnForOpponent(GameStateDto currentState, GameStateDto incomingState) {
 
-        ownBattleZone.stream().filter(CardDto::isTapped).forEach(cardDto -> cardDto.setCanBeAttacked(true));
-        opponentBattleZone.forEach(cardDto -> cardDto.setCanAttack(true));
-        currentState.setCurrentTurnPlayerId(opponentId);
+        cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone()
+                .stream()
+                .filter(CardDto::isTapped)
+                .forEach(cardDto -> cardDto.setCanBeAttacked(true));
+        cardsUpdateService.getOpponentCards(currentState, incomingState).getBattleZone()
+                .forEach(cardDto -> cardDto.setCanAttack(true));
+        currentState.setCurrentTurnPlayerId(incomingState.getOpponentId());
         currentState.setPlayedMana(false);
     }
 

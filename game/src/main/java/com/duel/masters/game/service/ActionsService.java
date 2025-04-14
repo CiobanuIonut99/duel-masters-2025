@@ -23,15 +23,12 @@ public class ActionsService {
     private final CardsUpdateService cardsUpdateService;
     private final SpecificActionsService specificActionsService;
 
+
     public void endTurn(GameStateDto currentState, GameStateDto incomingState) {
 
         var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
-        var opponentBattleZone = opponentCards.getBattleZone();
 
-        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
-        var ownBattleZone = ownCards.getBattleZone();
-
-        specificActionsService.prepareTurnForOpponent(currentState, incomingState.getOpponentId(), opponentBattleZone, ownBattleZone);
+        specificActionsService.prepareTurnForOpponent(currentState, incomingState);
         specificActionsService.drawCard(opponentCards);
         specificActionsService.untapCards(opponentCards.getManaZone());
         specificActionsService.untapCards(opponentCards.getBattleZone());
