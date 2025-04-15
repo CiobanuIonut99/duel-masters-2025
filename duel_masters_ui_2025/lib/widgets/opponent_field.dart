@@ -13,6 +13,7 @@ class OpponentField extends StatelessWidget {
   final bool isSelectingAttackTarget;
   final CardModel? selectedAttacker;
   final VoidCallback onTapManaZone;
+  final Function(CardModel) onTapHandCard;
   final Function(CardModel) onAttack;
   final Function(CardModel) onConfirmAttack;
   final VoidCallback onTapGraveyard;
@@ -26,6 +27,7 @@ class OpponentField extends StatelessWidget {
     required this.manaZone,
     required this.graveyard,
     required this.deckSize,
+    required this.onTapHandCard,
     required this.opponentBattleZone,
     required this.isSelectingAttackTarget,
     required this.selectedAttacker,
@@ -112,7 +114,8 @@ class OpponentField extends StatelessWidget {
             label: "Opponent Battle Zone",
             cards: opponentBattleZone,
             onAttack: onAttack,
-            onConfirmAttack: onConfirmAttack
+            onConfirmAttack: onConfirmAttack,
+            onTap: onTapHandCard
           ),
         ),
       ],

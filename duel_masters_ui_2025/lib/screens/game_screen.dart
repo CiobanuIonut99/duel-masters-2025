@@ -635,6 +635,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           onTapManaZone: () =>
                               _showCardZoneDialog(
                                   "Opponent Mana", opponentManaZone, true),
+                          onTapHandCard: (card) => _showFullScreenCardPreview(card),
                           onTapGraveyard: () =>
                               _showCardZoneDialog(
                                   "Opponent Graveyard", opponentGraveyard,

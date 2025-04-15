@@ -73,6 +73,7 @@ class PlayerField extends StatelessWidget {
             label: "Your Battle Zone",
             cards: playerBattleZone,
             onAttack: onAttack,
+            onTap: onTapHandCard
           ),
         ),
 
