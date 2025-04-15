@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 public class ActionsService {
 
     private final TopicService topicService;
-    private final CardsUpdateService cardsUpdateService;
     private final SpecificActionsService specificActionsService;
 
     public void endTurn(GameStateDto currentState, GameStateDto incomingState) {
