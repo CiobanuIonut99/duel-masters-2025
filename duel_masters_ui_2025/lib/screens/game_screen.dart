@@ -467,7 +467,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         action: "ATTACK",
         attackerId: attacker.gameCardId,
         targetId: target.gameCardId,
-        targetShield: false,
+        targetShield: targetShield,
         onSucces: () {
           setState(() {
           _cancelAttackSelection();
