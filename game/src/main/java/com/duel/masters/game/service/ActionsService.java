@@ -25,7 +25,7 @@ public class ActionsService {
     }
 
     public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingState) {
-        specificActionsService.setCardSummonable(currentState, incomingState);
+        specificActionsService.summonToBattleZone(currentState, incomingState);
     }
 
     public void attack(GameStateDto currentState, GameStateDto incomingState) {

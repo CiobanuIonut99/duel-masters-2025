@@ -42,7 +42,7 @@ public class SpecificActionsService {
         }
     }
 
-    public void setCardSummonable(GameStateDto currentState, GameStateDto incomingState) {
+    public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingState) {
         var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
         var hand = ownCards.getHand();
         var battleZone = ownCards.getBattleZone();

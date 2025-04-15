@@ -10,8 +10,8 @@ public class ValidatorUtil {
     public static boolean checkAtLeastOneCardSameCivilizationPresent(List<CardDto> manaZone, CardDto cardDto) {
         return manaZone
                 .stream()
-                .anyMatch(card -> card.getCivilization().equalsIgnoreCase(cardDto.getCivilization()));
-
+                .anyMatch(card -> card.getCivilization().equalsIgnoreCase(cardDto.getCivilization()) &&
+                        !card.isTapped());
     }
 
     public static boolean isSummonable(List<CardDto> manaZOne, CardDto card) {
