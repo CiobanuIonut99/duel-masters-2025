@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import static com.duel.masters.game.util.CardsDtoUtil.getCardDtoFromList;
-
 @AllArgsConstructor
 @Service
 @Slf4j
@@ -32,54 +30,6 @@ public class ActionsService {
     }
 
     public void attack(GameStateDto currentState, GameStateDto incomingState) {
-
-        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
-        var ownBattleZone = ownCards.getBattleZone();
-        var ownGraveyard = ownCards.getGraveyard();
-
-        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
-        var opponentShields = opponentCards.getShields();
-        var opponentHand = opponentCards.getHand();
-        var opponentBattleZone = opponentCards.getBattleZone();
-        var opponentGraveyard = opponentCards.getGraveyard();
-
-        var targetId = incomingState.getTargetId();
-        var attackerId = incomingState.getAttackerId();
-
-        var attackerCard = getCardDtoFromList(ownBattleZone, attackerId);
-        var targetCard = incomingState.isTargetShield() ? getCardDtoFromList(opponentShields, targetId) : getCardDtoFromList(opponentBattleZone, targetId);
-
-        if (attackerCard.isCanAttack()) {
-            if (targetCard.isShield()) {
-                attackerCard.setTapped(true);
-                attackerCard.setCanAttack(false);
-                targetCard.setCanBeAttacked(false);
-                specificActionsService.playCard(opponentShields, targetId, opponentHand);
-            }
-            var attackerPower = attackerCard.getPower();
-            var targetPower = targetCard.getPower();
-
-            if (targetCard.isTapped()) {
-                if (attackerPower > targetPower) {
-                    specificActionsService.playCard(opponentBattleZone, targetId, opponentGraveyard);
-                    attackerCard.setTapped(true);
-                    attackerCard.setCanAttack(false);
-                    attackerCard.setCanBeAttacked(true);
-                }
-                if (attackerPower == targetPower) {
-                    specificActionsService.playCard(opponentBattleZone, targetId, opponentGraveyard);
-                    specificActionsService.playCard(ownBattleZone, attackerId, ownGraveyard);
-                    attackerCard.setCanBeAttacked(false);
-                    targetCard.setCanBeAttacked(false);
-
-                }
-                if (attackerPower < targetPower) {
-                    specificActionsService.playCard(ownBattleZone, attackerId, ownGraveyard);
-                    attackerCard.setCanBeAttacked(false);
-                }
-
-            }
-            topicService.sendGameStatesToTopics(currentState);
-        }
+        specificActionsService.doAttack(currentState, incomingState);
     }
 }

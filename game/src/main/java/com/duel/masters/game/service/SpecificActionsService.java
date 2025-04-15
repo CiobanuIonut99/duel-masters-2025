@@ -41,6 +41,7 @@ public class SpecificActionsService {
             }
         }
     }
+
     public void setCardSummonable(GameStateDto currentState, GameStateDto incomingState) {
         var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
         var hand = ownCards.getHand();
@@ -115,5 +116,56 @@ public class SpecificActionsService {
                     destination.add(cardDto);
                     source.remove(cardDto);
                 });
+    }
+
+    public void doAttack(GameStateDto currentState, GameStateDto incomingState) {
+        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
+        var ownBattleZone = ownCards.getBattleZone();
+        var ownGraveyard = ownCards.getGraveyard();
+
+        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
+        var opponentShields = opponentCards.getShields();
+        var opponentHand = opponentCards.getHand();
+        var opponentBattleZone = opponentCards.getBattleZone();
+        var opponentGraveyard = opponentCards.getGraveyard();
+
+        var targetId = incomingState.getTargetId();
+        var attackerId = incomingState.getAttackerId();
+
+        var attackerCard = getCardDtoFromList(ownBattleZone, attackerId);
+        var targetCard = incomingState.isTargetShield() ? getCardDtoFromList(opponentShields, targetId) : getCardDtoFromList(opponentBattleZone, targetId);
+
+        if (attackerCard.isCanAttack()) {
+            if (targetCard.isShield()) {
+                attackerCard.setTapped(true);
+                attackerCard.setCanAttack(false);
+                targetCard.setCanBeAttacked(false);
+                playCard(opponentShields, targetId, opponentHand);
+            }
+            var attackerPower = attackerCard.getPower();
+            var targetPower = targetCard.getPower();
+
+            if (targetCard.isTapped()) {
+                if (attackerPower > targetPower) {
+                    playCard(opponentBattleZone, targetId, opponentGraveyard);
+                    attackerCard.setTapped(true);
+                    attackerCard.setCanAttack(false);
+                    attackerCard.setCanBeAttacked(true);
+                }
+                if (attackerPower == targetPower) {
+                    playCard(opponentBattleZone, targetId, opponentGraveyard);
+                    playCard(ownBattleZone, attackerId, ownGraveyard);
+                    attackerCard.setCanBeAttacked(false);
+                    targetCard.setCanBeAttacked(false);
+
+                }
+                if (attackerPower < targetPower) {
+                    playCard(ownBattleZone, attackerId, ownGraveyard);
+                    attackerCard.setCanBeAttacked(false);
+                }
+
+            }
+            topicService.sendGameStatesToTopics(currentState);
+        }
     }
 }
