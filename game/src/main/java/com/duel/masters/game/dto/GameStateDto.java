@@ -24,6 +24,7 @@ public class GameStateDto {
     private String triggeredGameCardId;
     private String attackerId;
     private String targetId;
+    private boolean targetShield;
     private List<String> triggeredGameCardIds;
 
     private Long playerId;

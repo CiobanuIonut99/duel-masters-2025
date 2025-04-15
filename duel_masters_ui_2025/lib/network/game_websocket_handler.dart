@@ -202,6 +202,7 @@ class GameWebSocketHandler {
     required int playerId,
     required int? currentTurnPlayerId,
     required String? action,
+    required targetShield,
     required String attackerId,
     required String targetId,
     required Null Function() onSucces,
@@ -214,6 +215,7 @@ class GameWebSocketHandler {
       "action": "ATTACK",
       "attackerId": attackerId,
       "targetId": targetId,
+      "targetShield": targetShield,
     };
     stompClient.send(
       destination: '/duel-masters/game/action',

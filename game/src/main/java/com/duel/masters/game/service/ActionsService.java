@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.smartcardio.Card;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -129,17 +130,18 @@ public class ActionsService {
         var attackerId = incomingState.getAttackerId();
 
         var attackerCard = getCardDtoFromList(ownBattleZone, attackerId);
-        var targetCard = getCardDtoFromList(opponentShields, targetId);
+        var targetCard = new CardDto();
 
         if (attackerCard.isCanAttack()) {
             if (targetCard.isShield()) {
+                targetCard = getCardDtoFromList(opponentShields, targetId);
                 playCard(opponentShields, targetId, opponentHand);
                 attackerCard.setTapped(true);
                 attackerCard.setCanAttack(false);
                 targetCard.setCanBeAttacked(false);
                 topicService.sendGameStatesToTopics(currentState);
             }
-
+            targetCard = getCardDtoFromList(opponentBattleZone, targetId);
             if (targetCard.isTapped()) {
                 if (attackerCard.getPower() > targetCard.getPower()) {
                     playCard(opponentBattleZone, targetId, opponentGraveyard);

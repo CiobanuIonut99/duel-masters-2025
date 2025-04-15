@@ -458,6 +458,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void _attackShieldOrCreature(CardModel attacker, CardModel target) {
+    final bool? targetShield = target.shield;
     wsHandler
         .attackShieldOrCreature(
         gameId: currentGameId,
@@ -466,6 +467,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         action: "ATTACK",
         attackerId: attacker.gameCardId,
         targetId: target.gameCardId,
+        targetShield: false,
         onSucces: () {
           setState(() {
           _cancelAttackSelection();
