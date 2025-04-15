@@ -27,7 +27,8 @@ public class ValidatorUtil {
                                     CardDto cardToBeSummoned) {
         return new HashSet<>(manaZoneGameCardIds).containsAll(selectedManaCardIds) &&
                 selectedManaCardIds.size() == cardToBeSummoned.getManaCost() &&
-                untappedCards(manaZone) >= cardToBeSummoned.getManaCost();
+                untappedCards(manaZone) >= cardToBeSummoned.getManaCost() &&
+                checkAtLeastOneCardSameCivilizationPresent(selectedManaCards, cardToBeSummoned);
     }
 }
 
