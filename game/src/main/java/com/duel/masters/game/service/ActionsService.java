@@ -137,31 +137,31 @@ public class ActionsService {
                 attackerCard.setCanAttack(false);
                 targetCard.setCanBeAttacked(false);
                 playCard(opponentShields, targetId, opponentHand);
-                topicService.sendGameStatesToTopics(currentState);
             }
+            var attackerPower = attackerCard.getPower();
+            var targetPower = targetCard.getPower();
+
             if (targetCard.isTapped()) {
-                if (attackerCard.getPower() > targetCard.getPower()) {
+                if (attackerPower > targetPower) {
                     playCard(opponentBattleZone, targetId, opponentGraveyard);
                     attackerCard.setTapped(true);
                     attackerCard.setCanAttack(false);
                     attackerCard.setCanBeAttacked(true);
                 }
-                if (attackerCard.getPower() == targetCard.getPower()) {
+                if (attackerPower == targetPower) {
                     playCard(opponentBattleZone, targetId, opponentGraveyard);
                     playCard(ownBattleZone, attackerId, ownGraveyard);
                     attackerCard.setCanBeAttacked(false);
                     targetCard.setCanBeAttacked(false);
 
                 }
-                if (attackerCard.getPower() < targetCard.getPower()) {
+                if (attackerPower < targetPower) {
                     playCard(ownBattleZone, attackerId, ownGraveyard);
                     attackerCard.setCanBeAttacked(false);
                 }
-                topicService.sendGameStatesToTopics(currentState);
+
             }
-
+            topicService.sendGameStatesToTopics(currentState);
         }
-
-
     }
 }
