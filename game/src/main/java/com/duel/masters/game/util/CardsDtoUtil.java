@@ -4,6 +4,7 @@ import com.duel.masters.game.dto.CardsDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -39,5 +40,41 @@ public class CardsDtoUtil {
                 .filter(cardDto -> cardDto.getGameCardId().equals(cardId))
                 .findFirst()
                 .orElseThrow();
+    }
+
+    public static List<CardDto> getSelectedManaCards(List<CardDto> manaZone, List<String> selectedManaCardIds) {
+        var selectedManaCards = new ArrayList<CardDto>();
+
+        for (CardDto manaCardDto : manaZone) {
+            for (String selectedManaCardId : selectedManaCardIds) {
+                if (manaCardDto.getGameCardId().equals(selectedManaCardId)) {
+                    selectedManaCards.add(manaCardDto);
+                }
+            }
+        }
+        return selectedManaCards;
+    }
+
+    public static List<String> getSelectedCardIds(List<CardDto> cards) {
+        return cards
+                .stream()
+                .map(CardDto::getGameCardId)
+                .toList();
+    }
+
+    public static void setCreaturesAttackable(List<CardDto> cards) {
+        cards.stream().filter(CardDto::isTapped).forEach(cardDto -> cardDto.setCanBeAttacked(true));
+    }
+
+    public static void setCreaturesCanAttack(List<CardDto> cards) {
+        cards.forEach(cardDto -> cardDto.setCanAttack(true));
+    }
+
+    public static void untapCards(List<CardDto> cards) {
+        cards.forEach(card -> card.setTapped(false));
+    }
+
+    public static void tapCards(List<CardDto> cards) {
+        cards.forEach(card -> card.setTapped(true));
     }
 }
