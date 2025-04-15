@@ -70,6 +70,13 @@ public class SpecificActionsService {
         untapCards(opponentBattleZone);
         setCardsSummonable(opponentManaZone, opponentHand);
         setCreaturesCanAttack(opponentBattleZone);
+
+
+        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
+        var hand = ownCards.getHand();
+        var deck = ownCards.getDeck();
+
+        playCard(deck, deck.getFirst().getGameCardId(), hand);
         setCreaturesAttackable(cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone());
     }
 

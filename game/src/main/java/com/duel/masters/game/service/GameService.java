@@ -26,7 +26,7 @@ public class GameService {
 
         matchmakingService
                 .tryMatchPlayer(playerDto)
-                .ifPresent(
+                .ifPresentOrElse(
                         playerList -> {
                             String gameId = UUID.randomUUID().toString();
                             var player = playerList.get(0);
@@ -39,22 +39,22 @@ public class GameService {
                             var gameStates = List.of(gameStatePlayer, gameStateOpponent);
 
 
-//                            for(int i = 0 ; i < gameStatePlayer.getPlayerHand().size() ; i++) {
-//                                gameStatePlayer.getOpponentHand().get(i).setManaCost(1);
-//                                gameStatePlayer.getOpponentHand().get(i).setCivilization("DARKNESS");
-//                                if(i % 2 == 1){
-//                                    gameStatePlayer.getOpponentHand().get(i).setCanAttack(true);
-//                                }
-//
-//                                var cardTobeadded = gameStatePlayer.getPlayerDeck().remove(i);
-//                                if(i % 2 == 0){
-//                                    cardTobeadded.setCanBeAttacked(true);
-//                                }
-//                                gameStatePlayer.getPlayerShields().get(i).setCanBeAttacked(true);
-//                                gameStatePlayer.getPlayerBattleZone().add(cardTobeadded);
-//
-//
-//                            }
+                            for (int i = 0; i < gameStatePlayer.getPlayerHand().size(); i++) {
+                                gameStatePlayer.getOpponentHand().get(i).setManaCost(1);
+                                gameStatePlayer.getOpponentHand().get(i).setCivilization("DARKNESS");
+                                if (i % 2 == 1) {
+                                    gameStatePlayer.getOpponentHand().get(i).setCanAttack(true);
+                                }
+
+                                var cardTobeadded = gameStatePlayer.getPlayerDeck().remove(i);
+                                if (i % 2 == 0) {
+                                    cardTobeadded.setCanBeAttacked(true);
+                                }
+                                gameStatePlayer.getPlayerShields().get(i).setCanBeAttacked(true);
+                                gameStatePlayer.getPlayerBattleZone().add(cardTobeadded);
+
+
+                            }
                             gameStateStore.saveGameState(gameStatePlayer);
                             simpMessagingTemplate.convertAndSend(MATCHMAKING_TOPIC, gameStates);
 
@@ -64,7 +64,14 @@ public class GameService {
                             var topic2 = GAME_TOPIC + gameId + SLASH + PLAYER_2_TOPIC;
 
                             sendGameStatesToTopics(topic1, gameStatePlayer, topic2, gameStateOpponent, player, opponent);
-                        });
+                        },
+                        () -> {
+                            // 💡 THIS is the fix: notify that this player is still waiting
+                            simpMessagingTemplate.convertAndSend(MATCHMAKING_TOPIC, List.of(playerDto));
+                            log.info("🕒 No opponent yet, broadcasting waiting player {}", playerDto.getUsername());
+                        }
+                );
+
     }
 
     private void sendGameStatesToTopics(String topic1,
@@ -82,6 +89,6 @@ public class GameService {
                 log.info("✅ Sent to topic2: {}", topic2);
                 log.info("🎮 Matched players {} vs {}", player.getUsername(), opponent.getUsername());
             }
-        }, 5000);
+        }, 2000);
     }
 }

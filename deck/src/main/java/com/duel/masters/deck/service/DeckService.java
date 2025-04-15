@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import javax.smartcardio.Card;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -80,11 +81,30 @@ public class DeckService {
         }
         assignGameCardId(deck);
         shuffleCards(deck);
+//        var  dm01 = getDM01();
+//
+//        var hunterFish = new CardDto();
+//        for (CardDto cardDto : dm01) {
+//            if(cardDto.getId() == 41){
+//                hunterFish = cardDto;
+//            }
+//        }
+//        List<CardDto> deckCopy = new ArrayList<>();
+//        for(int i = 0; i < deck.size(); i++){
+//            deckCopy.add(hunterFish);
+//        }
+
+
+
+
+
+//        assignGameCardId(deckCopy);
         return
                 DeckDto
                         .builder()
                         .name("RANDOM DECK")
                         .id(1)
+//                        .cards(deckCopy)
                         .cards(deck)
                         .build();
     }
