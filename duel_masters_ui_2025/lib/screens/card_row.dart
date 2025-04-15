@@ -210,7 +210,7 @@ class _CardRowState extends State<CardRow> {
                           child: Tooltip(
                             message: "Summoning Sickness",
                             child: Icon(
-                              LucideIcons.zapOff, // or any other icon
+                              LucideIcons.moon, // or any other icon
                               size: 20,
                               color: Colors.deepPurple,
                             ),
