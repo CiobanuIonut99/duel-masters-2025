@@ -7,7 +7,6 @@ import java.util.List;
 import static com.duel.masters.game.util.CardsDtoUtil.untappedCards;
 
 public class ValidatorUtil {
-
     public static boolean checkAtLeastOneCardSameCivilizationPresent(List<CardDto> manaZone, CardDto cardDto) {
         return manaZone
                 .stream()
@@ -20,10 +19,27 @@ public class ValidatorUtil {
                 untappedCards(manaZOne) >= card.getManaCost();
     }
 
-    public static boolean canAttack(CardDto card) {
-        return card.getType().equalsIgnoreCase("CREATURE") &&
-                !card.isSummoningSickness() &&
-                !card.isTapped();
+    public static boolean isValidForSummoning(List<CardDto> manaZone, List<String> selectedManaCardIds, List<CardDto> selectedManaCards, CardDto cardToBeSummoned) {
+        var atLeastOneSelectedManaCardHasNecessaryCivilization = false;
+        var countUntapped = 0;
+        for (CardDto manaCardDto : manaZone) {
+            for (String selectedManaCardId : selectedManaCardIds) {
+                if (manaCardDto.getGameCardId().equals(selectedManaCardId)) {
+                    selectedManaCards.add(manaCardDto);
+
+                    if (!manaCardDto.isTapped()) {
+                        countUntapped++;
+                    }
+
+                    if (manaCardDto.getCivilization().equals(cardToBeSummoned.getCivilization())) {
+                        atLeastOneSelectedManaCardHasNecessaryCivilization = true;
+                    }
+                }
+            }
+        }
+
+        return atLeastOneSelectedManaCardHasNecessaryCivilization && countUntapped == cardToBeSummoned.getManaCost();
+
     }
 }
 
