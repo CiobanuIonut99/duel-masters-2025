@@ -27,10 +27,10 @@ public class GameLogicService {
         }
 
         switch (incomingState.getAction()) {
-            case END_TURN -> actionsService.endTurn(currentState, incomingState);
+            case ATTACK -> actionsService.attack(currentState, incomingState);
             case SEND_CARD_TO_MANA -> actionsService.sendCardToMana(currentState, incomingState);
             case SUMMON_TO_BATTLE_ZONE -> actionsService.summonToBattleZone(currentState, incomingState);
-            case ATTACK -> actionsService.attack(currentState, incomingState);
+            case END_TURN -> actionsService.endTurn(currentState, incomingState);
         }
     }
 

@@ -53,10 +53,14 @@ public class ActionsService {
     }
 
     public void playCard(List<CardDto> source, String triggeredGameCardId, List<CardDto> destination) {
-        source.stream().filter(cardDto -> cardDto.getGameCardId().equals(triggeredGameCardId)).findFirst().ifPresent(cardDto -> {
-            destination.add(cardDto);
-            source.remove(cardDto);
-        });
+        source
+                .stream()
+                .filter(cardDto -> cardDto.getGameCardId().equals(triggeredGameCardId))
+                .findFirst()
+                .ifPresent(cardDto -> {
+                    destination.add(cardDto);
+                    source.remove(cardDto);
+                });
     }
 
     public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingState) {

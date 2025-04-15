@@ -1,5 +1,6 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.dto.CardsDto;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.player.service.PlayerDto;
 import lombok.AllArgsConstructor;
@@ -38,18 +39,23 @@ public class GameService {
                             var gameStateOpponent = getGameStateDto(gameId, opponent, player, !isPlayer1Chosen, PLAYER_2_TOPIC);
                             var gameStates = List.of(gameStatePlayer, gameStateOpponent);
 
-//                            gameStatePlayer
-//                                    .getPlayerHand()
-//                                            .forEach(cardDto -> cardDto.setManaCost(1));
-//                            gameStatePlayer
-//                                    .getPlayerHand()
-//                                            .forEach(cardDto -> cardDto.setCivilization("DARKNESS"));
-//                            gameStatePlayer
-//                                    .getOpponentHand()
-//                                            .forEach(cardDto -> cardDto.setManaCost(1));
-//                            gameStatePlayer
-//                                    .getOpponentHand()
-//                                            .forEach(cardDto -> cardDto.setCivilization("DARKNESS"));
+
+                            for(int i = 0 ; i < gameStatePlayer.getPlayerHand().size() ; i++) {
+                                gameStatePlayer.getOpponentHand().get(i).setManaCost(1);
+                                gameStatePlayer.getOpponentHand().get(i).setCivilization("DARKNESS");
+                                if(i % 2 == 1){
+                                    gameStatePlayer.getOpponentHand().get(i).setCanAttack(true);
+                                }
+
+                                var cardTobeadded = gameStatePlayer.getPlayerDeck().remove(i);
+                                if(i % 2 == 0){
+                                    cardTobeadded.setCanBeAttacked(true);
+                                }
+                                gameStatePlayer.getPlayerShields().get(i).setCanBeAttacked(true);
+                                gameStatePlayer.getPlayerBattleZone().add(cardTobeadded);
+
+
+                            }
                             gameStateStore.saveGameState(gameStatePlayer);
                             simpMessagingTemplate.convertAndSend(MATCHMAKING_TOPIC, gameStates);
 
