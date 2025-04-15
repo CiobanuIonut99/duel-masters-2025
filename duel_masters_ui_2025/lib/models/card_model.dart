@@ -13,10 +13,9 @@ class CardModel {
 
   bool tapped;
   bool summonable;
-  bool summoningSickness;
-  bool canBeAttacked;
-  bool canAttack;
-  bool shield; // NEW
+  bool summoningSickness; // NEW
+  bool canBeAttacked;     // NEW
+  bool canAttack;         // NEW
 
   CardModel({
     required this.id,
@@ -35,7 +34,6 @@ class CardModel {
     this.summoningSickness = false,
     this.canBeAttacked = false,
     this.canAttack = false,
-    this.shield = false, // NEW
   });
 
   void toggleTap() {
@@ -59,7 +57,6 @@ class CardModel {
     'summoningSickness': summoningSickness,
     'canBeAttacked': canBeAttacked,
     'canAttack': canAttack,
-    'shield': shield, // NEW
   };
 
   factory CardModel.fromJson(Map<String, dynamic> json) {
@@ -80,7 +77,6 @@ class CardModel {
       summoningSickness: json['summoningSickness'] ?? false,
       canBeAttacked: json['canBeAttacked'] ?? false,
       canAttack: json['canAttack'] ?? false,
-      shield: json['shield'] ?? false, // NEW
     );
   }
 
