@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import static com.duel.masters.game.util.CardsDtoUtil.getCardDtoFromList;
-import static com.duel.masters.game.util.ValidatorUtil.canAttack;
 
 @AllArgsConstructor
 @Service
@@ -110,27 +109,60 @@ public class ActionsService {
             }
         }
 
-
         return atLeastOneSelectedManaCardHasNecessaryCivilization && countUntapped == cardToBeSummoned.getManaCost();
-
 
     }
 
     public void attack(GameStateDto currentState, GameStateDto incomingState) {
 
-        var ownBattleZone = cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone();
+        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
+        var ownBattleZone = ownCards.getBattleZone();
+        var ownGraveyard = ownCards.getGraveyard();
+
         var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
-        var opponentBattleZone = opponentCards.getBattleZone();
         var opponentShields = opponentCards.getShields();
+        var opponentHand = opponentCards.getHand();
+        var opponentBattleZone = opponentCards.getBattleZone();
+        var opponentGraveyard = opponentCards.getGraveyard();
 
-        var attackerCard = getCardDtoFromList(ownBattleZone, incomingState.getAttackerId());
-//        var atLeastOneBlockerIntoBattleZone = opponentBattleZone
-//                .stream()
-//                .anyMatch(cardDto -> cardDto.getSpecialAbility().equalsIgnoreCase("BLOCKER")
-//                        && !cardDto.isTapped());
+        var targetId = incomingState.getTargetId();
+        var attackerId = incomingState.getAttackerId();
 
-        if (canAttack(attackerCard)) {
-            specificActionsService.setOpponentAttackableCards(opponentBattleZone, opponentShields);
+        var attackerCard = getCardDtoFromList(ownBattleZone, attackerId);
+        var targetCard = getCardDtoFromList(opponentShields, targetId);
+
+        if (attackerCard.isCanAttack()) {
+            if (targetCard.isShield()) {
+                playCard(opponentShields, targetId, opponentHand);
+                attackerCard.setTapped(true);
+                attackerCard.setCanAttack(false);
+                targetCard.setCanBeAttacked(false);
+                topicService.sendGameStatesToTopics(currentState);
+            }
+
+            if (targetCard.isTapped()) {
+                if (attackerCard.getPower() > targetCard.getPower()) {
+                    playCard(opponentBattleZone, targetId, opponentGraveyard);
+                    attackerCard.setTapped(true);
+                    attackerCard.setCanAttack(false);
+                    attackerCard.setCanBeAttacked(true);
+                }
+                if (attackerCard.getPower() == targetCard.getPower()) {
+                    playCard(opponentBattleZone, targetId, opponentGraveyard);
+                    playCard(ownBattleZone, attackerId, ownGraveyard);
+                    attackerCard.setCanBeAttacked(false);
+                    targetCard.setCanBeAttacked(false);
+
+                }
+                if (attackerCard.getPower() < targetCard.getPower()) {
+                    playCard(ownBattleZone, attackerId, ownGraveyard);
+                    attackerCard.setCanBeAttacked(false);
+                }
+                topicService.sendGameStatesToTopics(currentState);
+            }
+
         }
+
+
     }
 }

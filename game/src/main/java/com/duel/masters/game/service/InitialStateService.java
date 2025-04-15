@@ -51,11 +51,12 @@ public class InitialStateService {
                 new ObjectMapper()
                         .writerWithDefaultPrettyPrinter()
                         .writeValueAsString(deck));
-        deckDto
-                .getCards()
-                .forEach((cardDto) -> {
-                    log.info(cardDto.getName());
-                });
+
+        shields.forEach(shield -> {
+                    shield.setCanBeAttacked(true);
+                    shield.setShield(true);
+                }
+        );
 
         return InitialStateDto.builder()
                 .deck(deck)
