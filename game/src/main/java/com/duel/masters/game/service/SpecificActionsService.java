@@ -44,9 +44,10 @@ public class SpecificActionsService {
 
         var triggeredCardIds = incomingState.getTriggeredGameCardIds();
         var cardToBeSummoned = getCardDtoFromList(hand, incomingState.getTriggeredGameCardId());
+        var selectedManaCards = getSelectedManaCards(manaZone, triggeredCardIds);
 
-        if (canSummon(getSelectedCardIds(manaZone), triggeredCardIds, manaZone, cardToBeSummoned)) {
-            tapCards(getSelectedManaCards(manaZone, triggeredCardIds));
+        if (canSummon(getCardIds(manaZone), triggeredCardIds, manaZone, selectedManaCards, cardToBeSummoned)) {
+            tapCards(selectedManaCards);
             playCard(hand, cardToBeSummoned.getGameCardId(), battleZone);
             cardToBeSummoned.setSummoningSickness(true);
             setCardsSummonable(manaZone, hand);

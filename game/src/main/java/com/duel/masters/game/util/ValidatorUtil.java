@@ -8,8 +8,8 @@ import java.util.List;
 import static com.duel.masters.game.util.CardsDtoUtil.untappedCards;
 
 public class ValidatorUtil {
-    public static boolean checkAtLeastOneCardSameCivilizationPresent(List<CardDto> manaZone, CardDto cardDto) {
-        return manaZone
+    public static boolean checkAtLeastOneCardSameCivilizationPresent(List<CardDto> cards, CardDto cardDto) {
+        return cards
                 .stream()
                 .anyMatch(card -> card.getCivilization().equalsIgnoreCase(cardDto.getCivilization()) &&
                         !card.isTapped());
@@ -21,13 +21,13 @@ public class ValidatorUtil {
     }
 
     public static boolean canSummon(List<String> manaZoneGameCardIds,
-                                           List<String> selectedManaCardIds,
-                                           List<CardDto> manaZone,
-                                           CardDto cardToBeSummoned) {
+                                    List<String> selectedManaCardIds,
+                                    List<CardDto> manaZone,
+                                    List<CardDto> selectedManaCards,
+                                    CardDto cardToBeSummoned) {
         return new HashSet<>(manaZoneGameCardIds).containsAll(selectedManaCardIds) &&
-                manaZone.size() >= selectedManaCardIds.size() &&
                 selectedManaCardIds.size() == cardToBeSummoned.getManaCost() &&
-                isSummonable(manaZone, cardToBeSummoned);
+                untappedCards(manaZone) >= cardToBeSummoned.getManaCost();
     }
 }
 

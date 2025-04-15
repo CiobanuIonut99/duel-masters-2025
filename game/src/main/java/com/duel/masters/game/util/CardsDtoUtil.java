@@ -55,7 +55,7 @@ public class CardsDtoUtil {
         return selectedManaCards;
     }
 
-    public static List<String> getSelectedCardIds(List<CardDto> cards) {
+    public static List<String> getCardIds(List<CardDto> cards) {
         return cards
                 .stream()
                 .map(CardDto::getGameCardId)
