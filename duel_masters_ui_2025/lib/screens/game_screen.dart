@@ -22,7 +22,7 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
-  bool hasSelectedBlocker = false;
+  bool opponentHasBlocker = false;
   CardModel? selectedBlocker;
 
   // Current player overall cards
@@ -173,7 +173,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void _updateGameState(Map<String, dynamic> responseBody) {
     final newTurnPlayerId = responseBody['currentTurnPlayerId'];
-    hasSelectedBlocker = responseBody['hasSelectedBlocker'];
+    opponentHasBlocker = responseBody['opponentHasBlocker'];
 
     if (previousTurnPlayerId != null &&
         previousTurnPlayerId != newTurnPlayerId) {
@@ -186,7 +186,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       previousTurnPlayerId = newTurnPlayerId;
       opponentId = responseBody['opponentId'];
       playedMana = responseBody['playedMana'];
-      hasSelectedBlocker = responseBody['hasSelectedBlocker'];
+      opponentHasBlocker = responseBody['opponentHasBlocker'];
+      print("opponentHasBlocker ${opponentHasBlocker}");
 
       playerHand =
           (responseBody['playerHand'] as List)
@@ -687,7 +688,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           playerBattleZone: playerBattleZone,
                         ),
                         SizedBox(height: 16),
-                        if (hasSelectedBlocker) ...[
+                        if (opponentHasBlocker) ...[
                           SizedBox(height: 16),
                           _buildBlockerSelectionArea(),
                         ],

@@ -149,6 +149,7 @@ public class SpecificActionsService {
                 if (targetCard.isShield()) {
                     log.info("Card is shield");
                     log.info("Shield was : {}", targetCard.getName());
+                    currentState.setOpponentHasBlocker(true);
                     topicService.sendGameStatesToTopics(currentState);
 //                    attackerCard.setTapped(true);
 //                    attackerCard.setCanAttack(false);
@@ -158,7 +159,8 @@ public class SpecificActionsService {
                 } else {
                     var attackerPower = attackerCard.getPower();
                     var targetPower = targetCard.getPower();
-
+                    currentState.setHasSelectedBlocker(true);
+                    topicService.sendGameStatesToTopics(currentState);
                     attack(attackerPower, targetPower, opponentBattleZone, targetId, opponentGraveyard, attackerCard, targetCard, ownBattleZone, attackerId, ownGraveyard);
 
                 }
