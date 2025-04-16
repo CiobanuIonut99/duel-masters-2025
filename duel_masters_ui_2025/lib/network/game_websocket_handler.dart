@@ -128,28 +128,8 @@ class GameWebSocketHandler {
     );
   }
 
-  // void summon({
-  //   required String? gameId,
-  //   required int playerId,
-  //   required String? playerTopic,
-  //   required String triggeredGameCardId,
-  //   required VoidCallback onSucces,
-  // }) {
-  //   if (!stompClient.connected) return;
-  //
-  //   final payload = {
-  //     "gameId": gameId,
-  //     "playerId": playerId,
-  //     "playerTopic": playerTopic,
-  //     "action": "SUMMON_TO_BATTLE_ZONE",
-  //     "triggeredGameCardId": triggeredGameCardId,
-  //   };
-  //
-  //   stompClient.send(
-  //     destination: '/duel-masters/game/action',
-  //     body: jsonEncode(payload),
-  //   );
-  // }
+
+
 
   void summonWithMana({
     required String? gameId,
@@ -190,6 +170,31 @@ class GameWebSocketHandler {
       "opponentId": opponentId,
       "currentTurnPlayerId": currentTurnPlayerId,
       "action": "END_TURN",
+    };
+    stompClient.send(
+      destination: '/duel-masters/game/action',
+      body: jsonEncode(payload),
+    );
+  }
+  void confirmBlockerSelection({
+    required String? gameId,
+    required int playerId,
+    required int? currentTurnPlayerId,
+    required String? action,
+    required targetShield,
+    required String attackerId,
+    required String targetId,
+    required Null Function() onSucces,
+  }) {
+    if (!stompClient.connected) return;
+    final payload = {
+      "gameId": gameId,
+      "playerId": currentPlayerId,
+      "currentTurnPlayerId": currentTurnPlayerId,
+      "action": "ATTACK",
+      "attackerId": attackerId,
+      "targetId": targetId,
+      "targetShield": targetShield,
     };
     stompClient.send(
       destination: '/duel-masters/game/action',
