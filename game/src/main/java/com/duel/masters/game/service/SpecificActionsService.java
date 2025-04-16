@@ -149,18 +149,19 @@ public class SpecificActionsService {
                 if (targetCard.isShield()) {
                     log.info("Card is shield");
                     log.info("Shield was : {}", targetCard.getName());
-                    attackerCard.setTapped(true);
-                    attackerCard.setCanAttack(false);
-                    targetCard.setCanBeAttacked(false);
-                    playCard(opponentShields, targetId, opponentHand);
-                    targetCard.setShield(false);
+                    topicService.sendGameStatesToTopics(currentState);
+//                    attackerCard.setTapped(true);
+//                    attackerCard.setCanAttack(false);
+//                    targetCard.setCanBeAttacked(false);
+//                    playCard(opponentShields, targetId, opponentHand);
+//                    targetCard.setShield(false);
+                } else {
+                    var attackerPower = attackerCard.getPower();
+                    var targetPower = targetCard.getPower();
+
+                    attack(attackerPower, targetPower, opponentBattleZone, targetId, opponentGraveyard, attackerCard, targetCard, ownBattleZone, attackerId, ownGraveyard);
+
                 }
-                var attackerPower = attackerCard.getPower();
-                var targetPower = targetCard.getPower();
-
-                attack(attackerPower, targetPower, opponentBattleZone, targetId, opponentGraveyard, attackerCard, targetCard, ownBattleZone, attackerId, ownGraveyard);
-
-                topicService.sendGameStatesToTopics(currentState);
             }
         } else {
             ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);

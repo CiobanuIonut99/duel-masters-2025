@@ -173,6 +173,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void _updateGameState(Map<String, dynamic> responseBody) {
     final newTurnPlayerId = responseBody['currentTurnPlayerId'];
+    hasSelectedBlocker = responseBody['hasSelectedBlocker'];
 
     if (previousTurnPlayerId != null &&
         previousTurnPlayerId != newTurnPlayerId) {
