@@ -161,6 +161,8 @@ public class SpecificActionsService {
                     targetCard.setCanBeAttacked(false);
                     targetCard.setCanAttack(false);
 
+                    targetCard.setTapped(false);
+
                     log.info("{} won", attackerCard.getName());
                 }
                 if (attackerPower == targetPower) {
@@ -172,6 +174,10 @@ public class SpecificActionsService {
 
                     targetCard.setCanBeAttacked(false);
                     targetCard.setCanAttack(false);
+
+                    targetCard.setTapped(false);
+                    attackerCard.setTapped(false);
+
                     log.info("Both lost");
                 }
                 if (attackerPower < targetPower) {
@@ -182,6 +188,8 @@ public class SpecificActionsService {
 
                     targetCard.setCanBeAttacked(true);
                     targetCard.setCanAttack(false);
+
+                    attackerCard.setTapped(false);
 
                     log.info("{} lost", attackerCard.getName());
                 }
