@@ -21,7 +21,6 @@ public class ActionsService {
     public void sendCardToMana(GameStateDto currentState, GameStateDto incomingState) {
         specificActionsService.setCardToSendInManaZone(currentState, incomingState);
         topicService.sendGameStatesToTopics(currentState);
-        log.info("Mana card played");
     }
 
     public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingState) {

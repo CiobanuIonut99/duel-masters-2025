@@ -21,6 +21,8 @@ public class GameStateUtil {
                 .opponentDeck(opponent.getPlayerDeck())
                 .playerManaZone(player.getPlayerManaZone())
                 .opponentManaZone(opponent.getPlayerManaZone())
+                .playerGraveyard(player.getPlayerGraveyard())
+                .opponentGraveyard(opponent.getPlayerGraveyard())
                 .currentTurnPlayerId(isPlayer1Chosen ? player.getId() : opponent.getId())
                 .playerTopic(playerTopic)
                 .build();
@@ -45,6 +47,8 @@ public class GameStateUtil {
                 .opponentManaZone(gameStateDto.getOpponentManaZone())
                 .playerBattleZone(gameStateDto.getPlayerBattleZone())
                 .opponentBattleZone(gameStateDto.getOpponentBattleZone())
+                .playerGraveyard(gameStateDto.getPlayerGraveyard())
+                .opponentGraveyard(gameStateDto.getOpponentGraveyard())
                 .playerTopic(topic)
                 .playedMana(gameStateDto.isPlayedMana())
                 .build();
@@ -71,6 +75,8 @@ public class GameStateUtil {
                 .opponentManaZone(gameStateDto.getPlayerManaZone())
                 .playerBattleZone(gameStateDto.getOpponentBattleZone())
                 .opponentBattleZone(gameStateDto.getPlayerBattleZone())
+                .playerGraveyard(gameStateDto.getOpponentGraveyard())
+                .opponentGraveyard(gameStateDto.getPlayerGraveyard())
                 .playerTopic(topic)
                 .playedMana(gameStateDto.isPlayedMana())
                 .build();

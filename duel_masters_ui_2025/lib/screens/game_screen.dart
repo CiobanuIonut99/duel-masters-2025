@@ -206,12 +206,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           (responseBody['playerBattleZone'] as List)
               .map((c) => CardModel.fromJson(c))
               .toList();
-      print("Player battle zone : ${responseBody['playerBattleZone']}");
 
       playerGraveyard =
           (responseBody['playerGraveyard'] as List)
               .map((c) => CardModel.fromJson(c))
               .toList();
+      print('PLAYER GRAVEYARD : ${playerGraveyard}');
 
       opponentHand =
           (responseBody['opponentHand'] as List? ?? [])
@@ -242,6 +242,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           (responseBody['opponentGraveyard'] as List? ?? [])
               .map((c) => CardModel.fromJson(c))
               .toList();
+      print('OPPONENT GRAVEYARD : ${playerGraveyard}');
 
       deckSize = playerDeck.length;
       opponentDeckSize = opponentDeck.length;
