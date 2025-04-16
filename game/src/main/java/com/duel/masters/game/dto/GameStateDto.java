@@ -24,7 +24,6 @@ public class GameStateDto {
     private String triggeredGameCardId;
     private String attackerId;
     private String targetId;
-    private boolean targetShield;
     private List<String> triggeredGameCardIds;
 
     private Long playerId;
@@ -39,6 +38,10 @@ public class GameStateDto {
     private String playerTopic;
 
     private Long currentTurnPlayerId;
+
+    private boolean targetShield;
+    private Boolean opponentHasBlocker;
+    private Boolean hasSelectedBlocker;
 
     private String action;
     @Builder.Default

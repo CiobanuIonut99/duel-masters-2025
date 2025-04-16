@@ -30,6 +30,13 @@ public class ValidatorUtil {
                 untappedCards(manaZone) >= cardToBeSummoned.getManaCost() &&
                 checkAtLeastOneCardSameCivilizationPresent(selectedManaCards, cardToBeSummoned);
     }
+
+    public static Boolean battleZoneHasAtLeastOneBlocker(List<CardDto> battleZone) {
+        return battleZone
+                .stream()
+                .anyMatch(cardDto -> cardDto.getCivilization().equalsIgnoreCase("BLOCKER") &&
+                        !cardDto.isTapped());
+    }
 }
 
 
