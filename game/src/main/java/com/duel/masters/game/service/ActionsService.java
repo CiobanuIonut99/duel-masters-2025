@@ -14,7 +14,7 @@ public class ActionsService {
     private final SpecificActionsService specificActionsService;
 
     public void endTurn(GameStateDto currentState, GameStateDto incomingState) {
-        specificActionsService.prepareTurnForOpponent(currentState, incomingState);
+        specificActionsService.endTurn(currentState, incomingState);
         topicService.sendGameStatesToTopics(currentState);
     }
 

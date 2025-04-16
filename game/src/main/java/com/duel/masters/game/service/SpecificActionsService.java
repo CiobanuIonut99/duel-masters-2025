@@ -45,10 +45,20 @@ public class SpecificActionsService {
         var triggeredCardIds = incomingState.getTriggeredGameCardIds();
         var cardToBeSummoned = getCardDtoFromList(hand, incomingState.getTriggeredGameCardId());
         var selectedManaCards = getSelectedManaCards(manaZone, triggeredCardIds);
+        selectedManaCards
+                .forEach(selectedManaCard -> {
+                    log.info("Selected mana card : {}", selectedManaCard.getName());
+                });
 
         if (canSummon(getCardIds(manaZone), triggeredCardIds, manaZone, selectedManaCards, cardToBeSummoned)) {
             tapCards(selectedManaCards);
+            selectedManaCards
+                    .forEach(selectedManaCard -> {
+                        log.info("Tapped card : {}", selectedManaCard.getName());
+                    });
+
             playCard(hand, cardToBeSummoned.getGameCardId(), battleZone);
+            log.info("Summoning {}", cardToBeSummoned.getName());
             cardToBeSummoned.setSummoningSickness(true);
             setCardsSummonable(manaZone, hand);
             topicService.sendGameStatesToTopics(currentState);
@@ -56,7 +66,8 @@ public class SpecificActionsService {
         }
     }
 
-    public void prepareTurnForOpponent(GameStateDto currentState, GameStateDto incomingState) {
+    public void endTurn(GameStateDto currentState, GameStateDto incomingState) {
+        log.info("Current player ends turn");
         var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
         var opponentDeck = opponentCards.getDeck();
         var opponentHand = opponentCards.getHand();
@@ -70,15 +81,17 @@ public class SpecificActionsService {
         untapCards(opponentBattleZone);
         setCardsSummonable(opponentManaZone, opponentHand);
         setCreaturesCanAttack(opponentBattleZone);
+        cureSickness(opponentBattleZone);
 
+//        MOCK FOR SINGLE TESTING
+//        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
+//        var hand = ownCards.getHand();
+//        var deck = ownCards.getDeck();
+//        playCard(deck, deck.getFirst().getGameCardId(), hand);
 
-        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
-        var hand = ownCards.getHand();
-        var deck = ownCards.getDeck();
-
-        playCard(deck, deck.getFirst().getGameCardId(), hand);
         setCreaturesAttackable(cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone());
     }
+
 
     public void setCardToSendInManaZone(GameStateDto currentState, GameStateDto incomingState) {
         if (!currentState.isPlayedMana()) {
@@ -102,6 +115,7 @@ public class SpecificActionsService {
                 });
     }
 
+
     public void doAttack(GameStateDto currentState, GameStateDto incomingState) {
         var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
         var ownBattleZone = ownCards.getBattleZone();
@@ -119,8 +133,12 @@ public class SpecificActionsService {
         var attackerCard = getCardDtoFromList(ownBattleZone, attackerId);
         var targetCard = incomingState.isTargetShield() ? getCardDtoFromList(opponentShields, targetId) : getCardDtoFromList(opponentBattleZone, targetId);
 
+
         if (attackerCard.isCanAttack()) {
+            log.info("Attacker card : {} with power : {}", attackerCard.getName(), attackerCard.getPower());
+
             if (targetCard.isShield()) {
+                log.info("Card is shield");
                 attackerCard.setTapped(true);
                 attackerCard.setCanAttack(false);
                 targetCard.setCanBeAttacked(false);
@@ -130,26 +148,46 @@ public class SpecificActionsService {
             var targetPower = targetCard.getPower();
 
             if (targetCard.isTapped()) {
+                log.info("Target card : {} with power : {} ", targetCard.getName(), targetCard.getPower());
                 if (attackerPower > targetPower) {
                     playCard(opponentBattleZone, targetId, opponentGraveyard);
+
                     attackerCard.setTapped(true);
                     attackerCard.setCanAttack(false);
                     attackerCard.setCanBeAttacked(true);
+
+                    targetCard.setCanBeAttacked(false);
+                    targetCard.setCanAttack(false);
+
+                    log.info("{} won", attackerCard.getName());
                 }
                 if (attackerPower == targetPower) {
                     playCard(opponentBattleZone, targetId, opponentGraveyard);
                     playCard(ownBattleZone, attackerId, ownGraveyard);
-                    attackerCard.setCanBeAttacked(false);
-                    targetCard.setCanBeAttacked(false);
 
+                    attackerCard.setCanBeAttacked(false);
+                    attackerCard.setCanAttack(false);
+
+                    targetCard.setCanBeAttacked(false);
+                    targetCard.setCanAttack(false);
+                    log.info("Both lost");
                 }
                 if (attackerPower < targetPower) {
                     playCard(ownBattleZone, attackerId, ownGraveyard);
+
                     attackerCard.setCanBeAttacked(false);
+                    attackerCard.setCanAttack(false);
+
+                    targetCard.setCanBeAttacked(true);
+                    targetCard.setCanAttack(false);
+
+                    log.info("{} lost", attackerCard.getName());
                 }
 
             }
             topicService.sendGameStatesToTopics(currentState);
         }
     }
+
+
 }

@@ -77,4 +77,11 @@ public class CardsDtoUtil {
     public static void tapCards(List<CardDto> cards) {
         cards.forEach(card -> card.setTapped(true));
     }
+
+    public static void cureSickness(List<CardDto> cards) {
+        cards
+                .stream()
+                .filter(CardDto::isSummoningSickness)
+                .forEach(cardDto -> cardDto.setSummoningSickness(false));
+    }
 }

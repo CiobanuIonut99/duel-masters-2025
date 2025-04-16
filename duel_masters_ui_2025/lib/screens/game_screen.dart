@@ -572,10 +572,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             child: Row(
               children: [
                 ElevatedButton.icon(
-                  onPressed:
-                  hasJoinedMatch
-                      ? null
-                      : () {
+                  onPressed:() {
                     _searchForMatch();
                     showSnackBar("🔍 Looking for opponent...");
                   },
