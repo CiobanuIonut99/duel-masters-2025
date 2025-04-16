@@ -51,6 +51,7 @@ public class GameStateUtil {
                 .opponentGraveyard(gameStateDto.getOpponentGraveyard())
                 .playerTopic(topic)
                 .playedMana(gameStateDto.isPlayedMana())
+                .opponentHasBlocker(gameStateDto.isOpponentHasBlocker())
                 .build();
 
 
@@ -79,6 +80,7 @@ public class GameStateUtil {
                 .opponentGraveyard(gameStateDto.getPlayerGraveyard())
                 .playerTopic(topic)
                 .playedMana(gameStateDto.isPlayedMana())
+                .opponentHasBlocker(gameStateDto.isOpponentHasBlocker())
                 .build();
     }
 

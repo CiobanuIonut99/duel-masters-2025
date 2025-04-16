@@ -34,7 +34,7 @@ public class ValidatorUtil {
     public static Boolean battleZoneHasAtLeastOneBlocker(List<CardDto> battleZone) {
         return battleZone
                 .stream()
-                .anyMatch(cardDto -> cardDto.getCivilization().equalsIgnoreCase("BLOCKER") &&
+                .anyMatch(cardDto -> cardDto.getSpecialAbility().equalsIgnoreCase("BLOCKER") &&
                         !cardDto.isTapped());
     }
 }

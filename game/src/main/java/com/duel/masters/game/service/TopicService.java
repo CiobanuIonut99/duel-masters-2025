@@ -17,13 +17,17 @@ public class TopicService {
     private final GameStateStore gameStateStore;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public void sendGameStatesToTopics(GameStateDto gameState) {
-        gameStateStore.saveGameState(gameState);
+    public void sendGameStatesToTopics(GameStateDto currentState) {
+        gameStateStore.saveGameState(currentState);
 
-        var topic1 = GAME_TOPIC + gameState.getGameId() + SLASH + PLAYER_1_TOPIC;
-        var topic2 = GAME_TOPIC + gameState.getGameId() + SLASH + PLAYER_2_TOPIC;
-        var gameState1 = getGameStateDtoPlayer(gameState, PLAYER_1_TOPIC);
-        var gameState2 = getGameStateDtoOpponent(gameState, PLAYER_2_TOPIC);
+        var topic1 = GAME_TOPIC + currentState.getGameId() + SLASH + PLAYER_1_TOPIC;
+        var topic2 = GAME_TOPIC + currentState.getGameId() + SLASH + PLAYER_2_TOPIC;
+        var gameState1 = getGameStateDtoPlayer(currentState, PLAYER_1_TOPIC);
+        var gameState2 = getGameStateDtoOpponent(currentState, PLAYER_2_TOPIC);
+
+        log.info("sending gamestate 1 to topic {}", gameState1);
+        log.info("sending gamestate 2 to topic {}", gameState2);
+
 
         simpMessagingTemplate.convertAndSend(topic1, gameState1);
         simpMessagingTemplate.convertAndSend(topic2, gameState2);

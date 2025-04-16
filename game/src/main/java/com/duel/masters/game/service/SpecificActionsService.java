@@ -11,8 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static com.duel.masters.game.util.CardsDtoUtil.*;
-import static com.duel.masters.game.util.ValidatorUtil.canSummon;
-import static com.duel.masters.game.util.ValidatorUtil.isSummonable;
+import static com.duel.masters.game.util.ValidatorUtil.*;
 
 @Service
 @AllArgsConstructor
@@ -126,16 +125,27 @@ public class SpecificActionsService {
         String targetId;
         String attackerId;
 
-        if (currentState.getHasSelectedBlocker().equals(false)) {
+        if (!currentState.isOpponentHasBlocker()) {
             ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
             ownBattleZone = ownCards.getBattleZone();
             ownGraveyard = ownCards.getGraveyard();
+
+            ownBattleZone
+                    .forEach(card -> {
+                        log.info("CARD in OWN BATTLEZONE : {} with special ability : {}", card.getName(),card.getSpecialAbility());
+                    });
+
 
             opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
             opponentShields = opponentCards.getShields();
             opponentHand = opponentCards.getHand();
             opponentBattleZone = opponentCards.getBattleZone();
             opponentGraveyard = opponentCards.getGraveyard();
+            opponentBattleZone
+                    .forEach(card -> {
+                        log.info("CARD in OPPONENT BATTLEZONE : {} with special ability : {}", card.getName(),card.getSpecialAbility());
+                    });
+
 
             targetId = incomingState.getTargetId();
             attackerId = incomingState.getAttackerId();
@@ -145,25 +155,25 @@ public class SpecificActionsService {
             if (attackerCard.isCanAttack() && targetCard.isCanBeAttacked()) {
                 log.info("Attacker card : {} with power : {}", attackerCard.getName(), attackerCard.getPower());
                 log.info("Target card : {} with power : {} ", targetCard.getName(), targetCard.getPower());
-
-                if (targetCard.isShield()) {
-                    log.info("Card is shield");
-                    log.info("Shield was : {}", targetCard.getName());
+                if (battleZoneHasAtLeastOneBlocker(opponentBattleZone)) {
                     currentState.setOpponentHasBlocker(true);
-                    topicService.sendGameStatesToTopics(currentState);
-//                    attackerCard.setTapped(true);
-//                    attackerCard.setCanAttack(false);
-//                    targetCard.setCanBeAttacked(false);
-//                    playCard(opponentShields, targetId, opponentHand);
-//                    targetCard.setShield(false);
                 } else {
-                    var attackerPower = attackerCard.getPower();
-                    var targetPower = targetCard.getPower();
-                    currentState.setHasSelectedBlocker(true);
-                    topicService.sendGameStatesToTopics(currentState);
-                    attack(attackerPower, targetPower, opponentBattleZone, targetId, opponentGraveyard, attackerCard, targetCard, ownBattleZone, attackerId, ownGraveyard);
-
+                    if (targetCard.isShield()) {
+                        log.info("Card is shield");
+                        log.info("Shield was : {}", targetCard.getName());
+                        attackerCard.setTapped(true);
+                        attackerCard.setCanAttack(false);
+                        targetCard.setCanBeAttacked(false);
+                        playCard(opponentShields, targetId, opponentHand);
+                        targetCard.setShield(false);
+                    } else {
+                        var attackerPower = attackerCard.getPower();
+                        var targetPower = targetCard.getPower();
+                        currentState.setHasSelectedBlocker(true);
+                        attack(attackerPower, targetPower, opponentBattleZone, targetId, opponentGraveyard, attackerCard, targetCard, ownBattleZone, attackerId, ownGraveyard);
+                    }
                 }
+                topicService.sendGameStatesToTopics(currentState);
             }
         } else {
             ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
@@ -175,7 +185,7 @@ public class SpecificActionsService {
             opponentGraveyard = opponentCards.getGraveyard();
 
             targetId = incomingState.getTargetId();
-            attackerId = incomingState.getAttackerId();
+            attackerId = currentState.getAttackerId();
 
             var attackerCard = getCardDtoFromList(opponentBattleZone, attackerId);
             var targetCard = getCardDtoFromList(ownBattleZone, targetId);

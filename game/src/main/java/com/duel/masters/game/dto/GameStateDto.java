@@ -40,10 +40,8 @@ public class GameStateDto {
     private Long currentTurnPlayerId;
 
     private boolean targetShield;
-    @Builder.Default
-    private Boolean opponentHasBlocker = false;
-    @Builder.Default
-    private Boolean hasSelectedBlocker = false;
+    private boolean opponentHasBlocker = false;
+    private boolean hasSelectedBlocker = false;
 
     private String action;
     @Builder.Default
