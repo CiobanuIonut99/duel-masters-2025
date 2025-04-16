@@ -702,7 +702,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             return AlertDialog(
               backgroundColor: Colors.grey.shade900,
               title: Text(
-                "Select Mana to Pay Cost",
+                "You need ${cardToSummon.manaCost} mana",
                 style: TextStyle(color: Colors.white),
               ),
               content: SizedBox(
