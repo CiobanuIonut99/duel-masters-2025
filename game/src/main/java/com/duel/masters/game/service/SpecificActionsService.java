@@ -139,10 +139,12 @@ public class SpecificActionsService {
 
             if (targetCard.isShield()) {
                 log.info("Card is shield");
+                log.info("Shield was : {}", targetCard.getName());
                 attackerCard.setTapped(true);
                 attackerCard.setCanAttack(false);
                 targetCard.setCanBeAttacked(false);
                 playCard(opponentShields, targetId, opponentHand);
+                targetCard.setShield(false);
             }
             var attackerPower = attackerCard.getPower();
             var targetPower = targetCard.getPower();

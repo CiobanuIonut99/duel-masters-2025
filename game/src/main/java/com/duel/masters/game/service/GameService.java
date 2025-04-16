@@ -87,6 +87,6 @@ public class GameService {
                 log.info("✅ Sent to topic2: {}", topic2);
                 log.info("🎮 Matched players {} vs {}", player.getUsername(), opponent.getUsername());
             }
-        }, 2000);
+        }, 4000);
     }
 }

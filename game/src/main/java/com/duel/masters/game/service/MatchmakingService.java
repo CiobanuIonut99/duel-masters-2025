@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class MatchmakingService {
     private final Queue<PlayerDto> waitingPlayers = new ConcurrentLinkedQueue<>();
 
-    public Optional<List<PlayerDto>> tryMatchPlayer(PlayerDto player) {
+    public synchronized Optional<List<PlayerDto>> tryMatchPlayer(PlayerDto player) {
         waitingPlayers.add(player);
 
         if (waitingPlayers.size() >= 2) {
