@@ -195,6 +195,7 @@ public class SpecificActionsService {
             var targetPower = targetCard.getPower();
 
             attack(attackerPower, targetPower, ownBattleZone, targetId, ownGraveyard, attackerCard, targetCard, opponentBattleZone, attackerId, opponentGraveyard);
+            topicService.sendGameStatesToTopics(currentState);
         }
     }
 
