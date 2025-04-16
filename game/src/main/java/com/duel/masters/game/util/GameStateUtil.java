@@ -52,6 +52,7 @@ public class GameStateUtil {
                 .playerTopic(topic)
                 .playedMana(gameStateDto.isPlayedMana())
                 .opponentHasBlocker(gameStateDto.isOpponentHasBlocker())
+                .attackerId(gameStateDto.getAttackerId())
                 .build();
 
 
@@ -81,6 +82,7 @@ public class GameStateUtil {
                 .playerTopic(topic)
                 .playedMana(gameStateDto.isPlayedMana())
                 .opponentHasBlocker(gameStateDto.isOpponentHasBlocker())
+                .attackerId(gameStateDto.getAttackerId())
                 .build();
     }
 

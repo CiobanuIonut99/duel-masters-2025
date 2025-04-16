@@ -149,6 +149,7 @@ public class SpecificActionsService {
 
             targetId = incomingState.getTargetId();
             attackerId = incomingState.getAttackerId();
+            currentState.setAttackerId(attackerId);
 
             var attackerCard = getCardDtoFromList(ownBattleZone, attackerId);
             var targetCard = incomingState.isTargetShield() ? getCardDtoFromList(opponentShields, targetId) : getCardDtoFromList(opponentBattleZone, targetId);
