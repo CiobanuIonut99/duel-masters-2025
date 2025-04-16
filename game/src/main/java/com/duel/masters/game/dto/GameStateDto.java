@@ -41,7 +41,7 @@ public class GameStateDto {
 
     private boolean targetShield;
     private boolean opponentHasBlocker = false;
-    private boolean hasSelectedBlocker = false;
+    private boolean opponentHasSelectedBlocker = false;
 
     private String action;
     @Builder.Default

@@ -465,7 +465,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void _attackShieldOrCreature(CardModel attacker, CardModel target) {
-
     final bool? targetShield = target.shield;
     attackerId = attacker.gameCardId;
     wsHandler.attackShieldOrCreature(
@@ -688,16 +687,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           playerBattleZone: playerBattleZone,
                         ),
                         SizedBox(height: 16),
-                        if (opponentHasBlocker) ...[
-                          SizedBox(height: 16),
-                          _buildBlockerSelectionArea(),
-                        ],
                       ],
                     ),
                   ),
                 ),
               ),
             ),
+            if (opponentHasBlocker) _buildBlockerSelectionOverlay(),
           ],
         ),
       ),
@@ -705,66 +701,132 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   /// Creates a standard zone UI with consistent styling.
-  Widget _buildBlockerSelectionArea() {
-    final blockers =
-        playerBattleZone
-            .where((c) => c.specialAbility == 'BLOCKER')
-            .toList(); // maybe use c.type or c.specialAbility
+  Widget _buildBlockerSelectionOverlay() {
+    final isDefendingPlayer = currentTurnPlayerId != currentPlayerId;
+    final playerBlockers =
+        playerBattleZone.where((c) => c.specialAbility == 'BLOCKER').toList();
+    final opponentBlockers =
+        opponentBattleZone.where((c) => c.specialAbility == 'BLOCKER').toList();
 
-    return Column(
-      children: [
-        Text(
-          "Choose a blocker",
-          style: TextStyle(color: Colors.white, fontSize: 18),
-        ),
-        SizedBox(height: 8),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children:
-                blockers.map((card) {
-                  final isSelected =
-                      selectedBlocker?.gameCardId == card.gameCardId;
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedBlocker = card;
-                      });
-                    },
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 6),
-                      padding: EdgeInsets.all(isSelected ? 4 : 0),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color:
-                              isSelected
-                                  ? Colors.yellowAccent
-                                  : Colors.transparent,
-                          width: 2,
-                        ),
+    return Positioned.fill(
+      child: Container(
+        color: Colors.black.withOpacity(0.7), // dim background
+        child: Center(
+          child: Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.symmetric(horizontal: 24),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade900,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.yellowAccent, width: 2),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  isDefendingPlayer
+                      ? "Do you want to block this attack?"
+                      : "Opponent is deciding whether to block...",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                SizedBox(height: 8),
+                if (isDefendingPlayer) ...[
+                  Text("If yes, choose a blocker below."),
+                  Text("If no, press the button to let the attack go through."),
+                ] else ...[
+                  Text("You can view their blockers while they decide."),
+                ],
+                SizedBox(height: 16),
+
+                // Show blocker cards
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children:
+                        (isDefendingPlayer ? playerBlockers : opponentBlockers)
+                            .map((card) {
+                              final isSelected =
+                                  selectedBlocker?.gameCardId ==
+                                  card.gameCardId;
+                              return GestureDetector(
+                                onTap:
+                                    isDefendingPlayer
+                                        ? () {
+                                          setState(() {
+                                            selectedBlocker = card;
+                                          });
+                                        }
+                                        : null, // Disable tap for attacker
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 6),
+                                  padding: EdgeInsets.all(isSelected ? 4 : 0),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color:
+                                          isSelected
+                                              ? Colors.yellowAccent
+                                              : Colors.transparent,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Image.asset(card.imagePath, width: 80),
+                                ),
+                              );
+                            })
+                            .toList(),
+                  ),
+                ),
+
+                SizedBox(height: 16),
+
+                if (isDefendingPlayer) ...[
+                  ElevatedButton.icon(
+                    onPressed:
+                        selectedBlocker != null
+                            ? () =>
+                        {_confirmBlockerSelection(selectedBlocker!),
+                        _cancelAttackSelection()
+                        }
+                            : null,
+                    icon: Icon(Icons.shield),
+                    label: Text("Confirm Blocker"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
                       ),
-                      child: Image.asset(card.imagePath, width: 80),
                     ),
-                  );
-                }).toList(),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        opponentHasBlocker = false;
+                        selectedBlocker = null;
+                        _cancelAttackSelection();
+                      });
+
+                      wsHandler.confirmNoBlocker(
+                        gameId: currentGameId,
+                        action: "ATTACK",
+                        onSuccess: () => _cancelAttackSelection(),
+                      );
+                    },
+                    child: Text(
+                      "Don’t block this time",
+                      style: TextStyle(color: Colors.redAccent),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
-        SizedBox(height: 12),
-        ElevatedButton.icon(
-          onPressed:
-              selectedBlocker != null
-                  ? () => _confirmBlockerSelection(selectedBlocker!)
-                  : null,
-          icon: Icon(Icons.shield),
-          label: Text("Confirm Blocker"),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.deepPurple,
-            foregroundColor: Colors.white,
-          ),
-        ),
-      ],
+      ),
     );
   }
+
   void _confirmBlockerSelection(CardModel blocker) {
     wsHandler.confirmBlockerSelection(
       gameId: currentGameId,
@@ -774,7 +836,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       attackerId: "",
       targetId: blocker.gameCardId,
       targetShield: false,
-      onSucces: () {
+      onSuccess: () {
         setState(() {
           _cancelAttackSelection();
         });

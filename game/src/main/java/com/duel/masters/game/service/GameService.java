@@ -41,14 +41,10 @@ public class GameService {
 //                            for (int i = 0; i < gameStatePlayer.getPlayerHand().size(); i++) {
 //                                gameStatePlayer.getOpponentHand().get(i).setManaCost(1);
 //                                gameStatePlayer.getOpponentHand().get(i).setCivilization("DARKNESS");
-//                                if (i % 2 == 1) {
-//                                    gameStatePlayer.getOpponentHand().get(i).setCanAttack(true);
-//                                }
+//                                gameStatePlayer.getOpponentHand().get(i).setCanAttack(true);
 //
 //                                var cardTobeadded = gameStatePlayer.getPlayerDeck().remove(i);
-//                                if (i % 2 == 0) {
-//                                    cardTobeadded.setCanBeAttacked(true);
-//                                }
+//                                cardTobeadded.setCanBeAttacked(true);
 //                                gameStatePlayer.getPlayerShields().get(i).setCanBeAttacked(true);
 //                                gameStatePlayer.getPlayerBattleZone().add(cardTobeadded);
 //                            }
@@ -87,6 +83,6 @@ public class GameService {
                 log.info("✅ Sent to topic2: {}", topic2);
                 log.info("🎮 Matched players {} vs {}", player.getUsername(), opponent.getUsername());
             }
-        }, 4000);
+        }, 1000);
     }
 }

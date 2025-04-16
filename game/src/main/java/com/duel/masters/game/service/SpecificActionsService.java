@@ -125,58 +125,8 @@ public class SpecificActionsService {
         String targetId;
         String attackerId;
 
-        if (!currentState.isOpponentHasBlocker()) {
-            ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
-            ownBattleZone = ownCards.getBattleZone();
-            ownGraveyard = ownCards.getGraveyard();
+        if (incomingState.isOpponentHasSelectedBlocker()) {
 
-            ownBattleZone
-                    .forEach(card -> {
-                        log.info("CARD in OWN BATTLEZONE : {} with special ability : {}", card.getName(),card.getSpecialAbility());
-                    });
-
-
-            opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
-            opponentShields = opponentCards.getShields();
-            opponentHand = opponentCards.getHand();
-            opponentBattleZone = opponentCards.getBattleZone();
-            opponentGraveyard = opponentCards.getGraveyard();
-            opponentBattleZone
-                    .forEach(card -> {
-                        log.info("CARD in OPPONENT BATTLEZONE : {} with special ability : {}", card.getName(),card.getSpecialAbility());
-                    });
-
-
-            targetId = incomingState.getTargetId();
-            attackerId = incomingState.getAttackerId();
-            currentState.setAttackerId(attackerId);
-
-            var attackerCard = getCardDtoFromList(ownBattleZone, attackerId);
-            var targetCard = incomingState.isTargetShield() ? getCardDtoFromList(opponentShields, targetId) : getCardDtoFromList(opponentBattleZone, targetId);
-            if (attackerCard.isCanAttack() && targetCard.isCanBeAttacked()) {
-                log.info("Attacker card : {} with power : {}", attackerCard.getName(), attackerCard.getPower());
-                log.info("Target card : {} with power : {} ", targetCard.getName(), targetCard.getPower());
-                if (battleZoneHasAtLeastOneBlocker(opponentBattleZone)) {
-                    currentState.setOpponentHasBlocker(true);
-                } else {
-                    if (targetCard.isShield()) {
-                        log.info("Card is shield");
-                        log.info("Shield was : {}", targetCard.getName());
-                        attackerCard.setTapped(true);
-                        attackerCard.setCanAttack(false);
-                        targetCard.setCanBeAttacked(false);
-                        playCard(opponentShields, targetId, opponentHand);
-                        targetCard.setShield(false);
-                    } else {
-                        var attackerPower = attackerCard.getPower();
-                        var targetPower = targetCard.getPower();
-                        currentState.setHasSelectedBlocker(true);
-                        attack(attackerPower, targetPower, opponentBattleZone, targetId, opponentGraveyard, attackerCard, targetCard, ownBattleZone, attackerId, ownGraveyard);
-                    }
-                }
-                topicService.sendGameStatesToTopics(currentState);
-            }
-        } else {
             ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
             ownBattleZone = ownCards.getBattleZone();
             ownGraveyard = ownCards.getGraveyard();
@@ -191,15 +141,68 @@ public class SpecificActionsService {
             var attackerCard = getCardDtoFromList(opponentBattleZone, attackerId);
             var targetCard = getCardDtoFromList(ownBattleZone, targetId);
 
-            var attackerPower = attackerCard.getPower();
-            var targetPower = targetCard.getPower();
-
-            attack(attackerPower, targetPower, ownBattleZone, targetId, ownGraveyard, attackerCard, targetCard, opponentBattleZone, attackerId, opponentGraveyard);
+            attack(ownBattleZone, targetId, ownGraveyard, attackerCard, targetCard, opponentBattleZone, attackerId, opponentGraveyard);
+            targetCard.setTapped(true);
+            targetCard.setCanAttack(false);
+            targetCard.setCanBeAttacked(true);
+            currentState.setOpponentHasBlocker(false);
             topicService.sendGameStatesToTopics(currentState);
+
+        } else {
+
+            ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
+            ownBattleZone = ownCards.getBattleZone();
+            ownGraveyard = ownCards.getGraveyard();
+
+            opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
+            opponentShields = opponentCards.getShields();
+            opponentHand = opponentCards.getHand();
+            opponentBattleZone = opponentCards.getBattleZone();
+            opponentGraveyard = opponentCards.getGraveyard();
+
+            if (currentState.isOpponentHasBlocker()) {
+                targetId = currentState.getTargetId();
+                attackerId = currentState.getAttackerId();
+            } else {
+                targetId = incomingState.getTargetId();
+                attackerId = incomingState.getAttackerId();
+            }
+            currentState.setAttackerId(attackerId);
+            currentState.setTargetId(targetId);
+
+            var attackerCard = getCardDtoFromList(ownBattleZone, attackerId);
+            var targetCard = incomingState.isTargetShield() ? getCardDtoFromList(opponentShields, targetId) : getCardDtoFromList(opponentBattleZone, targetId);
+
+            if (attackerCard.isCanAttack() && targetCard.isCanBeAttacked()) {
+
+                log.info("Attacker card : {} with power : {}", attackerCard.getName(), attackerCard.getPower());
+                log.info("Target card : {} with power : {} ", targetCard.getName(), targetCard.getPower());
+                if (battleZoneHasAtLeastOneBlocker(opponentBattleZone)) {
+                    log.info("Does opponent has at least one blocker ? : {}", battleZoneHasAtLeastOneBlocker(opponentBattleZone));
+                    currentState.setOpponentHasBlocker(true);
+                } else {
+                    if (targetCard.isShield()) {
+                        log.info("Card is shield");
+                        log.info("Shield was : {}", targetCard.getName());
+                        attackerCard.setTapped(true);
+                        attackerCard.setCanAttack(false);
+                        targetCard.setCanBeAttacked(false);
+                        targetCard.setShield(false);
+                        playCard(opponentShields, targetId, opponentHand);
+                    } else {
+                        currentState.setOpponentHasSelectedBlocker(false);
+                        attack(opponentBattleZone, targetId, opponentGraveyard, attackerCard, targetCard, ownBattleZone, attackerId, ownGraveyard);
+                    }
+                }
+                topicService.sendGameStatesToTopics(currentState);
+            }
+
         }
     }
 
-    private void attack(int attackerPower, int targetPower, List<CardDto> opponentBattleZone, String targetId, List<CardDto> opponentGraveyard, CardDto attackerCard, CardDto targetCard, List<CardDto> ownBattleZone, String attackerId, List<CardDto> ownGraveyard) {
+    private void attack(List<CardDto> opponentBattleZone, String targetId, List<CardDto> opponentGraveyard, CardDto attackerCard, CardDto targetCard, List<CardDto> ownBattleZone, String attackerId, List<CardDto> ownGraveyard) {
+        var attackerPower = attackerCard.getPower();
+        var targetPower = targetCard.getPower();
 
         if (attackerPower > targetPower) {
             playCard(opponentBattleZone, targetId, opponentGraveyard);
@@ -215,6 +218,7 @@ public class SpecificActionsService {
 
             log.info("{} won", attackerCard.getName());
         }
+
         if (attackerPower == targetPower) {
             playCard(opponentBattleZone, targetId, opponentGraveyard);
             playCard(ownBattleZone, attackerId, ownGraveyard);
@@ -230,6 +234,7 @@ public class SpecificActionsService {
 
             log.info("Both lost");
         }
+
         if (attackerPower < targetPower) {
             playCard(ownBattleZone, attackerId, ownGraveyard);
 
@@ -243,5 +248,6 @@ public class SpecificActionsService {
 
             log.info("{} lost", attackerCard.getName());
         }
+
     }
 }

@@ -25,10 +25,6 @@ public class TopicService {
         var gameState1 = getGameStateDtoPlayer(currentState, PLAYER_1_TOPIC);
         var gameState2 = getGameStateDtoOpponent(currentState, PLAYER_2_TOPIC);
 
-        log.info("sending gamestate 1 to topic {}", gameState1);
-        log.info("sending gamestate 2 to topic {}", gameState2);
-
-
         simpMessagingTemplate.convertAndSend(topic1, gameState1);
         simpMessagingTemplate.convertAndSend(topic2, gameState2);
         log.info("✅ Sent to topic1: {}", topic1);
