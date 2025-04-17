@@ -145,7 +145,7 @@ public class SpecificActionsService {
             attackerCard = getCardDtoFromList(opponentBattleZone, attackerId);
             targetCard = getCardDtoFromList(ownBattleZone, targetId);
 
-            attack(ownBattleZone, targetId, ownGraveyard, attackerCard, targetCard, opponentBattleZone, attackerId, opponentGraveyard);
+            attack(currentState, ownBattleZone, targetId, ownGraveyard, attackerCard, targetCard, opponentBattleZone, attackerId, opponentGraveyard);
             targetCard.setTapped(true);
             targetCard.setCanAttack(false);
             targetCard.setCanBeAttacked(true);
@@ -187,9 +187,11 @@ public class SpecificActionsService {
 
                 log.info("Attacker card : {} with power : {}", attackerCard.getName(), attackerCard.getPower());
                 log.info("Target card : {} with power : {} ", targetCard.getName(), targetCard.getPower());
-                if (battleZoneHasAtLeastOneBlocker(opponentBattleZone)) {
+                if (battleZoneHasAtLeastOneBlocker(opponentBattleZone) &&
+                        !currentState.isAlreadyMadeADecision()) {
                     log.info("Does opponent has at least one blocker ? : {}", battleZoneHasAtLeastOneBlocker(opponentBattleZone));
                     currentState.setOpponentHasBlocker(true);
+                    currentState.setAlreadyMadeADecision(true);
                 } else {
                     if (targetCard.isShield()) {
                         log.info("Card is shield");
@@ -202,7 +204,7 @@ public class SpecificActionsService {
                         currentState.setOpponentHasBlocker(false);
                     } else {
                         currentState.setOpponentHasSelectedBlocker(false);
-                        attack(opponentBattleZone, targetId, opponentGraveyard, attackerCard, targetCard, ownBattleZone, attackerId, ownGraveyard);
+                        attack(currentState, opponentBattleZone, targetId, opponentGraveyard, attackerCard, targetCard, ownBattleZone, attackerId, ownGraveyard);
                         currentState.setOpponentHasBlocker(false);
                     }
                 }
@@ -212,7 +214,7 @@ public class SpecificActionsService {
         }
     }
 
-    private void attack(List<CardDto> opponentBattleZone, String targetId, List<CardDto> opponentGraveyard, CardDto attackerCard, CardDto targetCard, List<CardDto> ownBattleZone, String attackerId, List<CardDto> ownGraveyard) {
+    private void attack(GameStateDto currentState, List<CardDto> opponentBattleZone, String targetId, List<CardDto> opponentGraveyard, CardDto attackerCard, CardDto targetCard, List<CardDto> ownBattleZone, String attackerId, List<CardDto> ownGraveyard) {
         var attackerPower = attackerCard.getPower();
         var targetPower = targetCard.getPower();
 
@@ -260,6 +262,6 @@ public class SpecificActionsService {
 
             log.info("{} lost", attackerCard.getName());
         }
-
+        currentState.setAlreadyMadeADecision(false);
     }
 }

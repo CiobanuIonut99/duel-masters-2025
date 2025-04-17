@@ -31,7 +31,7 @@ public class ValidatorUtil {
                 checkAtLeastOneCardSameCivilizationPresent(selectedManaCards, cardToBeSummoned);
     }
 
-    public static Boolean battleZoneHasAtLeastOneBlocker(List<CardDto> battleZone) {
+    public static boolean battleZoneHasAtLeastOneBlocker(List<CardDto> battleZone) {
         return battleZone
                 .stream()
                 .anyMatch(cardDto -> cardDto.getSpecialAbility().equalsIgnoreCase("BLOCKER") &&
