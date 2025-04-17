@@ -115,6 +115,7 @@ public class SpecificActionsService {
         CardsDto ownCards;
         List<CardDto> ownBattleZone;
         List<CardDto> ownGraveyard;
+        List<CardDto> ownShields;
 
         CardsDto opponentCards;
         List<CardDto> opponentShields;
@@ -124,6 +125,9 @@ public class SpecificActionsService {
 
         String targetId;
         String attackerId;
+
+        CardDto attackerCard;
+        CardDto targetCard;
 
         if (incomingState.isOpponentHasSelectedBlocker()) {
 
@@ -138,8 +142,8 @@ public class SpecificActionsService {
             targetId = incomingState.getTargetId();
             attackerId = currentState.getAttackerId();
 
-            var attackerCard = getCardDtoFromList(opponentBattleZone, attackerId);
-            var targetCard = getCardDtoFromList(ownBattleZone, targetId);
+            attackerCard = getCardDtoFromList(opponentBattleZone, attackerId);
+            targetCard = getCardDtoFromList(ownBattleZone, targetId);
 
             attack(ownBattleZone, targetId, ownGraveyard, attackerCard, targetCard, opponentBattleZone, attackerId, opponentGraveyard);
             targetCard.setTapped(true);
@@ -153,6 +157,7 @@ public class SpecificActionsService {
             ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
             ownBattleZone = ownCards.getBattleZone();
             ownGraveyard = ownCards.getGraveyard();
+            ownShields = ownCards.getShields();
 
             opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
             opponentShields = opponentCards.getShields();
@@ -163,15 +168,20 @@ public class SpecificActionsService {
             if (currentState.isOpponentHasBlocker()) {
                 targetId = currentState.getTargetId();
                 attackerId = currentState.getAttackerId();
+
+                attackerCard = getCardDtoFromList(opponentBattleZone, attackerId);
+                targetCard = currentState.isTargetShield() ? getCardDtoFromList(ownShields, targetId) : getCardDtoFromList(ownBattleZone, targetId);
             } else {
                 targetId = incomingState.getTargetId();
                 attackerId = incomingState.getAttackerId();
+
+                attackerCard = getCardDtoFromList(ownBattleZone, attackerId);
+                targetCard = incomingState.isTargetShield() ? getCardDtoFromList(opponentShields, targetId) : getCardDtoFromList(opponentBattleZone, targetId);
+
+                currentState.setTargetShield(incomingState.isTargetShield());
             }
             currentState.setAttackerId(attackerId);
             currentState.setTargetId(targetId);
-
-            var attackerCard = getCardDtoFromList(ownBattleZone, attackerId);
-            var targetCard = incomingState.isTargetShield() ? getCardDtoFromList(opponentShields, targetId) : getCardDtoFromList(opponentBattleZone, targetId);
 
             if (attackerCard.isCanAttack() && targetCard.isCanBeAttacked()) {
 
