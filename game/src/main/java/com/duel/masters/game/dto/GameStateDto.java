@@ -41,7 +41,7 @@ public class GameStateDto {
 
     private boolean targetShield;
     private boolean opponentHasBlocker;
-    private boolean opponentHasSelectedBlocker;
+    private boolean hasSelectedBlocker;
     private boolean alreadyMadeADecision;
 
     private String action;

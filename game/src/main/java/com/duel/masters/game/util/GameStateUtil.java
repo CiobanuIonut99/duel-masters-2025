@@ -52,7 +52,7 @@ public class GameStateUtil {
                 .playerTopic(topic)
                 .playedMana(gameStateDto.isPlayedMana())
                 .opponentHasBlocker(gameStateDto.isOpponentHasBlocker())
-                .opponentHasSelectedBlocker(gameStateDto.isOpponentHasSelectedBlocker())
+                .hasSelectedBlocker(gameStateDto.isHasSelectedBlocker())
                 .attackerId(gameStateDto.getAttackerId())
                 .build();
 
@@ -83,7 +83,7 @@ public class GameStateUtil {
                 .playerTopic(topic)
                 .playedMana(gameStateDto.isPlayedMana())
                 .opponentHasBlocker(gameStateDto.isOpponentHasBlocker())
-                .opponentHasSelectedBlocker(gameStateDto.isOpponentHasSelectedBlocker())
+                .hasSelectedBlocker(gameStateDto.isHasSelectedBlocker())
                 .attackerId(gameStateDto.getAttackerId())
                 .build();
     }
