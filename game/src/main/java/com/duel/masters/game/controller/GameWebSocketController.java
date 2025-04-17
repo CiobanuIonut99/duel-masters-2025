@@ -29,4 +29,10 @@ public class GameWebSocketController {
         log.info("gameStateDto: {}", payload);
         gameLogicService.doAction(payload);
     }
+
+    @MessageMapping("/game/player/ready")
+    public void playerReady(@Payload Map<String, Object> payload) {
+        log.info("gameStateDto: {}", payload);
+        gameLogicService.doAction(payload);
+    }
 }

@@ -81,6 +81,7 @@ public class DeckService {
         }
         assignGameCardId(deck);
         shuffleCards(deck);
+
 //        var  dm01 = getDM01();
 //
 //        var hunterFish = new CardDto();
@@ -93,12 +94,8 @@ public class DeckService {
 //        for(int i = 0; i < deck.size(); i++){
 //            deckCopy.add(hunterFish);
 //        }
-
-
-
-
-
 //        assignGameCardId(deckCopy);
+
         return
                 DeckDto
                         .builder()

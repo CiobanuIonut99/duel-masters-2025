@@ -189,9 +189,11 @@ public class SpecificActionsService {
                         targetCard.setCanBeAttacked(false);
                         targetCard.setShield(false);
                         playCard(opponentShields, targetId, opponentHand);
+                        currentState.setOpponentHasBlocker(false);
                     } else {
                         currentState.setOpponentHasSelectedBlocker(false);
                         attack(opponentBattleZone, targetId, opponentGraveyard, attackerCard, targetCard, ownBattleZone, attackerId, ownGraveyard);
+                        currentState.setOpponentHasBlocker(false);
                     }
                 }
                 topicService.sendGameStatesToTopics(currentState);
