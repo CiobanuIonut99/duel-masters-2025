@@ -54,6 +54,7 @@ public class GameStateUtil {
                 .opponentHasBlocker(gameStateDto.isOpponentHasBlocker())
                 .opponentHasSelectedBlocker(gameStateDto.isOpponentHasSelectedBlocker())
                 .attackerId(gameStateDto.getAttackerId())
+                .alreadyMadeADecision(gameStateDto.isAlreadyMadeADecision())
                 .build();
 
 
@@ -85,6 +86,7 @@ public class GameStateUtil {
                 .opponentHasBlocker(gameStateDto.isOpponentHasBlocker())
                 .opponentHasSelectedBlocker(gameStateDto.isOpponentHasSelectedBlocker())
                 .attackerId(gameStateDto.getAttackerId())
+                .alreadyMadeADecision(gameStateDto.isAlreadyMadeADecision())
                 .build();
     }
 
