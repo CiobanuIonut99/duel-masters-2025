@@ -77,7 +77,10 @@ public class BlockService {
                         currentState
                 );
                 currentState.setOpponentHasBlocker(false);
+
             }
+
+            topicService.sendGameStatesToTopics(currentState);
         }
     }
 }

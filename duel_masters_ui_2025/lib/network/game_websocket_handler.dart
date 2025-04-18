@@ -204,12 +204,16 @@ class GameWebSocketHandler {
   void confirmNoBlocker({
     required String? gameId,
     required String? action,
+    required int playerId,
+    required int? currentTurnPlayerId,
     required void Function() onSuccess,
   }) {
     if (!stompClient.connected) return;
     final payload = {
       "gameId": gameId,
       "action": action,
+      "playerId": currentPlayerId,
+      "currentTurnPlayerId": currentTurnPlayerId,
       "hasSelectedBlocker": false,
     };
     stompClient.send(
