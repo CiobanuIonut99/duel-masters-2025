@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
@@ -14,6 +15,7 @@ class GameWebSocketHandler {
   final int currentPlayerId;
   final GameStateCallback onGameStateUpdate;
   final void Function(String gameId, String playerTopic) onMatchFound;
+  final void Function()? onConnected;
 
   late final StompClient stompClient;
 
@@ -22,12 +24,16 @@ class GameWebSocketHandler {
     required this.currentPlayerId,
     required this.onGameStateUpdate,
     required this.onMatchFound,
+    required this.onConnected,
   }) {
     stompClient = StompClient(
       config: StompConfig(
         url: url,
         onConnect: _onConnect,
         onWebSocketError: (dynamic error) => print('WebSocket Error: $error'),
+        heartbeatOutgoing: Duration(seconds: 10), // 🫀 send heartbeat every 10s
+        heartbeatIncoming: Duration(seconds: 10), // 🫀 expect heartbeat every 10s
+
       ),
     );
   }
@@ -41,7 +47,12 @@ class GameWebSocketHandler {
   }
 
   void _onConnect(StompFrame frame) {
+    isConnected = true;
     print("✅ Connected to WebSocket");
+
+    if (onConnected != null) {
+      onConnected!();
+    }
 
     stompClient.subscribe(
       destination: '/topic/matchmaking',
@@ -73,6 +84,40 @@ class GameWebSocketHandler {
     if (stompClient.connected) {
       stompClient.send(destination: destination, body: jsonEncode(payload));
     }
+  }
+
+  bool isConnected = false;
+
+  void waitAndSearchForMatch({
+    required List<CardModel> hand,
+    required List<CardModel> shields,
+    required List<CardModel> deck,
+    required VoidCallback onSearching,
+  }) {
+    if (isConnected) {
+      searchForMatch(
+        hand: hand,
+        shields: shields,
+        deck: deck,
+        onSearching: onSearching,
+      );
+      return;
+    }
+
+    print("⏳ Waiting for WebSocket to connect...");
+
+    Timer.periodic(Duration(milliseconds: 200), (timer) {
+      if (isConnected) {
+        timer.cancel();
+        print("✅ WebSocket connected! Searching for match...");
+        searchForMatch(
+          hand: hand,
+          shields: shields,
+          deck: deck,
+          onSearching: onSearching,
+        );
+      }
+    });
   }
 
   void searchForMatch({
@@ -219,7 +264,8 @@ class GameWebSocketHandler {
     stompClient.send(
       destination: '/duel-masters/game/action',
       body: jsonEncode(payload),
-    );}
+    );
+  }
 
   void attackShieldOrCreature({
     required String? gameId,

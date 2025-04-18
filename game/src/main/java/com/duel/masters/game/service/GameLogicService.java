@@ -17,7 +17,7 @@ public class GameLogicService {
     private final ActionsService actionsService;
     private final GameStateStore gameStateStore;
 
-    public void doAction(Map<String, Object> payload) {
+    public void act(Map<String, Object> payload) {
         var incomingState = convertToGameStateDto(payload);
         var currentState = gameStateStore.getGameState(incomingState.getGameId());
 

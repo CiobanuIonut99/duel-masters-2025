@@ -42,17 +42,6 @@ public class GameService {
                             var gameStateOpponent = getGameStateDto(gameId, opponent, player, !isPlayer1Chosen, PLAYER_2_TOPIC);
                             var gameStates = List.of(gameStatePlayer, gameStateOpponent);
 
-//                            for (int i = 0; i < gameStatePlayer.getPlayerHand().size(); i++) {
-//                                gameStatePlayer.getOpponentHand().get(i).setManaCost(1);
-//                                gameStatePlayer.getOpponentHand().get(i).setCivilization("DARKNESS");
-//                                gameStatePlayer.getOpponentHand().get(i).setCanAttack(true);
-//
-//                                var cardTobeadded = gameStatePlayer.getPlayerDeck().remove(i);
-//                                cardTobeadded.setCanBeAttacked(true);
-//                                gameStatePlayer.getPlayerShields().get(i).setCanBeAttacked(true);
-//                                gameStatePlayer.getPlayerBattleZone().add(cardTobeadded);
-//                            }
-
                             gameStateStore.saveGameState(gameStatePlayer);
                             simpMessagingTemplate.convertAndSend(MATCHMAKING_TOPIC, gameStates);
 
