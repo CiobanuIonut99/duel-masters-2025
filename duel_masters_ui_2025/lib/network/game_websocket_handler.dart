@@ -193,7 +193,7 @@ class GameWebSocketHandler {
       "attackerId": attackerId,
       "targetId": targetId,
       "targetShield": targetShield,
-      "opponentHasSelectedBlocker": true,
+      "hasSelectedBlocker": true,
     };
     stompClient.send(
       destination: '/duel-masters/game/action',
@@ -210,7 +210,7 @@ class GameWebSocketHandler {
     final payload = {
       "gameId": gameId,
       "action": action,
-      "opponentHasSelectedBlocker": false,
+      "hasSelectedBlocker": false,
     };
     stompClient.send(
       destination: '/duel-masters/game/action',

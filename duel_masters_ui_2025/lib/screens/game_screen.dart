@@ -99,7 +99,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     fxGame = FxGame();
 
     wsHandler = GameWebSocketHandler(
-      url: 'wss://365b-213-170-209-87.ngrok-free.app/duel-masters-ws',
+      url: 'wss://eaea-5-12-128-179.ngrok-free.app/duel-masters-ws',
       currentPlayerId: currentPlayerId,
       onMatchFound: (gameId, playerTopic) {
         setState(() {
@@ -127,7 +127,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     print("Fetching game data from the backend...");
 
     final response = await http.get(
-      Uri.parse('https://365b-213-170-209-87.ngrok-free.app/api/games'),
+      Uri.parse('https://eaea-5-12-128-179.ngrok-free.app/api/games'),
     );
 
     if (response.statusCode == 200) {
@@ -809,7 +809,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
                       wsHandler.confirmNoBlocker(
                         gameId: currentGameId,
-                        action: "ATTACK",
+                        action: "BLOCK",
                         onSuccess: () => _cancelAttackSelection(),
                       );
                     },
@@ -832,7 +832,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       gameId: currentGameId,
       playerId: currentPlayerId,
       currentTurnPlayerId: currentTurnPlayerId,
-      action: "ATTACK",
+      action: "BLOCK",
       attackerId: "",
       targetId: blocker.gameCardId,
       targetShield: false,

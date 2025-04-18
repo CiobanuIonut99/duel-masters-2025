@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.duel.masters.game.util.ValidatorUtil.isSummonable;
+
 @Slf4j
 public class CardsDtoUtil {
     public static CardsDto getCardsDto(List<CardDto> hand,
@@ -62,15 +64,15 @@ public class CardsDtoUtil {
                 .toList();
     }
 
-    public static void setCreaturesAttackable(List<CardDto> cards) {
+    public static void setOpponentsCreaturesAttackable(List<CardDto> cards) {
         cards.stream().filter(CardDto::isTapped).forEach(cardDto -> cardDto.setCanBeAttacked(true));
     }
 
-    public static void setCreaturesCanAttack(List<CardDto> cards) {
+    public static void setOpponentsCreaturesCanAttack(List<CardDto> cards) {
         cards.forEach(cardDto -> cardDto.setCanAttack(true));
     }
 
-    public static void untapCards(List<CardDto> cards) {
+    public static void untapOpponentsCards(List<CardDto> cards) {
         cards.forEach(card -> card.setTapped(false));
     }
 
@@ -78,10 +80,38 @@ public class CardsDtoUtil {
         cards.forEach(card -> card.setTapped(true));
     }
 
-    public static void cureSickness(List<CardDto> cards) {
+    public static void cureOpponentsCreaturesSickness(List<CardDto> cards) {
         cards
                 .stream()
                 .filter(CardDto::isSummoningSickness)
                 .forEach(cardDto -> cardDto.setSummoningSickness(false));
     }
+
+    public static void setCardsSummonable(List<CardDto> manaZone, List<CardDto> hand) {
+        if (!manaZone.isEmpty()) {
+            for (CardDto cardDto : hand) {
+                cardDto.setSummonable(isSummonable(manaZone, cardDto));
+            }
+        }
+    }
+
+    public static void playCard(List<CardDto> source, String triggeredGameCardId, List<CardDto> destination) {
+        source
+                .stream()
+                .filter(cardDto -> cardDto.getGameCardId().equals(triggeredGameCardId))
+                .findFirst()
+                .ifPresent(cardDto -> {
+                    destination.add(cardDto);
+                    source.remove(cardDto);
+                });
+    }
+
+    public static void opponentDrawsCard(List<CardDto> deck, List<CardDto> hand) {
+        var card = deck.getFirst();
+        hand.add(card);
+        deck.remove(card);
+        log.info("Opponent draws card");
+    }
+
+
 }

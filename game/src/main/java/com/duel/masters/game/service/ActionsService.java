@@ -10,24 +10,31 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ActionsService {
 
-    private final TopicService topicService;
-    private final SpecificActionsService specificActionsService;
+    private final TurnService turnService;
+    private final AttackService attackService;
+    private final BlockService blockService;
+    private final SummonToManaService summonToManaService;
+    private final SummonToBattleZoneService summonToBattleZoneService;
 
-    public void endTurn(GameStateDto currentState, GameStateDto incomingState) {
-        specificActionsService.endTurn(currentState, incomingState);
-        topicService.sendGameStatesToTopics(currentState);
+    public void attack(GameStateDto currentState, GameStateDto incomingState) {
+        attackService.attack(currentState, incomingState);
     }
 
-    public void sendCardToMana(GameStateDto currentState, GameStateDto incomingState) {
-        specificActionsService.setCardToSendInManaZone(currentState, incomingState);
-        topicService.sendGameStatesToTopics(currentState);
+    public void block(GameStateDto currentState, GameStateDto incomingState) {
+        blockService.block(currentState, incomingState);
+    }
+
+    public void summonCardToManaZone(GameStateDto currentState, GameStateDto incomingState) {
+        summonToManaService.sendCardInManaZone(currentState, incomingState);
     }
 
     public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingState) {
-        specificActionsService.summonToBattleZone(currentState, incomingState);
+        summonToBattleZoneService.summonToBattleZone(currentState, incomingState);
     }
 
-    public void attack(GameStateDto currentState, GameStateDto incomingState) {
-        specificActionsService.doAttack(currentState, incomingState);
+
+    public void endTurn(GameStateDto currentState, GameStateDto incomingState) {
+        turnService.endTurn(currentState, incomingState);
     }
+
 }
