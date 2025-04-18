@@ -66,6 +66,7 @@ public class BlockService {
                 targetCard.setCanBeAttacked(false);
                 targetCard.setShield(false);
                 currentState.setOpponentHasBlocker(false);
+                currentState.setAlreadyMadeADecision(false);
             } else {
                 attackService.attackCreature(
                         attackerCard,
