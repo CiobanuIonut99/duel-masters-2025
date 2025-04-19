@@ -16,6 +16,8 @@ public class SolarRayEffect implements ShieldTriggerEffect {
         var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
 
         var opponentCardIdToBeTapped = incomingState.getTriggeredGameCardId();
+        var attackerId = currentState.getAttackerId();
+        var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
 
         if (currentState.isAlreadyMadeADecision()) {
 
@@ -24,6 +26,9 @@ public class SolarRayEffect implements ShieldTriggerEffect {
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
             currentState.setAlreadyMadeADecision(false);
             currentState.setMustSelectCreature(false);
+            attackerCard.setTapped(true);
+            attackerCard.setCanBeAttacked(true);
+            attackerCard.setCanAttack(false);
 
         } else {
 
@@ -38,11 +43,13 @@ public class SolarRayEffect implements ShieldTriggerEffect {
                         .filter(Objects::nonNull)
                         .forEach(opponentSelectableCreatures::add);
 
-
                 if (opponentSelectableCreatures.isEmpty()) {
                     playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
                     currentState.setMustSelectCreature(false);
                     currentState.setAlreadyMadeADecision(false);
+                    attackerCard.setTapped(true);
+                    attackerCard.setCanBeAttacked(true);
+                    attackerCard.setCanAttack(false);
 
                 } else {
                     currentState.setMustSelectCreature(true);
