@@ -106,11 +106,10 @@ public class CardsDtoUtil {
                 });
     }
 
-    public static void opponentDrawsCard(List<CardDto> deck, List<CardDto> hand) {
+    public static void drawCard(List<CardDto> deck, List<CardDto> hand) {
         var card = deck.getFirst();
         hand.add(card);
         deck.remove(card);
-        log.info("Opponent draws card");
     }
 
 

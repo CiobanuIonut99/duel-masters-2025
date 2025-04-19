@@ -25,7 +25,7 @@ public class TurnService {
 
         currentState.setPlayedMana(false);
         currentState.setCurrentTurnPlayerId(incomingState.getOpponentId());
-        opponentDrawsCard(opponentDeck, opponentHand);
+        drawCard(opponentDeck, opponentHand);
         untapOpponentsCards(opponentManaZone);
         untapOpponentsCards(opponentBattleZone);
         setCardsSummonable(opponentManaZone, opponentHand);

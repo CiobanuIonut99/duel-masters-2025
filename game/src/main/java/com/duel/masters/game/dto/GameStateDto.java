@@ -17,17 +17,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-
 public class GameStateDto {
 
     private String gameId;
-    private String triggeredGameCardId;
-    private String attackerId;
     private String targetId;
+    private String attackerId;
+    private String triggeredGameCardId;
     private List<String> triggeredGameCardIds;
 
     private Long playerId;
     private Long opponentId;
+    private Long currentTurnPlayerId;
 
     private String playerName;
     private String opponentName;
@@ -37,21 +37,19 @@ public class GameStateDto {
 
     private String playerTopic;
 
-    private Long currentTurnPlayerId;
-
     private boolean targetShield;
-
     private boolean shieldTrigger;
     private boolean usingShieldTrigger;
+    private CardDto shieldTriggerCard;
 
     private boolean opponentHasBlocker;
     private boolean hasSelectedBlocker;
 
     private boolean alreadyMadeADecision;
 
-    private CardDto shieldTriggerCard;
     private String action;
     private boolean mustSelectCreature;
+
     @Builder.Default
     private List<CardDto> opponentSelectableCreatures = new CopyOnWriteArrayList<>();
     @Builder.Default

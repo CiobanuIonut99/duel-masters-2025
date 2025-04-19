@@ -737,6 +737,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildCreatureSelectionOverlay() {
+    final isMyCreature = currentTurnPlayerId != currentPlayerId;
+
     return Positioned.fill(
       child: Container(
         color: Colors.black.withOpacity(0.7), // Dim background
@@ -753,13 +755,31 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Select a creature",
+                  isMyCreature
+                  ? "Select a creature"
+                  :
+                  "Opponent is selecting a creature from your battlezone to tap",
                   style: TextStyle(color: Colors.orangeAccent, fontSize: 20),
                 ),
                 SizedBox(height: 8),
                 Text(
-                  "Choose one of the opponent's creatures to continue.",
+                  isMyCreature
+                  ? "Choose one of the opponent's creatures to continue."
+                  : "Waiting for opponent's move...",
                   style: TextStyle(color: Colors.white70),
+                ),
+                if(isMyCreature)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    shieldTriggerCard!.ability ?? "",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
                 ),
                 SizedBox(height: 16),
 

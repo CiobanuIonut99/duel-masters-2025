@@ -13,30 +13,11 @@ public class SolarRayEffect implements ShieldTriggerEffect {
     public void execute(GameStateDto currentState, GameStateDto incomingState, CardsUpdateService cardsUpdateService) {
 
         var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
-        var opponentCardIdToBeTapped = incomingState.getTriggeredGameCardId();
         var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
 
-        if (opponentCardIdToBeTapped == null && !currentState.isAlreadyMadeADecision()) {
+        var opponentCardIdToBeTapped = incomingState.getTriggeredGameCardId();
 
-            var opponentSelectableCreatures = currentState.getOpponentSelectableCreatures();
-            opponentCards
-                    .getBattleZone()
-                    .stream()
-                    .filter(cardDto -> cardDto.getType().equalsIgnoreCase("Creature"))
-                    .filter(Objects::nonNull)
-                    .forEach(opponentSelectableCreatures::add);
-
-
-            if (opponentSelectableCreatures.isEmpty()) {
-                playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
-                currentState.setMustSelectCreature(false);
-
-            } else {
-                currentState.setMustSelectCreature(true);
-                currentState.setAlreadyMadeADecision(true);
-            }
-
-        } else {
+        if (currentState.isAlreadyMadeADecision()) {
 
             var opponentCardToBeTapped = getCardDtoFromList(opponentCards.getBattleZone(), opponentCardIdToBeTapped);
             opponentCardToBeTapped.setTapped(true);
@@ -44,6 +25,31 @@ public class SolarRayEffect implements ShieldTriggerEffect {
             currentState.setAlreadyMadeADecision(false);
             currentState.setMustSelectCreature(false);
 
+        } else {
+
+            if (opponentCardIdToBeTapped == null) {
+
+                var opponentSelectableCreatures = currentState.getOpponentSelectableCreatures();
+                opponentSelectableCreatures.clear();
+                opponentCards
+                        .getBattleZone()
+                        .stream()
+                        .filter(cardDto -> cardDto.getType().equalsIgnoreCase("Creature"))
+                        .filter(Objects::nonNull)
+                        .forEach(opponentSelectableCreatures::add);
+
+
+                if (opponentSelectableCreatures.isEmpty()) {
+                    playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
+                    currentState.setMustSelectCreature(false);
+                    currentState.setAlreadyMadeADecision(false);
+
+                } else {
+                    currentState.setMustSelectCreature(true);
+                    currentState.setAlreadyMadeADecision(true);
+                }
+
+            }
         }
 
 
