@@ -32,6 +32,7 @@ public class GameLogicService {
             case SUMMON_TO_BATTLE_ZONE -> actionsService.summonToBattleZone(currentState, incomingState);
             case END_TURN -> actionsService.endTurn(currentState, incomingState);
             case BLOCK -> actionsService.block(currentState, incomingState);
+            case CAST_SHIELD_TRIGGER -> actionsService.triggerShieldTriggerLogic(currentState, incomingState);
         }
     }
 

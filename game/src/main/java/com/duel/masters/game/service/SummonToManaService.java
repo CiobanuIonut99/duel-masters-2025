@@ -17,7 +17,7 @@ public class SummonToManaService {
     private final TopicService topicService;
     private final CardsUpdateService cardsUpdateService;
 
-    public void sendCardInManaZone(GameStateDto currentState, GameStateDto incomingState) {
+    public void summonCardToManaZone(GameStateDto currentState, GameStateDto incomingState) {
         if (!currentState.isPlayedMana()) {
             var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
             playCard(ownCards.getHand(), incomingState.getTriggeredGameCardId(), ownCards.getManaZone());

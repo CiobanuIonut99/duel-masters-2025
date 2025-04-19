@@ -46,6 +46,52 @@ public class InitialStateService {
         var shields = get5Cards(deck);
         var hand = get5Cards(deck);
 
+        var holyAwe = new CardDto();
+
+        boolean foundInHand = false;
+        boolean foundInDeck = false;
+
+        for (var shield : shields) {
+            if (shield.getId() == 16) {
+                continue;
+            }
+        }
+
+        for (var card : hand) {
+            if (card.getId() == 16) {
+                holyAwe = card;
+                foundInHand = true;
+            }
+        }
+        for (var deckCard : deck) {
+            if (deckCard.getId() == 16) {
+                holyAwe = deckCard;
+                foundInDeck = true;
+            }
+        }
+
+        if (foundInHand) {
+            var cardRemovedFromShield = shields.removeFirst();
+            shields.add(holyAwe);
+
+            hand.remove(holyAwe);
+            hand.add(cardRemovedFromShield);
+
+        }
+
+        if (foundInDeck) {
+            var cardRemovedFromShield = shields.removeFirst();
+            shields.add(holyAwe);
+
+            deck.remove(holyAwe);
+            deck.add(cardRemovedFromShield);
+
+        }
+
+        log.info("Deck has {} cards", deck.size());
+        log.info("Shields has {} cards", shields.size());
+        log.info("Hand has {} cards", hand.size());
+
         log.info("Start getInitialState in GameService \n");
         log.info("Deck: {}",
                 new ObjectMapper()

@@ -49,15 +49,19 @@ public class AttackService {
                 currentState.setOpponentHasBlocker(true);
                 currentState.setAlreadyMadeADecision(true);
             } else {
-
                 if (targetCard.isShield()) {
-                    playCard(opponentShields, targetId, opponentHand);
-                    log.info("target was shield : {}", targetCard.getName());
-                    attackerCard.setTapped(true);
-                    attackerCard.setCanAttack(false);
-                    targetCard.setCanBeAttacked(false);
-                    targetCard.setShield(false);
-                    currentState.setOpponentHasBlocker(false);
+                    if (targetCard
+                            .getSpecialAbility().
+                            equalsIgnoreCase("SHIELD_TRIGGER")) {
+                        currentState.setShieldTrigger(true);
+                    } else {
+                        attackShield(currentState,
+                                opponentShields,
+                                targetId,
+                                opponentHand,
+                                targetCard,
+                                attackerCard);
+                    }
                 } else {
                     attackCreature(
                             attackerCard,
@@ -74,6 +78,22 @@ public class AttackService {
             topicService.sendGameStatesToTopics(currentState);
         }
 
+    }
+
+    public void attackShield(GameStateDto currentState,
+                             List<CardDto> opponentShields,
+                             String targetId,
+                             List<CardDto> opponentHand,
+                             CardDto targetCard,
+                             CardDto attackerCard) {
+
+        playCard(opponentShields, targetId, opponentHand);
+        log.info("target was shield : {}", targetCard.getName());
+        attackerCard.setTapped(true);
+        attackerCard.setCanAttack(false);
+        targetCard.setCanBeAttacked(false);
+        targetCard.setShield(false);
+        currentState.setOpponentHasBlocker(false);
     }
 
     public void attackCreature(CardDto attackerCard,

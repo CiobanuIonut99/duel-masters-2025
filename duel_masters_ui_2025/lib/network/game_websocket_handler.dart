@@ -31,9 +31,11 @@ class GameWebSocketHandler {
         url: url,
         onConnect: _onConnect,
         onWebSocketError: (dynamic error) => print('WebSocket Error: $error'),
-        heartbeatOutgoing: Duration(seconds: 10), // 🫀 send heartbeat every 10s
-        heartbeatIncoming: Duration(seconds: 10), // 🫀 expect heartbeat every 10s
-
+        heartbeatOutgoing: Duration(seconds: 10),
+        // 🫀 send heartbeat every 10s
+        heartbeatIncoming: Duration(
+          seconds: 10,
+        ), // 🫀 expect heartbeat every 10s
       ),
     );
   }
@@ -212,6 +214,50 @@ class GameWebSocketHandler {
       "opponentId": opponentId,
       "currentTurnPlayerId": currentTurnPlayerId,
       "action": "END_TURN",
+    };
+    stompClient.send(
+      destination: '/duel-masters/game/action',
+      body: jsonEncode(payload),
+    );
+  }
+
+  void useShieldTriggerCard({
+    required String? gameId,
+    required int playerId,
+    required int? currentTurnPlayerId,
+    required String? action,
+    required usingShieldTrigger,
+    required Null Function() onSuccess,
+  }) {
+    if (!stompClient.connected) return;
+    final payload = {
+      "gameId": gameId,
+      "playerId": currentPlayerId,
+      "currentTurnPlayerId": currentTurnPlayerId,
+      "action": action,
+      "usingShieldTrigger": usingShieldTrigger,
+    };
+    stompClient.send(
+      destination: '/duel-masters/game/action',
+      body: jsonEncode(payload),
+    );
+  }
+
+  void doNotUseShieldTriggerCard({
+    required String? gameId,
+    required int playerId,
+    required int? currentTurnPlayerId,
+    required String? action,
+    required usingShieldTrigger,
+    required Null Function() onSuccess,
+  }) {
+    if (!stompClient.connected) return;
+    final payload = {
+      "gameId": gameId,
+      "playerId": currentPlayerId,
+      "currentTurnPlayerId": currentTurnPlayerId,
+      "action": action,
+      "usingShieldTrigger": usingShieldTrigger,
     };
     stompClient.send(
       destination: '/duel-masters/game/action',

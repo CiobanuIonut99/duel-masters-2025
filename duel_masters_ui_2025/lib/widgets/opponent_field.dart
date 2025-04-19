@@ -93,7 +93,8 @@ class OpponentField extends StatelessWidget {
             _buildZoneContainer(
               label: "Opponent Shields",
               cards: shields,
-              hideCardFaces: true,
+              hideCardFaces: false,
+              // hideCardFaces: true,
               onConfirmAttack: (shield) {
                 if (isSelectingAttackTarget && selectedAttacker != null) {
                   onConfirmAttack(shield);

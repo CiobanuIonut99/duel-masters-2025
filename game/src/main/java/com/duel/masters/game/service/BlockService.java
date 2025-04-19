@@ -59,14 +59,29 @@ public class BlockService {
             var targetCard = currentState.isTargetShield() ? getCardDtoFromList(ownShields, targetId) : getCardDtoFromList(ownBattleZone, targetId);
 
             if (targetCard.isShield()) {
-                playCard(ownShields, targetId, ownHand);
-                log.info("target was shield : {}", targetCard.getName());
-                attackerCard.setTapped(true);
-                attackerCard.setCanAttack(false);
-                targetCard.setCanBeAttacked(false);
-                targetCard.setShield(false);
-                currentState.setOpponentHasBlocker(false);
-                currentState.setAlreadyMadeADecision(false);
+                if (targetCard.getSpecialAbility().equalsIgnoreCase("SHIELD_TRIGGER")) {
+                    currentState.setShieldTrigger(true);
+                } else {
+//                    attackService.attackShield(
+//                            currentState,
+//                            ownShields,
+//                            targetId,
+//                            ownHand,
+//                            targetCard,
+//                            attackerCard
+//                    );
+
+                    playCard(ownShields, targetId, ownHand);
+                    log.info("target was shield : {}", targetCard.getName());
+                    attackerCard.setTapped(true);
+                    attackerCard.setCanAttack(false);
+                    targetCard.setCanBeAttacked(false);
+                    targetCard.setShield(false);
+                    currentState.setOpponentHasBlocker(false);
+
+                    currentState.setAlreadyMadeADecision(false);
+                    currentState.setShieldTrigger(false);
+                }
             } else {
                 attackService.attackCreature(
                         attackerCard,

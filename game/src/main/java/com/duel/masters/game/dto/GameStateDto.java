@@ -40,8 +40,13 @@ public class GameStateDto {
     private Long currentTurnPlayerId;
 
     private boolean targetShield;
+
+    private boolean shieldTrigger;
+    private boolean usingShieldTrigger;
+
     private boolean opponentHasBlocker;
     private boolean hasSelectedBlocker;
+
     private boolean alreadyMadeADecision;
 
     private String action;

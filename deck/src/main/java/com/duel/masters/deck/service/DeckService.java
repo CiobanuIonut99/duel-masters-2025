@@ -78,29 +78,28 @@ public class DeckService {
             if (deck.size() >= 40)
                 break;
         }
-        assignGameCardId(deck);
         shuffleCards(deck);
 
-//        var  dm01 = getDM01();
-//
-//        var hunterFish = new CardDto();
-//        for (CardDto cardDto : dm01) {
-//            if(cardDto.getId() == 41){
-//                hunterFish = cardDto;
-//            }
-//        }
-//        List<CardDto> deckCopy = new ArrayList<>();
-//        for(int i = 0; i < deck.size(); i++){
-//            deckCopy.add(hunterFish);
-//        }
-//        assignGameCardId(deckCopy);
 
+
+        var holyawe = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 16)
+                .findFirst()
+                .orElseThrow();
+
+        boolean removed = deck.removeIf(c -> c.getId() == 16);
+
+        if(!removed)
+        deck.removeFirst();
+        deck.add(holyawe);
+
+        assignGameCardId(deck);
         return
                 DeckDto
                         .builder()
                         .name("RANDOM DECK")
                         .id(1)
-//                        .cards(deckCopy)
                         .cards(deck)
                         .build();
     }
@@ -109,7 +108,7 @@ public class DeckService {
         for (int i = 0; i < copiesOfCards; i++) {
             var newCardDto =
                     CardDto
-                    .builder()
+                            .builder()
                             .id(cardDto.getId())
                             .name(cardDto.getName())
                             .type(cardDto.getType())
@@ -120,7 +119,7 @@ public class DeckService {
                             .power(cardDto.getPower())
                             .ability(cardDto.getAbility())
                             .specialAbility(cardDto.getSpecialAbility())
-                    .build();
+                            .build();
             cards.add(newCardDto);
         }
     }
