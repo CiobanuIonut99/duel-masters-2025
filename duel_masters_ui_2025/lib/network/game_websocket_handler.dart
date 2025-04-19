@@ -228,6 +228,7 @@ class GameWebSocketHandler {
     required String? action,
     required usingShieldTrigger,
     required Null Function() onSuccess,
+    String? triggeredGameCardId,
   }) {
     if (!stompClient.connected) return;
     final payload = {
@@ -236,6 +237,7 @@ class GameWebSocketHandler {
       "currentTurnPlayerId": currentTurnPlayerId,
       "action": action,
       "usingShieldTrigger": usingShieldTrigger,
+      "triggeredGameCardId": triggeredGameCardId,
     };
     stompClient.send(
       destination: '/duel-masters/game/action',
@@ -338,4 +340,5 @@ class GameWebSocketHandler {
       body: jsonEncode(payload),
     );
   }
+
 }

@@ -50,8 +50,10 @@ public class GameStateDto {
     private boolean alreadyMadeADecision;
 
     private CardDto shieldTriggerCard;
-
     private String action;
+    private boolean mustSelectCreature;
+    @Builder.Default
+    private List<CardDto> opponentSelectableCreatures = new CopyOnWriteArrayList<>();
     @Builder.Default
     private List<CardDto> playerBattleZone = new CopyOnWriteArrayList<>();
     @Builder.Default

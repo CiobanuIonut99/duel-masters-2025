@@ -86,6 +86,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool animateShieldToHand = false;
   bool tapped = false;
 
+  bool mustSelectCreature = false;
+  List<CardModel> opponentSelectableCreatures = [];
+  CardModel? selectedOpponentCreature;
+
   double hoverScale = 1.0;
 
   StompUnsubscribe? sub1;
@@ -182,6 +186,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void _updateGameState(Map<String, dynamic> responseBody) {
+    mustSelectCreature = responseBody['mustSelectCreature'];
+    opponentSelectableCreatures =
+        (responseBody['opponentSelectableCreatures'] as List? ?? [])
+            .map((c) => CardModel.fromJson(c))
+            .toList();
+
     final newTurnPlayerId = responseBody['currentTurnPlayerId'];
     opponentHasBlocker = responseBody['opponentHasBlocker'];
     shieldTrigger = responseBody['shieldTrigger'];
@@ -196,7 +206,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       shieldTriggerCard = CardModel.fromJson(responseBody['shieldTriggerCard']);
       shieldTrigger = true;
     }
-
 
     setState(() {
       currentTurnPlayerId = newTurnPlayerId;
@@ -687,7 +696,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                         ),
 
                         SizedBox(height: 16),
-                        // _buildBattleZones(),
                         SizedBox(height: 16),
                         PlayerField(
                           isMyTurn: isMyTurn,
@@ -721,7 +729,107 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             ),
             if (opponentHasBlocker) _buildBlockerSelectionOverlay(),
             if (shieldTrigger) _buildShieldTriggerOverlay(),
+            if (mustSelectCreature) _buildCreatureSelectionOverlay(),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCreatureSelectionOverlay() {
+    return Positioned.fill(
+      child: Container(
+        color: Colors.black.withOpacity(0.7), // Dim background
+        child: Center(
+          child: Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.symmetric(horizontal: 24),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade900,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.orangeAccent, width: 2),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Select a creature",
+                  style: TextStyle(color: Colors.orangeAccent, fontSize: 20),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  "Choose one of the opponent's creatures to continue.",
+                  style: TextStyle(color: Colors.white70),
+                ),
+                SizedBox(height: 16),
+
+                // List of selectable creatures
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children:
+                        opponentSelectableCreatures.map((card) {
+                          final isSelected =
+                              selectedOpponentCreature?.gameCardId ==
+                              card.gameCardId;
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedOpponentCreature = card;
+                              });
+                            },
+                            child: Container(
+                              margin: EdgeInsets.symmetric(horizontal: 6),
+                              padding: EdgeInsets.all(isSelected ? 4 : 0),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color:
+                                      isSelected
+                                          ? Colors.orangeAccent
+                                          : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Image.asset(card.imagePath, width: 80),
+                            ),
+                          );
+                        }).toList(),
+                  ),
+                ),
+
+                SizedBox(height: 16),
+
+                ElevatedButton.icon(
+                  onPressed:
+                      selectedOpponentCreature != null
+                          ? () {
+                            wsHandler.useShieldTriggerCard(
+                              gameId: currentGameId,
+                              playerId: currentPlayerId,
+                              currentTurnPlayerId: currentTurnPlayerId,
+                              action: "CAST_SHIELD_TRIGGER",
+                              usingShieldTrigger: true,
+                              triggeredGameCardId: selectedOpponentCreature!.gameCardId,
+                              onSuccess: () {
+                                setState(() {
+                                  shieldTrigger = false;
+                                  shieldTriggerCard = null;
+                                });
+                              },
+                            );
+                          }
+                          : null,
+                  icon: Icon(Icons.check_circle),
+                  label: Text("Confirm Selection"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orangeAccent,
+                    foregroundColor: Colors.black,
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -889,19 +997,19 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                       : "The shield you broke had a trigger. Waiting for response...",
                   style: TextStyle(color: Colors.white70),
                 ),
-                if(isMyShieldTrigger)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    shieldTriggerCard!.ability ?? "",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
+                if (isMyShieldTrigger)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      shieldTriggerCard!.ability ?? "",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ),
-                ),
                 SizedBox(height: 16),
                 Image.asset(shieldTriggerCard!.imagePath, width: 100),
                 if (!isMyShieldTrigger)
@@ -962,7 +1070,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                             },
                           );
                         },
-                        child: Text("Skip", style: TextStyle(color: Colors.redAccent)),
+                        child: Text(
+                          "Skip",
+                          style: TextStyle(color: Colors.redAccent),
+                        ),
                       ),
                     ],
                   ),
@@ -973,7 +1084,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       ),
     );
   }
-
 
   void _confirmBlockerSelection(CardModel blocker) {
     wsHandler.confirmBlockerSelection(

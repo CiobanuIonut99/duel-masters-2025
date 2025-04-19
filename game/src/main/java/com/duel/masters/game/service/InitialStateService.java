@@ -3,6 +3,7 @@ package com.duel.masters.game.service;
 import com.duel.masters.game.dto.InitialStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import com.duel.masters.game.dto.deck.service.DeckDto;
+import com.duel.masters.game.mock.MockService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.List;
 public class InitialStateService {
     private final RestClient.Builder restClientBuilder;
     private final ObjectMapper objectMapper;
+    private final MockService mockService;
 
     public DeckDto getDeckCard() {
         log.info("Start getDeckCard in GameService");
@@ -46,47 +48,8 @@ public class InitialStateService {
         var shields = get5Cards(deck);
         var hand = get5Cards(deck);
 
-        var holyAwe = new CardDto();
-
-        boolean foundInHand = false;
-        boolean foundInDeck = false;
-
-        for (var shield : shields) {
-            if (shield.getId() == 16) {
-                continue;
-            }
-        }
-
-        for (var card : hand) {
-            if (card.getId() == 16) {
-                holyAwe = card;
-                foundInHand = true;
-            }
-        }
-        for (var deckCard : deck) {
-            if (deckCard.getId() == 16) {
-                holyAwe = deckCard;
-                foundInDeck = true;
-            }
-        }
-
-        if (foundInHand) {
-            var cardRemovedFromShield = shields.removeFirst();
-            shields.add(holyAwe);
-
-            hand.remove(holyAwe);
-            hand.add(cardRemovedFromShield);
-
-        }
-
-        if (foundInDeck) {
-            var cardRemovedFromShield = shields.removeFirst();
-            shields.add(holyAwe);
-
-            deck.remove(holyAwe);
-            deck.add(cardRemovedFromShield);
-
-        }
+        mockService.mockShields(deck, shields, hand, 16L);
+        mockService.mockShields(deck, shields, hand, 29L);
 
         log.info("Deck has {} cards", deck.size());
         log.info("Shields has {} cards", shields.size());

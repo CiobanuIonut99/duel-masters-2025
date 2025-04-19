@@ -1,6 +1,7 @@
 package com.duel.masters.game.service;
 
 import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.dto.card.service.CardDto;
 import com.duel.masters.game.effects.ShieldTriggerEffect;
 import com.duel.masters.game.effects.ShieldTriggerRegistry;
 import lombok.AllArgsConstructor;
@@ -31,13 +32,19 @@ public class CastShieldTriggerService {
     }
 
     private void useShieldTrigger(GameStateDto currentState, GameStateDto incomingState) {
-        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
 
+        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
         var shieldTriggerCardId = currentState.getTargetId();
-        var shieldTriggerCard = getCardDtoFromList(ownCards.getShields(), shieldTriggerCardId);
+        var shieldTriggerCard = new CardDto();
+        if (incomingState.getTriggeredGameCardId() == null) {
+            shieldTriggerCard = getCardDtoFromList(ownCards.getShields(), shieldTriggerCardId);
+        } else {
+            shieldTriggerCard = currentState.getShieldTriggerCard();
+        }
 
         ShieldTriggerEffect shieldTriggerEffect = ShieldTriggerRegistry.getShieldTriggerEffect(shieldTriggerCard.getName());
         shieldTriggerEffect.execute(currentState, incomingState, cardsUpdateService);
+
 
     }
 

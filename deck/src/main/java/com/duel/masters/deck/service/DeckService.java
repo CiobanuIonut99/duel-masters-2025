@@ -81,18 +81,29 @@ public class DeckService {
         shuffleCards(deck);
 
 
-
         var holyawe = cardDtoList
                 .stream()
                 .filter(cardDto -> cardDto.getId() == 16)
                 .findFirst()
                 .orElseThrow();
 
-        boolean removed = deck.removeIf(c -> c.getId() == 16);
+        var solarRay = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 29)
+                .findFirst()
+                .orElseThrow();
 
-        if(!removed)
+        boolean removedForHolyawe = deck.removeIf(c -> c.getId() == 16);
+        boolean removedForSolarRay = deck.removeIf(c -> c.getId() == 29);
+
+        if(!removedForHolyawe)
         deck.removeFirst();
         deck.add(holyawe);
+
+
+        if(!removedForSolarRay)
+        deck.removeFirst();
+        deck.add(solarRay);
 
         assignGameCardId(deck);
         return
