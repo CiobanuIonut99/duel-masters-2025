@@ -54,6 +54,7 @@ public class AttackService {
                             .getSpecialAbility().
                             equalsIgnoreCase("SHIELD_TRIGGER")) {
                         currentState.setShieldTrigger(true);
+                        currentState.setShieldTriggerCard(targetCard);
                     } else {
                         attackShield(currentState,
                                 opponentShields,

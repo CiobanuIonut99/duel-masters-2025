@@ -49,6 +49,8 @@ public class GameStateDto {
 
     private boolean alreadyMadeADecision;
 
+    private CardDto shieldTriggerCard;
+
     private String action;
     @Builder.Default
     private List<CardDto> playerBattleZone = new CopyOnWriteArrayList<>();

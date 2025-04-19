@@ -24,6 +24,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - assets/icons/graveyard.png
     - assets/shield/shield_0.png
     - assets/shield/shield_1.png
     - assets/animations/shield/

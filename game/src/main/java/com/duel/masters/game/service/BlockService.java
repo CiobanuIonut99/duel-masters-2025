@@ -63,6 +63,7 @@ public class BlockService {
                     currentState.setShieldTrigger(true);
                     currentState.setOpponentHasBlocker(false);
                     currentState.setAlreadyMadeADecision(false);
+                    currentState.setShieldTriggerCard(targetCard);
                 } else {
                     attackService.attackShield(
                             currentState,

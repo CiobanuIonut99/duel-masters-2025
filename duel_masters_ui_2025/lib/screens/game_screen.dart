@@ -68,6 +68,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   CardModel? selectedAttacker;
   CardModel? selectedTarget;
   CardModel? hoveredCard;
+  CardModel? shieldTriggerCard;
 
   bool isConnected = false;
   late FxGame fxGame;
@@ -190,6 +191,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       final isMyTurn = newTurnPlayerId == currentPlayerId;
       _showTurnBanner(isMyTurn ? "Your Turn" : "Opponent's Turn");
     }
+
+    if (responseBody['shieldTriggerCard'] != null) {
+      shieldTriggerCard = CardModel.fromJson(responseBody['shieldTriggerCard']);
+      shieldTrigger = true;
+    }
+
 
     setState(() {
       currentTurnPlayerId = newTurnPlayerId;
@@ -850,17 +857,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildShieldTriggerOverlay() {
-    // final hasShieldTriggerCard = playerHand.any((c) => c.shieldTrigger == true);
+    if (!shieldTrigger || shieldTriggerCard == null) return SizedBox.shrink();
 
-    // Only show popup if there's an actual card with the Shield Trigger ability
-    if (!shieldTrigger) return SizedBox.shrink();
-
-    // final CardModel? triggerCard = playerHand.firstWhere((c) => c.shieldTrigger == true);
     final isMyShieldTrigger = currentTurnPlayerId != currentPlayerId;
 
     return Positioned.fill(
       child: Container(
-        color: Colors.black.withOpacity(0.7), // dim background
+        color: Colors.black.withOpacity(0.7),
         child: Center(
           child: Container(
             padding: EdgeInsets.all(16),
@@ -876,18 +879,44 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 Text(
                   isMyShieldTrigger
                       ? "Shield Trigger Activated!"
-                      : "Opponent deciding on Shield Trigger",
+                      : "Opponent is deciding on Shield Trigger...",
                   style: TextStyle(color: Colors.cyanAccent, fontSize: 20),
                 ),
                 SizedBox(height: 8),
                 Text(
                   isMyShieldTrigger
                       ? "Do you want to cast this spell for free?"
-                      : "The shield you attacked was a shield trigger. Waiting for opponent's decisions ... ",
+                      : "The shield you broke had a trigger. Waiting for response...",
                   style: TextStyle(color: Colors.white70),
                 ),
+                if(isMyShieldTrigger)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    shieldTriggerCard!.ability ?? "",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
                 SizedBox(height: 16),
-                // Image.asset(triggerCard.imagePath, width: 100),
+                Image.asset(shieldTriggerCard!.imagePath, width: 100),
+                if (!isMyShieldTrigger)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      shieldTriggerCard!.ability ?? "",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
                 SizedBox(height: 16),
                 if (isMyShieldTrigger)
                   Row(
@@ -904,6 +933,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                             onSuccess: () {
                               setState(() {
                                 shieldTrigger = false;
+                                shieldTriggerCard = null;
                               });
                             },
                           );
@@ -927,14 +957,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                             onSuccess: () {
                               setState(() {
                                 shieldTrigger = false;
+                                shieldTriggerCard = null;
                               });
                             },
                           );
                         },
-                        child: Text(
-                          "Skip",
-                          style: TextStyle(color: Colors.redAccent),
-                        ),
+                        child: Text("Skip", style: TextStyle(color: Colors.redAccent)),
                       ),
                     ],
                   ),
@@ -945,6 +973,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
 
   void _confirmBlockerSelection(CardModel blocker) {
     wsHandler.confirmBlockerSelection(
