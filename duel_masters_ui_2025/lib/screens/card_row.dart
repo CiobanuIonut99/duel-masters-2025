@@ -162,9 +162,9 @@ class _CardRowState extends State<CardRow> {
                               ),
                               IconButton(
                                 icon: Icon(
-                                  LucideIcons.crosshair,
+                                  LucideIcons.swords,
                                   color: Colors.red,
-                                  size: 28,
+                                  size: 30,
                                 ),
                                 onPressed: () => widget.onAttack?.call(card),
                                 splashRadius: 24,
@@ -192,9 +192,9 @@ class _CardRowState extends State<CardRow> {
                               ),
                               IconButton(
                                 icon: Icon(
-                                  LucideIcons.sword,
+                                  LucideIcons.cross,
                                   color: Colors.red,
-                                  size: 28,
+                                  size: 30,
                                 ),
                                 onPressed: () => widget.onConfirmAttack?.call(card),
                                 splashRadius: 24,
@@ -205,14 +205,22 @@ class _CardRowState extends State<CardRow> {
                         ),
                       if (card.summoningSickness)
                         Positioned(
-                          top: 2,
-                          right: 2,
-                          child: Tooltip(
-                            message: "Summoning Sickness",
-                            child: Icon(
-                              LucideIcons.moon, // or any other icon
-                              size: 20,
+                          top: 0,
+                          left: 0,
+                          child: Transform.rotate(
+                            angle: -0.8,
+                            child: Container(
                               color: Colors.deepPurple,
+                              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              child: Text(
+                                "SICK",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
                             ),
                           ),
                         ),
