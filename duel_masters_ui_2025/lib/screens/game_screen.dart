@@ -93,6 +93,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   late StompClient stompClient;
   late final GameWebSocketHandler wsHandler;
 
+  bool get isMyTurn => currentPlayerId == currentTurnPlayerId;
+
   @override
   void initState() {
     super.initState();
@@ -266,7 +268,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void _showTurnBanner(String text) {
-    final isMyTurn = text == "Your Turn";
+    // final isMyTurn = text == "Your Turn";
 
     final overlay = OverlayEntry(
       builder:
@@ -442,6 +444,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void sendToMana(CardModel card) {
+    if (!isMyTurn) {
+      return;
+    }
     if (playedMana) {
       showSnackBar("You can only send one card to mana per turn.");
       return;
@@ -529,6 +534,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void resetTurn() {}
 
   void _startAttackSelection(CardModel attacker) {
+    if (!isMyTurn) return;
     setState(() {
       selectedAttacker = attacker;
       isSelectingAttackTarget = true;
@@ -600,7 +606,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 ),
                 SizedBox(width: 12),
                 ElevatedButton.icon(
-                  onPressed: endTurn,
+                  onPressed: isMyTurn ? endTurn : null,
                   icon: Icon(Icons.refresh),
                   label: Text("End Turn"),
                 ),
@@ -677,6 +683,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                         // _buildBattleZones(),
                         SizedBox(height: 16),
                         PlayerField(
+                          isMyTurn: isMyTurn,
                           hand: playerHand,
                           shields: playerShields,
                           manaZone: playerManaZone,
@@ -867,16 +874,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isMyShieldTrigger ?
-                  "Shield Trigger Activated!"
-                  : "Opponent deciding on Shield Trigger" ,
+                  isMyShieldTrigger
+                      ? "Shield Trigger Activated!"
+                      : "Opponent deciding on Shield Trigger",
                   style: TextStyle(color: Colors.cyanAccent, fontSize: 20),
                 ),
                 SizedBox(height: 8),
                 Text(
                   isMyShieldTrigger
-                   ? "Do you want to cast this spell for free?"
-                  : "The shield you attacked was a shield trigger. Waiting for opponent's decisions ... ",
+                      ? "Do you want to cast this spell for free?"
+                      : "The shield you attacked was a shield trigger. Waiting for opponent's decisions ... ",
                   style: TextStyle(color: Colors.white70),
                 ),
                 SizedBox(height: 16),
@@ -931,7 +938,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                       ),
                     ],
                   ),
-
               ],
             ),
           ),
@@ -1061,6 +1067,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void summonCardWithMana(CardModel card, List<String> selectedManaIds) {
+    if (!isMyTurn) return;
     wsHandler.summonWithMana(
       gameId: currentGameId,
       playerId: currentPlayerId,

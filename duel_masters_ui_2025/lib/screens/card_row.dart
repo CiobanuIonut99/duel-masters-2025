@@ -20,6 +20,7 @@ class CardRow extends StatefulWidget {
   final Set<String> glowingManaCardIds;
   final Set<String> glowAttackableCreatures;
   final bool playedMana;
+  final bool isMyTurn;
 
   const CardRow({
     super.key,
@@ -33,6 +34,7 @@ class CardRow extends StatefulWidget {
     this.onSendToMana,
     this.onConfirmAttack,
     required this.playedMana,
+    required this.isMyTurn,
     this.cardWidth = 60,
     required this.rotate180,
     required this.glowingManaCardIds,
@@ -109,17 +111,39 @@ class _CardRowState extends State<CardRow> {
                                     : card.tapped
                                     ? 0.85
                                     : 1.0,
-                            child: Image.asset(
+                            child: (widget.label.startsWith("Your"))
+                                ? ColorFiltered(
+                              colorFilter: widget.isMyTurn
+                                  ? const ColorFilter.mode(
+                                Colors.transparent,
+                                BlendMode.multiply,
+                              )
+                                  : const ColorFilter.matrix(<double>[
+                                0.2126, 0.7152, 0.0722, 0, 0,
+                                0.2126, 0.7152, 0.0722, 0, 0,
+                                0.2126, 0.7152, 0.0722, 0, 0,
+                                0, 0, 0, 1, 0,
+                              ]),
+                              child: Image.asset(
+                                widget.hideCardFaces
+                                    ? 'assets/cards/0.jpg'
+                                    : card.imagePath,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                                : Image.asset(
                               widget.hideCardFaces
                                   ? 'assets/cards/0.jpg'
                                   : card.imagePath,
                               fit: BoxFit.cover,
                             ),
+
+
                           ),
                         ),
                       ),
 
-                      if (hoveredCard == card && widget.label == "Your Hand")
+                      if (hoveredCard == card && widget.label == "Your Hand" && widget.isMyTurn)
                         Positioned(
                           bottom: -10,
                           child: Row(
@@ -144,7 +168,7 @@ class _CardRowState extends State<CardRow> {
                       if (hoveredCard == card &&
                           widget.label == "Your Battle Zone" &&
                           !card.tapped &&
-                          card.canAttack)
+                          card.canAttack && widget.isMyTurn)
                         Positioned(
                           bottom: -10,
                           child: Column(

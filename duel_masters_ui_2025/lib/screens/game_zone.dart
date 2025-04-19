@@ -57,6 +57,7 @@ class GameZone extends StatelessWidget {
 
   /// Whether player already played a mana this turn
   final bool playedMana;
+  final bool isMyTurn;
 
   const GameZone({
     super.key,
@@ -75,6 +76,7 @@ class GameZone extends StatelessWidget {
     this.glowingManaCardIds = const {},
     this.glowAttackableCreatures = const {},
     this.playedMana = false,
+    this.isMyTurn = false,
   });
 
   @override
@@ -91,6 +93,7 @@ class GameZone extends StatelessWidget {
       onSendToMana: onSendToMana,
       onConfirmAttack: onConfirmAttack,
       playedMana: playedMana,
+      isMyTurn: isMyTurn,
       cardWidth: cardWidth,
       rotate180: rotate180,
       glowingManaCardIds: glowingManaCardIds,

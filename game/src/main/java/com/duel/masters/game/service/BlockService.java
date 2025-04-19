@@ -61,6 +61,8 @@ public class BlockService {
             if (targetCard.isShield()) {
                 if (targetCard.getSpecialAbility().equalsIgnoreCase("SHIELD_TRIGGER")) {
                     currentState.setShieldTrigger(true);
+                    currentState.setOpponentHasBlocker(false);
+                    currentState.setAlreadyMadeADecision(false);
                 } else {
                     attackService.attackShield(
                             currentState,

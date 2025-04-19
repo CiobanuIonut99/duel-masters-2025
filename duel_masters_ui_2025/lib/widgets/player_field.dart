@@ -43,6 +43,7 @@ class PlayerField extends StatelessWidget {
 
   /// Whether player has already sent a card to mana this turn
   final bool playedMana;
+  final bool isMyTurn;
 
   const PlayerField({
     super.key,
@@ -58,6 +59,7 @@ class PlayerField extends StatelessWidget {
     required this.onAttack,
     required this.onSendToManaHandCard,
     required this.playedMana,
+    required this.isMyTurn,
     required this.playerBattleZone,
   });
 
@@ -162,6 +164,7 @@ class PlayerField extends StatelessWidget {
         onAttack: onAttack,
         onSendToMana: onSendToMana,
         playedMana: playedMana,
+        isMyTurn: isMyTurn,
       ),
     );
   }
