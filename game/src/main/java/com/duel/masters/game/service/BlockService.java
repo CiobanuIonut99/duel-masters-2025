@@ -62,23 +62,16 @@ public class BlockService {
                 if (targetCard.getSpecialAbility().equalsIgnoreCase("SHIELD_TRIGGER")) {
                     currentState.setShieldTrigger(true);
                 } else {
-//                    attackService.attackShield(
-//                            currentState,
-//                            ownShields,
-//                            targetId,
-//                            ownHand,
-//                            targetCard,
-//                            attackerCard
-//                    );
+                    attackService.attackShield(
+                            currentState,
+                            ownShields,
+                            targetId,
+                            ownHand,
+                            targetCard,
+                            attackerCard
+                    );
 
-                    playCard(ownShields, targetId, ownHand);
-                    log.info("target was shield : {}", targetCard.getName());
-                    attackerCard.setTapped(true);
-                    attackerCard.setCanAttack(false);
-                    targetCard.setCanBeAttacked(false);
-                    targetCard.setShield(false);
                     currentState.setOpponentHasBlocker(false);
-
                     currentState.setAlreadyMadeADecision(false);
                     currentState.setShieldTrigger(false);
                 }
