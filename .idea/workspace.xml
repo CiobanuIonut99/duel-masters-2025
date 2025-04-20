@@ -5,19 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68a41a76-e7ef-4c02-b54f-ee145d5f21ee" name="Changes" comment="Deleted unused files">
-      <change afterPath="$PROJECT_DIR$/duel_masters_ui_2025/assets/cards/aquasniper.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/duel_masters_ui_2025/assets/cards/aquasnipertest.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/duel_masters_ui_2025/assets/cards/back_card.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/duel_masters_ui_2025/assets/cards/bolshack.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/duel_masters_ui_2025/lib/models/card_model.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/duel_masters_ui_2025/lib/screens/game_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/duel_masters_ui_2025/lib/widgets/duel_card.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/card/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/card/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/card/src/main/java/com/duel/masters/card/controller/CardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/card/src/main/java/com/duel/masters/card/controller/CardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/card/src/main/java/com/duel/masters/card/entity/Card.java" beforeDir="false" afterPath="$PROJECT_DIR$/card/src/main/java/com/duel/masters/card/entity/Card.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/card/src/main/java/com/duel/masters/card/service/CardService.java" beforeDir="false" afterPath="$PROJECT_DIR$/card/src/main/java/com/duel/masters/card/service/CardService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/player/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/player/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/duel-masters-2025.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/duel-masters-2025.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,7 +38,7 @@
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/steff/Desktop/duel-masters-2025",
+    "last_opened_file_path": "C:/Users/steff/Desktop/duel-masters-2025/duel-masters-2025/game/pom.xml",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -81,6 +70,7 @@
       <workItem from="1743760450937" duration="1416000" />
       <workItem from="1743795941280" duration="152000" />
       <workItem from="1743850427495" duration="734000" />
+      <workItem from="1744952676411" duration="15000" />
     </task>
     <task id="LOCAL-00001" summary="Deleted unused files">
       <option name="closed" value="true" />

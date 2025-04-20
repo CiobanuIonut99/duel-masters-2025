@@ -9,6 +9,7 @@ import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:stomp_dart_client/stomp_handler.dart';
 
 import '../animations/fx_game.dart';
+import '../dialogs/mana_selection_dialog.dart';
 import '../models/card_model.dart';
 import '../network/game_websocket_handler.dart';
 import '../widgets/opponent_field.dart';
@@ -1123,107 +1124,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void _showManaSelectionDialog(CardModel cardToSummon) {
-    Set<CardModel> selectedManaCards = {};
-
     showDialog(
       context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: Colors.grey.shade900,
-              title: Text(
-                "You need ${cardToSummon.manaCost} mana",
-                style: TextStyle(color: Colors.white),
-              ),
-              content: SizedBox(
-                height: 120,
-                width: double.maxFinite,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children:
-                        playerManaZone.map((manaCard) {
-                          final isTapped = manaCard.tapped;
-                          final isSelected = selectedManaCards.contains(
-                            manaCard,
-                          );
-
-                          return GestureDetector(
-                            onTap:
-                                isTapped
-                                    ? null // Disable interaction if tapped
-                                    : () {
-                                      setState(() {
-                                        if (isSelected) {
-                                          selectedManaCards.remove(manaCard);
-                                        } else {
-                                          selectedManaCards.add(manaCard);
-                                        }
-                                      });
-                                    },
-                            child: AnimatedContainer(
-                              duration: Duration(milliseconds: 200),
-                              margin: EdgeInsets.symmetric(horizontal: 6),
-                              padding: EdgeInsets.all(isSelected ? 4 : 0),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color:
-                                      isSelected
-                                          ? Colors.greenAccent
-                                          : Colors.transparent,
-                                  width: 2,
-                                ),
-                                boxShadow:
-                                    isSelected
-                                        ? [
-                                          BoxShadow(
-                                            color: Colors.greenAccent
-                                                .withOpacity(0.6),
-                                            blurRadius: 8,
-                                            spreadRadius: 2,
-                                          ),
-                                        ]
-                                        : [],
-                              ),
-                              child: Transform.rotate(
-                                angle: isTapped ? 3.14 / 2 : 0,
-                                // rotate tapped cards
-                                child: Opacity(
-                                  opacity:
-                                      isTapped ? 0.4 : 1, // fade tapped cards
-                                  child: Image.asset(
-                                    manaCard.imagePath,
-                                    width: 80,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                  ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    final selectedIds =
-                        selectedManaCards.map((c) => c.gameCardId).toList();
-                    Navigator.pop(context);
-                    summonCardWithMana(cardToSummon, selectedIds);
-                  },
-                  child: Text(
-                    "Summon",
-                    style: TextStyle(color: Colors.greenAccent),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      builder: (_) => ManaSelectionDialog(
+        cardToSummon: cardToSummon,
+        manaCards: playerManaZone,
+        onConfirm: (selectedIds) {
+          summonCardWithMana(cardToSummon, selectedIds);
+        },
+      ),
     );
   }
+
 
   void summonCardWithMana(CardModel card, List<String> selectedManaIds) {
     if (!isMyTurn) return;
