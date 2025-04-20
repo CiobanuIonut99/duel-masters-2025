@@ -10,6 +10,7 @@ import 'package:stomp_dart_client/stomp_handler.dart';
 
 import '../animations/fx_game.dart';
 import '../dialogs/blocker_selection_dialog.dart';
+import '../dialogs/creature_selection_dialog.dart';
 import '../dialogs/mana_selection_dialog.dart';
 import '../dialogs/shield_trigger_dialog.dart';
 import '../models/card_model.dart';
@@ -743,130 +744,43 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            // if (shieldTrigger) _showShieldTriggerDialog(),
-            if (mustSelectCreature) _buildCreatureSelectionOverlay(),
+            if (mustSelectCreature) _showCreatureSelectionOverlay(),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildCreatureSelectionOverlay() {
+  Widget _showCreatureSelectionOverlay() {
     final isMyCreature = currentTurnPlayerId != currentPlayerId;
 
-    return Positioned.fill(
-      child: Container(
-        color: Colors.black.withOpacity(0.7), // Dim background
-        child: Center(
-          child: Container(
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.symmetric(horizontal: 24),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade900,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.orangeAccent, width: 2),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  isMyCreature
-                      ? "Select a creature"
-                      : "Opponent is selecting a creature from your battlezone to tap",
-                  style: TextStyle(color: Colors.orangeAccent, fontSize: 20),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  isMyCreature
-                      ? "Choose one of the opponent's creatures to continue."
-                      : "Waiting for opponent's move...",
-                  style: TextStyle(color: Colors.white70),
-                ),
-                if (isMyCreature)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      shieldTriggerCard!.ability ?? "",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                SizedBox(height: 16),
+    return CreatureSelectionOverlay(
+      isMyCreature: isMyCreature,
+      shieldTriggerCard: shieldTriggerCard,
+      opponentSelectableCreatures: opponentSelectableCreatures,
+      selectedOpponentCreature: selectedOpponentCreature,
+      onCardSelected: (card) {
+        setState(() {
+          selectedOpponentCreature = card;
+        });
+      },
+      onConfirm: () {
+        if (selectedOpponentCreature == null) return;
 
-                // List of selectable creatures
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children:
-                        opponentSelectableCreatures.map((card) {
-                          final isSelected =
-                              selectedOpponentCreature?.gameCardId ==
-                              card.gameCardId;
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedOpponentCreature = card;
-                              });
-                            },
-                            child: Container(
-                              margin: EdgeInsets.symmetric(horizontal: 6),
-                              padding: EdgeInsets.all(isSelected ? 4 : 0),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color:
-                                      isSelected
-                                          ? Colors.orangeAccent
-                                          : Colors.transparent,
-                                  width: 2,
-                                ),
-                              ),
-                              child: Image.asset(card.imagePath, width: 80),
-                            ),
-                          );
-                        }).toList(),
-                  ),
-                ),
-
-                SizedBox(height: 16),
-
-                ElevatedButton.icon(
-                  onPressed:
-                      selectedOpponentCreature != null
-                          ? () {
-                            wsHandler.useShieldTriggerCard(
-                              gameId: currentGameId,
-                              playerId: currentPlayerId,
-                              currentTurnPlayerId: currentTurnPlayerId,
-                              action: "CAST_SHIELD_TRIGGER",
-                              usingShieldTrigger: true,
-                              triggeredGameCardId:
-                                  selectedOpponentCreature!.gameCardId,
-                              onSuccess: () {
-                                setState(() {
-                                  shieldTrigger = false;
-                                  shieldTriggerCard = null;
-                                });
-                              },
-                            );
-                          }
-                          : null,
-                  icon: Icon(Icons.check_circle),
-                  label: Text("Confirm Selection"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orangeAccent,
-                    foregroundColor: Colors.black,
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+        wsHandler.useShieldTriggerCard(
+          gameId: currentGameId,
+          playerId: currentPlayerId,
+          currentTurnPlayerId: currentTurnPlayerId,
+          action: "CAST_SHIELD_TRIGGER",
+          usingShieldTrigger: true,
+          triggeredGameCardId: selectedOpponentCreature!.gameCardId,
+          onSuccess: () {
+            setState(() {
+              shieldTrigger = false;
+              shieldTriggerCard = null;
+            });
+          },
+        );
+      },
     );
   }
 
