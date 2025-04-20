@@ -13,8 +13,8 @@ public class HolyAweEffect implements ShieldTriggerEffect {
                         GameStateDto incomingState,
                         CardsUpdateService cardsUpdateService) {
 
-        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
-        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
+        var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
+        var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
 
         tapCards(opponentCards.getBattleZone());
         playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());

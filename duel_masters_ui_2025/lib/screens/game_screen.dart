@@ -7,7 +7,6 @@ import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:stomp_dart_client/stomp_handler.dart';
 
-import '../animations/fx_game.dart';
 import '../dialogs/blocker_selection_dialog.dart';
 import '../dialogs/creature_selection_dialog.dart';
 import '../dialogs/mana_selection_dialog.dart';
@@ -76,7 +75,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   CardModel? shieldTriggerCard;
 
   bool isConnected = false;
-  late FxGame fxGame;
 
   late AnimationController shieldMoveController;
   late Animation<Offset> shieldOffsetAnimation;
@@ -91,7 +89,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool animateShieldToHand = false;
   bool tapped = false;
 
-  bool mustSelectCreature = false;
+  bool mustSelectCreatureToTap = false;
+
   List<CardModel> opponentSelectableCreatures = [];
   CardModel? selectedOpponentCreature;
 
@@ -109,8 +108,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     fetchGameData();
-
-    fxGame = FxGame();
 
     wsHandler = GameWebSocketHandler(
       url: 'ws://localhost:8080/duel-masters-ws',
@@ -159,7 +156,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void _updateGameState(Map<String, dynamic> responseBody) {
     final newTurnPlayerId = responseBody['currentTurnPlayerId'];
 
-    mustSelectCreature = responseBody['mustSelectCreature'];
+    mustSelectCreatureToTap =
+        responseBody['shieldTriggersFlagsDto']?['mustSelectCreatureToTap'] ?? false;
+
     opponentHasBlocker = responseBody['opponentHasBlocker'];
     shieldTrigger = responseBody['shieldTrigger'];
 
@@ -526,7 +525,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 fit: BoxFit.cover,
               ),
             ),
-            Positioned.fill(child: GameWidget(game: fxGame)),
             SingleChildScrollView(
               child: ConstrainedBox(
                 constraints: BoxConstraints(
@@ -607,7 +605,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            if (mustSelectCreature) _showCreatureSelectionOverlay(),
+            if (mustSelectCreatureToTap) _showCreatureSelectionOverlay(),
           ],
         ),
       ),

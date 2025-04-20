@@ -48,8 +48,9 @@ public class GameStateDto {
     private boolean alreadyMadeADecision;
 
     private String action;
-    private boolean mustSelectCreature;
 
+    @Builder.Default
+    private ShieldTriggersFlagsDto shieldTriggersFlagsDto = new ShieldTriggersFlagsDto();
     @Builder.Default
     private List<CardDto> opponentSelectableCreatures = new CopyOnWriteArrayList<>();
     @Builder.Default

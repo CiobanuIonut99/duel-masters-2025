@@ -12,8 +12,8 @@ public class SolarRayEffect implements ShieldTriggerEffect {
     @Override
     public void execute(GameStateDto currentState, GameStateDto incomingState, CardsUpdateService cardsUpdateService) {
 
-        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
-        var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
+        var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
+        var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
 
         var opponentCardIdToBeTapped = incomingState.getTriggeredGameCardId();
         var attackerId = currentState.getAttackerId();
@@ -25,7 +25,8 @@ public class SolarRayEffect implements ShieldTriggerEffect {
             opponentCardToBeTapped.setTapped(true);
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
             currentState.setAlreadyMadeADecision(false);
-            currentState.setMustSelectCreature(false);
+            currentState.getShieldTriggersFlagsDto().setMustSelectCreatureToTap(false);
+//            currentState.setmustSelectCreatureToTap(false);
             attackerCard.setTapped(true);
             attackerCard.setCanBeAttacked(true);
             attackerCard.setCanAttack(false);
@@ -45,14 +46,16 @@ public class SolarRayEffect implements ShieldTriggerEffect {
 
                 if (opponentSelectableCreatures.isEmpty()) {
                     playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
-                    currentState.setMustSelectCreature(false);
+                    currentState.getShieldTriggersFlagsDto().setMustSelectCreatureToTap(false);
+//                    currentState.setmustSelectCreatureToTap(false);
                     currentState.setAlreadyMadeADecision(false);
                     attackerCard.setTapped(true);
                     attackerCard.setCanBeAttacked(true);
                     attackerCard.setCanAttack(false);
 
                 } else {
-                    currentState.setMustSelectCreature(true);
+                    currentState.getShieldTriggersFlagsDto().setMustSelectCreatureToTap(true);
+//                    currentState.setmustSelectCreatureToTap(true);
                     currentState.setAlreadyMadeADecision(true);
                 }
 

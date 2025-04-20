@@ -1,11 +1,13 @@
 package com.duel.masters.game.util;
 
 import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.dto.ShieldTriggersFlagsDto;
 import com.duel.masters.game.dto.player.service.PlayerDto;
 
 public class GameStateUtil {
 
     public static GameStateDto getGameStateDto(String gameId, PlayerDto player, PlayerDto opponent, boolean isPlayer1Chosen, String playerTopic) {
+        ShieldTriggersFlagsDto shieldTriggersFlagsDto = new ShieldTriggersFlagsDto();
         return GameStateDto
                 .builder()
                 .gameId(gameId)
@@ -56,7 +58,7 @@ public class GameStateUtil {
                 .attackerId(gameStateDto.getAttackerId())
                 .shieldTrigger(gameStateDto.isShieldTrigger())
                 .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
-                .mustSelectCreature(gameStateDto.isMustSelectCreature())
+                .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
                 .opponentSelectableCreatures(gameStateDto.getOpponentSelectableCreatures())
                 .build();
 
@@ -91,7 +93,7 @@ public class GameStateUtil {
                 .attackerId(gameStateDto.getAttackerId())
                 .shieldTrigger(gameStateDto.isShieldTrigger())
                 .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
-                .mustSelectCreature(gameStateDto.isMustSelectCreature())
+                .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
                 .opponentSelectableCreatures(gameStateDto.getOpponentSelectableCreatures())
                 .build();
     }

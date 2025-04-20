@@ -65,7 +65,6 @@ class CardModel {
   };
 
   factory CardModel.fromJson(Map<String, dynamic> json) {
-    print("PASRE MODEL : ${jsonEncode(json)}");
     return CardModel(
       id: json['id'],
       gameCardId: json['gameCardId'],
