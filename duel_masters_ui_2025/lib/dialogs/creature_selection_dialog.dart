@@ -1,3 +1,4 @@
+import 'package:duel_masters_ui_2025/dialogs/styled_dialog_container.dart';
 import 'package:flutter/material.dart';
 import '../../models/card_model.dart';
 
@@ -25,14 +26,8 @@ class CreatureSelectionOverlay extends StatelessWidget {
       child: Container(
         color: Colors.black.withOpacity(0.7),
         child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            margin: const EdgeInsets.symmetric(horizontal: 24),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade900,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.orangeAccent, width: 2),
-            ),
+          child: StyledDialogContainer(
+            borderColor: Colors.greenAccent,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -40,14 +35,15 @@ class CreatureSelectionOverlay extends StatelessWidget {
                   isMyCreature
                       ? "Select a creature"
                       : "Opponent is selecting a creature from your battlezone to tap",
-                  style: const TextStyle(color: Colors.orangeAccent, fontSize: 20),
+                  style: kDialogTitleStyle.copyWith(color: Colors.greenAccent),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   isMyCreature
                       ? "Choose one of the opponent's creatures to continue."
                       : "Waiting for opponent's move...",
-                  style: const TextStyle(color: Colors.white70),
+                  style: kDialogSubtitleStyle,
+                  textAlign: TextAlign.center,
                 ),
                 if (isMyCreature && shieldTriggerCard?.ability != null)
                   Padding(
@@ -55,11 +51,7 @@ class CreatureSelectionOverlay extends StatelessWidget {
                     child: Text(
                       shieldTriggerCard!.ability!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
-                      ),
+                      style: kDialogAbilityStyle,
                     ),
                   ),
                 const SizedBox(height: 16),
@@ -75,7 +67,7 @@ class CreatureSelectionOverlay extends StatelessWidget {
                           padding: EdgeInsets.all(isSelected ? 4 : 0),
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: isSelected ? Colors.orangeAccent : Colors.transparent,
+                              color: isSelected ? Colors.greenAccent : Colors.transparent,
                               width: 2,
                             ),
                           ),
@@ -87,15 +79,11 @@ class CreatureSelectionOverlay extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 if (isMyCreature)
-                  ElevatedButton.icon(
+                  ConfirmButton(
+                    label: "Confirm Selection",
+                    icon: Icons.check_circle,
                     onPressed: selectedOpponentCreature != null ? onConfirm : null,
-                    icon: const Icon(Icons.check_circle),
-                    label: const Text("Confirm Selection"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orangeAccent,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    ),
+                    color: Colors.greenAccent,
                   ),
               ],
             ),
