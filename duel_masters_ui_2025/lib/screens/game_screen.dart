@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:stomp_dart_client/stomp_handler.dart';
@@ -14,6 +13,8 @@ import '../dialogs/creature_selection_dialog.dart';
 import '../dialogs/mana_selection_dialog.dart';
 import '../dialogs/shield_trigger_dialog.dart';
 import '../models/card_model.dart';
+import '../network/game_data_service.dart';
+import '../network/game_state_parse.dart';
 import '../network/game_websocket_handler.dart';
 import '../widgets/opponent_field.dart';
 import '../widgets/player_field.dart';
@@ -142,68 +143,34 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   Future<void> fetchGameData() async {
-    print("Fetching game data from the backend...");
-
-    final response = await http.get(
-      Uri.parse('http://localhost:8080/api/games'),
-    );
-
-    if (response.statusCode == 200) {
-      print("Data fetched successfully!");
-      try {
-        final Map<String, dynamic> data = json.decode(response.body);
-
-        // If the response has 'deck', 'shields', and 'hand' as keys, proceed with mapping them
-        if (data.containsKey('deck') &&
-            data.containsKey('shields') &&
-            data.containsKey('hand')) {
-          List<CardModel> fetchedDeck = CardModel.fromList(data['deck']);
-          List<CardModel> fetchedShields = CardModel.fromList(data['shields']);
-          List<CardModel> fetchedHand = CardModel.fromList(data['hand']);
-
-          setState(() {
-            playerHand = fetchedHand;
-            playerDeck = fetchedDeck;
-            playerShields = fetchedShields;
-            deckSize = fetchedDeck.length;
-          });
-        } else {
-          print(
-            "Expected keys 'deck', 'shields', and 'hand' not found in the response.",
-          );
-        }
-      } catch (e) {
-        print("Error decoding response as Map: $e");
-
-        // Attempt to handle as a list if it's not a Map
-        try {
-          final List<dynamic> dataList = json.decode(response.body);
-          print("Decoded response as List: $dataList");
-        } catch (e) {
-          print("Error decoding response as List: $e");
-        }
-      }
-    } else {
-      print("Failed to fetch game data. Status code: ${response.statusCode}");
-      throw Exception('Failed to load game data');
+    try {
+      final result = await GameDataService.fetchInitialGameData();
+      setState(() {
+        playerDeck = result['deck']!;
+        playerShields = result['shields']!;
+        playerHand = result['hand']!;
+        deckSize = playerDeck.length;
+      });
+    } catch (e) {
+      print("Error loading game data: $e");
     }
   }
 
   void _updateGameState(Map<String, dynamic> responseBody) {
+    final newTurnPlayerId = responseBody['currentTurnPlayerId'];
+
     mustSelectCreature = responseBody['mustSelectCreature'];
+    opponentHasBlocker = responseBody['opponentHasBlocker'];
+    shieldTrigger = responseBody['shieldTrigger'];
+
     opponentSelectableCreatures =
         (responseBody['opponentSelectableCreatures'] as List? ?? [])
             .map((c) => CardModel.fromJson(c))
             .toList();
 
-    final newTurnPlayerId = responseBody['currentTurnPlayerId'];
-    opponentHasBlocker = responseBody['opponentHasBlocker'];
     if (opponentHasBlocker && currentTurnPlayerId != currentPlayerId) {
       Future.microtask(() => _showBlockerSelectionDialog());
     }
-
-
-    shieldTrigger = responseBody['shieldTrigger'];
 
     if (shieldTrigger) {
       Future.microtask(() => _showShieldTriggerDialog());
@@ -224,6 +191,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       shieldTrigger = true;
     }
 
+    // ✅ Use the new parser
+    final zones = GameStateParser.parse(responseBody);
+
     setState(() {
       currentTurnPlayerId = newTurnPlayerId;
       previousTurnPlayerId = newTurnPlayerId;
@@ -231,69 +201,20 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       playedMana = responseBody['playedMana'];
       opponentHasBlocker = responseBody['opponentHasBlocker'];
       shieldTrigger = responseBody['shieldTrigger'];
-      print("shieldTrigger ${shieldTrigger}");
 
-      playerHand =
-          (responseBody['playerHand'] as List)
-              .map((c) => CardModel.fromJson(c))
-              .toList();
+      playerHand = zones.playerHand;
+      playerDeck = zones.playerDeck;
+      playerShields = zones.playerShields;
+      playerManaZone = zones.playerManaZone;
+      playerBattleZone = zones.playerBattleZone;
+      playerGraveyard = zones.playerGraveyard;
 
-      playerShields =
-          (responseBody['playerShields'] as List)
-              .map((c) => CardModel.fromJson(c))
-              .toList();
-
-      playerDeck =
-          (responseBody['playerDeck'] as List)
-              .map((c) => CardModel.fromJson(c))
-              .toList();
-
-      playerManaZone =
-          (responseBody['playerManaZone'] as List)
-              .map((c) => CardModel.fromJson(c))
-              .toList();
-
-      playerBattleZone =
-          (responseBody['playerBattleZone'] as List)
-              .map((c) => CardModel.fromJson(c))
-              .toList();
-
-      playerGraveyard =
-          (responseBody['playerGraveyard'] as List)
-              .map((c) => CardModel.fromJson(c))
-              .toList();
-      print('PLAYER GRAVEYARD : ${playerGraveyard}');
-
-      opponentHand =
-          (responseBody['opponentHand'] as List? ?? [])
-              .map((c) => CardModel.fromJson(c))
-              .toList();
-
-      opponentShields =
-          (responseBody['opponentShields'] as List? ?? [])
-              .map((c) => CardModel.fromJson(c))
-              .toList();
-
-      opponentDeck =
-          (responseBody['opponentDeck'] as List? ?? [])
-              .map((c) => CardModel.fromJson(c))
-              .toList();
-
-      opponentManaZone =
-          (responseBody['opponentManaZone'] as List? ?? [])
-              .map((c) => CardModel.fromJson(c))
-              .toList();
-
-      opponentBattleZone =
-          (responseBody['opponentBattleZone'] as List? ?? [])
-              .map((c) => CardModel.fromJson(c))
-              .toList();
-
-      opponentGraveyard =
-          (responseBody['opponentGraveyard'] as List? ?? [])
-              .map((c) => CardModel.fromJson(c))
-              .toList();
-      print('OPPONENT GRAVEYARD : ${playerGraveyard}');
+      opponentHand = zones.opponentHand;
+      opponentDeck = zones.opponentDeck;
+      opponentShields = zones.opponentShields;
+      opponentManaZone = zones.opponentManaZone;
+      opponentBattleZone = zones.opponentBattleZone;
+      opponentGraveyard = zones.opponentGraveyard;
 
       deckSize = playerDeck.length;
       opponentDeckSize = opponentDeck.length;
@@ -363,98 +284,40 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               destination: '/topic/game/$gameId/$playerTopic',
               callback: (frame) {
                 print("📡 Subscribed to: /topic/game/$gameId/$playerTopic");
+
                 final responseBody = jsonDecode(frame.body!);
                 currentGameId = responseBody['gameId'];
                 myPlayerTopic = responseBody['playerTopic'];
                 currentTurnPlayerId = responseBody['currentTurnPlayerId'];
                 opponentId = responseBody['opponentId'];
                 playedMana = responseBody['playedMana'];
-                print("gameId : $currentGameId");
-                print("currentTurnPlayerId : $currentTurnPlayerId");
 
-                // Parse your player zones
-                final updatedPlayerHand =
-                    (responseBody['playerHand'] as List)
-                        .map((c) => CardModel.fromJson(c))
-                        .toList();
-                final updatedPlayerShields =
-                    (responseBody['playerShields'] as List)
-                        .map((c) => CardModel.fromJson(c))
-                        .toList();
-                final updatedPlayerDeck =
-                    (responseBody['playerDeck'] as List)
-                        .map((c) => CardModel.fromJson(c))
-                        .toList();
-                final updatedPlayerManaZone =
-                    (responseBody['playerManaZone'] as List)
-                        .map((c) => CardModel.fromJson(c))
-                        .toList();
-                final updatedPlayerBattleZone =
-                    (responseBody['playerBattleZone'] as List)
-                        .map((c) => CardModel.fromJson(c))
-                        .toList();
-
-                final updatedPlayerGraveyard =
-                    (responseBody['playerGraveyard'] as List)
-                        .map((c) => CardModel.fromJson(c))
-                        .toList();
-
-                final updatedOpponentHand =
-                    (responseBody['opponentHand'] as List?)
-                        ?.map((c) => CardModel.fromJson(c))
-                        .toList() ??
-                    [];
-                final updatedOpponentShields =
-                    (responseBody['opponentShields'] as List?)
-                        ?.map((c) => CardModel.fromJson(c))
-                        .toList() ??
-                    [];
-                final updatetOpponentDeck =
-                    (responseBody['opponentDeck'] as List?)
-                        ?.map((c) => CardModel.fromJson(c))
-                        .toList() ??
-                    [];
-                final updatedOpponentManaZone =
-                    (responseBody['opponentManaZone'] as List?)
-                        ?.map((c) => CardModel.fromJson(c))
-                        .toList() ??
-                    [];
-                final updatedOpponentBattleZone =
-                    (responseBody['opponentBattleZone'] as List?)
-                        ?.map((c) => CardModel.fromJson(c))
-                        .toList() ??
-                    [];
-                final updatedOpponentGraveyard =
-                    (responseBody['opponentGraveyard'] as List?)
-                        ?.map((c) => CardModel.fromJson(c))
-                        .toList() ??
-                    [];
+                final zones = GameStateParser.parse(responseBody);
 
                 setState(() {
                   // Your zones
-                  deckSize = updatedPlayerDeck.length;
-                  opponentDeckSize = updatetOpponentDeck.length;
-                  playerHand = updatedPlayerHand;
-                  playerShields = updatedPlayerShields;
-                  playerDeck = updatedPlayerDeck;
-                  playerManaZone = updatedPlayerManaZone;
-                  playerGraveyard = updatedPlayerGraveyard;
-                  playerBattleZone = updatedPlayerBattleZone;
+                  playerHand = zones.playerHand;
+                  playerDeck = zones.playerDeck;
+                  playerShields = zones.playerShields;
+                  playerManaZone = zones.playerManaZone;
+                  playerGraveyard = zones.playerGraveyard;
+                  playerBattleZone = zones.playerBattleZone;
 
                   // Opponent zones
-                  opponentHand = updatedOpponentHand;
-                  opponentShields = updatedOpponentShields;
-                  opponentDeck = updatetOpponentDeck;
-                  opponentManaZone = updatedOpponentManaZone;
-                  opponentGraveyard = updatedOpponentGraveyard;
-                  opponentBattleZone = updatedOpponentBattleZone;
+                  opponentHand = zones.opponentHand;
+                  opponentDeck = zones.opponentDeck;
+                  opponentShields = zones.opponentShields;
+                  opponentManaZone = zones.opponentManaZone;
+                  opponentGraveyard = zones.opponentGraveyard;
+                  opponentBattleZone = zones.opponentBattleZone;
+
+                  deckSize = playerDeck.length;
+                  opponentDeckSize = opponentDeck.length;
+
+                  hasJoinedMatch = true;
                 });
               },
             );
-
-            setState(() {
-              hasJoinedMatch = true;
-            });
 
             break;
           }
@@ -750,6 +613,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
   Widget _showCreatureSelectionOverlay() {
     final isMyCreature = currentTurnPlayerId != currentPlayerId;
 
@@ -837,46 +701,48 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => ShieldTriggerDialog(
-          shieldTriggerCard: shieldTriggerCard!,
-          isMyShieldTrigger: currentTurnPlayerId != currentPlayerId,
-          onUseTrigger: () {
-            wsHandler.useShieldTriggerCard(
-              gameId: currentGameId,
-              playerId: currentPlayerId,
-              currentTurnPlayerId: currentTurnPlayerId,
-              action: "CAST_SHIELD_TRIGGER",
-              usingShieldTrigger: true,
-              onSuccess: () {
-                setState(() {
-                  shieldTrigger = false;
-                  shieldTriggerCard = null;
-                });
-                Navigator.pop(context); // ✅ Close it here after backend success
+        builder:
+            (_) => ShieldTriggerDialog(
+              shieldTriggerCard: shieldTriggerCard!,
+              isMyShieldTrigger: currentTurnPlayerId != currentPlayerId,
+              onUseTrigger: () {
+                wsHandler.useShieldTriggerCard(
+                  gameId: currentGameId,
+                  playerId: currentPlayerId,
+                  currentTurnPlayerId: currentTurnPlayerId,
+                  action: "CAST_SHIELD_TRIGGER",
+                  usingShieldTrigger: true,
+                  onSuccess: () {
+                    setState(() {
+                      shieldTrigger = false;
+                      shieldTriggerCard = null;
+                    });
+                    Navigator.pop(
+                      context,
+                    ); // ✅ Close it here after backend success
+                  },
+                );
               },
-            );
-          },
-          onSkip: () {
-            wsHandler.doNotUseShieldTriggerCard(
-              gameId: currentGameId,
-              playerId: currentPlayerId,
-              currentTurnPlayerId: currentTurnPlayerId,
-              action: "CAST_SHIELD_TRIGGER",
-              usingShieldTrigger: false,
-              onSuccess: () {
-                setState(() {
-                  shieldTrigger = false;
-                  shieldTriggerCard = null;
-                });
-                Navigator.pop(context);
+              onSkip: () {
+                wsHandler.doNotUseShieldTriggerCard(
+                  gameId: currentGameId,
+                  playerId: currentPlayerId,
+                  currentTurnPlayerId: currentTurnPlayerId,
+                  action: "CAST_SHIELD_TRIGGER",
+                  usingShieldTrigger: false,
+                  onSuccess: () {
+                    setState(() {
+                      shieldTrigger = false;
+                      shieldTriggerCard = null;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
               },
-            );
-          },
-        ),
+            ),
       );
     }
   }
-
 
   void _showManaSelectionDialog(CardModel cardToSummon) {
     showDialog(
