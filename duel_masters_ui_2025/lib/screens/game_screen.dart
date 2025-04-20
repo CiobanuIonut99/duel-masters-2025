@@ -9,6 +9,7 @@ import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:stomp_dart_client/stomp_handler.dart';
 
 import '../animations/fx_game.dart';
+import '../dialogs/blocker_selection_dialog.dart';
 import '../dialogs/mana_selection_dialog.dart';
 import '../models/card_model.dart';
 import '../network/game_websocket_handler.dart';
@@ -195,6 +196,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     final newTurnPlayerId = responseBody['currentTurnPlayerId'];
     opponentHasBlocker = responseBody['opponentHasBlocker'];
+    if (opponentHasBlocker && currentTurnPlayerId != currentPlayerId) {
+      Future.microtask(() => _showBlockerSelectionDialog());
+    }
     shieldTrigger = responseBody['shieldTrigger'];
 
     if (previousTurnPlayerId != null &&
@@ -728,7 +732,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            if (opponentHasBlocker) _buildBlockerSelectionOverlay(),
+            // if (opponentHasBlocker) _showBlockerSelectionDialog(),
             if (shieldTrigger) _buildShieldTriggerOverlay(),
             if (mustSelectCreature) _buildCreatureSelectionOverlay(),
           ],
@@ -757,31 +761,30 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               children: [
                 Text(
                   isMyCreature
-                  ? "Select a creature"
-                  :
-                  "Opponent is selecting a creature from your battlezone to tap",
+                      ? "Select a creature"
+                      : "Opponent is selecting a creature from your battlezone to tap",
                   style: TextStyle(color: Colors.orangeAccent, fontSize: 20),
                 ),
                 SizedBox(height: 8),
                 Text(
                   isMyCreature
-                  ? "Choose one of the opponent's creatures to continue."
-                  : "Waiting for opponent's move...",
+                      ? "Choose one of the opponent's creatures to continue."
+                      : "Waiting for opponent's move...",
                   style: TextStyle(color: Colors.white70),
                 ),
-                if(isMyCreature)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    shieldTriggerCard!.ability ?? "",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
+                if (isMyCreature)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      shieldTriggerCard!.ability ?? "",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ),
-                ),
                 SizedBox(height: 16),
 
                 // List of selectable creatures
@@ -830,7 +833,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                               currentTurnPlayerId: currentTurnPlayerId,
                               action: "CAST_SHIELD_TRIGGER",
                               usingShieldTrigger: true,
-                              triggeredGameCardId: selectedOpponentCreature!.gameCardId,
+                              triggeredGameCardId:
+                                  selectedOpponentCreature!.gameCardId,
                               onSuccess: () {
                                 setState(() {
                                   shieldTrigger = false;
@@ -857,131 +861,50 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   /// Creates a standard zone UI with consistent styling.
-  Widget _buildBlockerSelectionOverlay() {
+  void _showBlockerSelectionDialog() {
     final isDefendingPlayer = currentTurnPlayerId != currentPlayerId;
-    final playerBlockers =
+    if (!isDefendingPlayer) return;
+
+    final blockers =
         playerBattleZone.where((c) => c.specialAbility == 'BLOCKER').toList();
-    final opponentBlockers =
-        opponentBattleZone.where((c) => c.specialAbility == 'BLOCKER').toList();
 
-    return Positioned.fill(
-      child: Container(
-        color: Colors.black.withOpacity(0.7), // dim background
-        child: Center(
-          child: Container(
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.symmetric(horizontal: 24),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade900,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.yellowAccent, width: 2),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  isDefendingPlayer
-                      ? "Do you want to block this attack?"
-                      : "Opponent is deciding whether to block...",
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-                SizedBox(height: 8),
-                if (isDefendingPlayer) ...[
-                  Text("If yes, choose a blocker below."),
-                  Text("If no, press the button to let the attack go through."),
-                ] else ...[
-                  Text("You can view their blockers while they decide."),
-                ],
-                SizedBox(height: 16),
-
-                // Show blocker cards
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children:
-                        (isDefendingPlayer ? playerBlockers : opponentBlockers)
-                            .map((card) {
-                              final isSelected =
-                                  selectedBlocker?.gameCardId ==
-                                  card.gameCardId;
-                              return GestureDetector(
-                                onTap:
-                                    isDefendingPlayer
-                                        ? () {
-                                          setState(() {
-                                            selectedBlocker = card;
-                                          });
-                                        }
-                                        : null, // Disable tap for attacker
-                                child: Container(
-                                  margin: EdgeInsets.symmetric(horizontal: 6),
-                                  padding: EdgeInsets.all(isSelected ? 4 : 0),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color:
-                                          isSelected
-                                              ? Colors.yellowAccent
-                                              : Colors.transparent,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: Image.asset(card.imagePath, width: 80),
-                                ),
-                              );
-                            })
-                            .toList(),
-                  ),
-                ),
-
-                SizedBox(height: 16),
-
-                if (isDefendingPlayer) ...[
-                  ElevatedButton.icon(
-                    onPressed:
-                        selectedBlocker != null
-                            ? () => {
-                              _confirmBlockerSelection(selectedBlocker!),
-                              _cancelAttackSelection(),
-                            }
-                            : null,
-                    icon: Icon(Icons.shield),
-                    label: Text("Confirm Blocker"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        opponentHasBlocker = false;
-                        selectedBlocker = null;
-                        _cancelAttackSelection();
-                      });
-
-                      wsHandler.confirmNoBlocker(
-                        gameId: currentGameId,
-                        action: "BLOCK",
-                        playerId: currentPlayerId,
-                        currentTurnPlayerId: currentTurnPlayerId,
-                        onSuccess: () => _cancelAttackSelection(),
-                      );
-                    },
-                    child: Text(
-                      "Don’t block this time",
-                      style: TextStyle(color: Colors.redAccent),
-                    ),
-                  ),
-                ],
-              ],
-            ),
+    showDialog(
+      context: context,
+      builder:
+          (_) => BlockerSelectionDialog(
+            blockers: blockers,
+            onConfirm: (selected) {
+              wsHandler.confirmBlockerSelection(
+                gameId: currentGameId,
+                playerId: currentPlayerId,
+                currentTurnPlayerId: currentTurnPlayerId,
+                action: "BLOCK",
+                attackerId: "",
+                targetId: selected.gameCardId,
+                targetShield: false,
+                onSuccess: () {
+                  setState(() {
+                    _cancelAttackSelection();
+                    opponentHasBlocker = false;
+                  });
+                },
+              );
+            },
+            onSkip: () {
+              wsHandler.confirmNoBlocker(
+                gameId: currentGameId,
+                playerId: currentPlayerId,
+                currentTurnPlayerId: currentTurnPlayerId,
+                action: "BLOCK",
+                onSuccess: () {
+                  setState(() {
+                    _cancelAttackSelection();
+                    opponentHasBlocker = false;
+                  });
+                },
+              );
+            },
           ),
-        ),
-      ),
     );
   }
 
@@ -1106,36 +1029,19 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _confirmBlockerSelection(CardModel blocker) {
-    wsHandler.confirmBlockerSelection(
-      gameId: currentGameId,
-      playerId: currentPlayerId,
-      currentTurnPlayerId: currentTurnPlayerId,
-      action: "BLOCK",
-      attackerId: "",
-      targetId: blocker.gameCardId,
-      targetShield: false,
-      onSuccess: () {
-        setState(() {
-          _cancelAttackSelection();
-        });
-      },
-    );
-  }
-
   void _showManaSelectionDialog(CardModel cardToSummon) {
     showDialog(
       context: context,
-      builder: (_) => ManaSelectionDialog(
-        cardToSummon: cardToSummon,
-        manaCards: playerManaZone,
-        onConfirm: (selectedIds) {
-          summonCardWithMana(cardToSummon, selectedIds);
-        },
-      ),
+      builder:
+          (_) => ManaSelectionDialog(
+            cardToSummon: cardToSummon,
+            manaCards: playerManaZone,
+            onConfirm: (selectedIds) {
+              summonCardWithMana(cardToSummon, selectedIds);
+            },
+          ),
     );
   }
-
 
   void summonCardWithMana(CardModel card, List<String> selectedManaIds) {
     if (!isMyTurn) return;
