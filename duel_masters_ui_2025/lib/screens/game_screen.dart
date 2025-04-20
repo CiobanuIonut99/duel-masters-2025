@@ -11,6 +11,7 @@ import 'package:stomp_dart_client/stomp_handler.dart';
 import '../animations/fx_game.dart';
 import '../dialogs/blocker_selection_dialog.dart';
 import '../dialogs/mana_selection_dialog.dart';
+import '../dialogs/shield_trigger_dialog.dart';
 import '../models/card_model.dart';
 import '../network/game_websocket_handler.dart';
 import '../widgets/opponent_field.dart';
@@ -199,7 +200,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     if (opponentHasBlocker && currentTurnPlayerId != currentPlayerId) {
       Future.microtask(() => _showBlockerSelectionDialog());
     }
+
+
     shieldTrigger = responseBody['shieldTrigger'];
+
+    if (shieldTrigger) {
+      Future.microtask(() => _showShieldTriggerDialog());
+    }
+
+    if (!shieldTrigger && Navigator.canPop(context)) {
+      Navigator.of(context).pop();
+    }
 
     if (previousTurnPlayerId != null &&
         previousTurnPlayerId != newTurnPlayerId) {
@@ -732,8 +743,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            // if (opponentHasBlocker) _showBlockerSelectionDialog(),
-            if (shieldTrigger) _buildShieldTriggerOverlay(),
+            // if (shieldTrigger) _showShieldTriggerDialog(),
             if (mustSelectCreature) _buildCreatureSelectionOverlay(),
           ],
         ),
@@ -908,126 +918,51 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildShieldTriggerOverlay() {
-    if (!shieldTrigger || shieldTriggerCard == null) return SizedBox.shrink();
-
-    final isMyShieldTrigger = currentTurnPlayerId != currentPlayerId;
-
-    return Positioned.fill(
-      child: Container(
-        color: Colors.black.withOpacity(0.7),
-        child: Center(
-          child: Container(
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.symmetric(horizontal: 24),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade900,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.cyanAccent, width: 2),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  isMyShieldTrigger
-                      ? "Shield Trigger Activated!"
-                      : "Opponent is deciding on Shield Trigger...",
-                  style: TextStyle(color: Colors.cyanAccent, fontSize: 20),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  isMyShieldTrigger
-                      ? "Do you want to cast this spell for free?"
-                      : "The shield you broke had a trigger. Waiting for response...",
-                  style: TextStyle(color: Colors.white70),
-                ),
-                if (isMyShieldTrigger)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      shieldTriggerCard!.ability ?? "",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                SizedBox(height: 16),
-                Image.asset(shieldTriggerCard!.imagePath, width: 100),
-                if (!isMyShieldTrigger)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      shieldTriggerCard!.ability ?? "",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                SizedBox(height: 16),
-                if (isMyShieldTrigger)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          wsHandler.useShieldTriggerCard(
-                            gameId: currentGameId,
-                            playerId: currentPlayerId,
-                            currentTurnPlayerId: currentTurnPlayerId,
-                            action: "CAST_SHIELD_TRIGGER",
-                            usingShieldTrigger: true,
-                            onSuccess: () {
-                              setState(() {
-                                shieldTrigger = false;
-                                shieldTriggerCard = null;
-                              });
-                            },
-                          );
-                        },
-                        icon: Icon(Icons.flash_on),
-                        label: Text("Use Trigger"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.cyanAccent,
-                          foregroundColor: Colors.black,
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      TextButton(
-                        onPressed: () {
-                          wsHandler.doNotUseShieldTriggerCard(
-                            gameId: currentGameId,
-                            playerId: currentPlayerId,
-                            currentTurnPlayerId: currentTurnPlayerId,
-                            action: "CAST_SHIELD_TRIGGER",
-                            usingShieldTrigger: false,
-                            onSuccess: () {
-                              setState(() {
-                                shieldTrigger = false;
-                                shieldTriggerCard = null;
-                              });
-                            },
-                          );
-                        },
-                        child: Text(
-                          "Skip",
-                          style: TextStyle(color: Colors.redAccent),
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
-            ),
-          ),
+  void _showShieldTriggerDialog() {
+    if (shieldTrigger && shieldTriggerCard != null) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => ShieldTriggerDialog(
+          shieldTriggerCard: shieldTriggerCard!,
+          isMyShieldTrigger: currentTurnPlayerId != currentPlayerId,
+          onUseTrigger: () {
+            wsHandler.useShieldTriggerCard(
+              gameId: currentGameId,
+              playerId: currentPlayerId,
+              currentTurnPlayerId: currentTurnPlayerId,
+              action: "CAST_SHIELD_TRIGGER",
+              usingShieldTrigger: true,
+              onSuccess: () {
+                setState(() {
+                  shieldTrigger = false;
+                  shieldTriggerCard = null;
+                });
+                Navigator.pop(context); // ✅ Close it here after backend success
+              },
+            );
+          },
+          onSkip: () {
+            wsHandler.doNotUseShieldTriggerCard(
+              gameId: currentGameId,
+              playerId: currentPlayerId,
+              currentTurnPlayerId: currentTurnPlayerId,
+              action: "CAST_SHIELD_TRIGGER",
+              usingShieldTrigger: false,
+              onSuccess: () {
+                setState(() {
+                  shieldTrigger = false;
+                  shieldTriggerCard = null;
+                });
+                Navigator.pop(context);
+              },
+            );
+          },
         ),
-      ),
-    );
+      );
+    }
   }
+
 
   void _showManaSelectionDialog(CardModel cardToSummon) {
     showDialog(
