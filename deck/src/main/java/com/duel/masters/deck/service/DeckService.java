@@ -93,17 +93,27 @@ public class DeckService {
                 .findFirst()
                 .orElseThrow();
 
+        var brainSerum = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 37)
+                .findFirst()
+                .orElseThrow();
+
         boolean removedForHolyawe = deck.removeIf(c -> c.getId() == 16);
         boolean removedForSolarRay = deck.removeIf(c -> c.getId() == 29);
+        boolean removedForBrainSerum = deck.removeIf(c -> c.getId() == 37);
 
         if(!removedForHolyawe)
         deck.removeFirst();
         deck.add(holyawe);
 
-
         if(!removedForSolarRay)
         deck.removeFirst();
         deck.add(solarRay);
+
+        if(!removedForBrainSerum)
+        deck.removeFirst();
+        deck.add(brainSerum);
 
         assignGameCardId(deck);
         return

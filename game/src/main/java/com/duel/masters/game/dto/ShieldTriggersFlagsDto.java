@@ -23,6 +23,9 @@ public class ShieldTriggersFlagsDto {
     private boolean chosenAnyCards;
     private boolean mustDrawCardsFromDeck;
     private boolean mustSelectCreatureToTap;
+
+    private boolean shieldTriggerDecisionMade;
+
     private List<String> cardsChosen = new CopyOnWriteArrayList<>();
 
 }

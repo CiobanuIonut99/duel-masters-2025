@@ -9,6 +9,7 @@ import 'package:stomp_dart_client/stomp_handler.dart';
 import '../dialogs/blocker_selection_dialog.dart';
 import '../dialogs/creature_selection_dialog.dart';
 import '../dialogs/mana_selection_dialog.dart';
+import '../dialogs/select_cards_from_deck_dialog.dart';
 import '../dialogs/shield_trigger_dialog.dart';
 import '../models/card_model.dart';
 import '../models/shiel_trigger_flags_dto.dart';
@@ -156,13 +157,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void _updateGameState(Map<String, dynamic> responseBody) {
-
     final newTurnPlayerId = responseBody['currentTurnPlayerId'];
     final shieldTriggerFlagsJson = responseBody['shieldTriggersFlagsDto'] ?? {};
 
     shieldFlags = ShieldTriggersFlagsDto.fromJson(shieldTriggerFlagsJson);
 
     mustSelectCreatureToTap = shieldFlags?.mustSelectCreatureToTap ?? false;
+    mustSelectCreatureToTap = shieldFlags?.mustDrawCardsFromDeck ?? false;
     shieldTrigger = shieldFlags?.shieldTrigger ?? false;
 
     opponentHasBlocker = responseBody['opponentHasBlocker'];
@@ -178,6 +179,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     if (shieldTrigger) {
       Future.microtask(() => _showShieldTriggerDialog());
+    }
+
+    if (shieldFlags?.mustDrawCardsFromDeck == true) {
+      Future.microtask(() => _showDrawFromDeckDialog());
     }
 
     if (!shieldTrigger && Navigator.canPop(context)) {
@@ -199,7 +204,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final zones = GameStateParser.parse(responseBody);
 
     setState(() {
-
       currentTurnPlayerId = newTurnPlayerId;
       previousTurnPlayerId = newTurnPlayerId;
       opponentId = responseBody['opponentId'];
@@ -857,6 +861,37 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 ],
               ),
             ),
+          ),
+    );
+  }
+
+  void _showDrawFromDeckDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => SelectCardsFromDeckDialog(
+            deck: playerDeck,
+            maxSelection: 2,
+            onConfirm: (selectedIds) {
+              wsHandler.sendDrawCardsFromDeck(
+                gameId: currentGameId,
+                playerId: currentPlayerId,
+                currentTurnPlayerId: currentTurnPlayerId,
+                action: "CAST_SHIELD_TRIGGER",
+                cardsChosen: selectedIds,
+                shieldTriggerDecisionMade: true,
+                onSuccess: () {
+                  setState(() {
+                    shieldTrigger = false;
+                    shieldTriggerCard = null;
+                  });
+                  Navigator.pop(
+                    context,
+                  ); // ✅ Close it here after backend success
+                },
+              );
+            },
           ),
     );
   }

@@ -16,13 +16,11 @@ public class BrainSerumEffect implements ShieldTriggerEffect {
         var attackerId = currentState.getAttackerId();
         var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
 
-        if (currentState.isAlreadyMadeADecision()) {
+        if (currentState.getShieldTriggersFlagsDto().isShieldTriggerDecisionMade()) {
 
-            var idsChosenFromDeck = incomingState
+            var cardsChosenFromDeck = incomingState
                     .getShieldTriggersFlagsDto()
-                    .getCardsChosen();
-
-            var cardsChosenFromDeck = idsChosenFromDeck
+                    .getCardsChosen()
                     .stream()
                     .map(idChosenFromDeck -> getCardDtoFromList(ownCards.getDeck(), idChosenFromDeck))
                     .toList();
@@ -40,10 +38,8 @@ public class BrainSerumEffect implements ShieldTriggerEffect {
         } else {
 
             currentState.getShieldTriggersFlagsDto().setMustDrawCardsFromDeck(true);
-
+            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(true);
 
         }
-
-
     }
 }
