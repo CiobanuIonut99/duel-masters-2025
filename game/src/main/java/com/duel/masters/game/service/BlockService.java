@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import static com.duel.masters.game.util.CardsDtoUtil.getCardDtoFromList;
-import static com.duel.masters.game.util.CardsDtoUtil.playCard;
 
 @Slf4j
 @Service
@@ -14,8 +13,9 @@ import static com.duel.masters.game.util.CardsDtoUtil.playCard;
 public class BlockService {
 
     private final TopicService topicService;
-    private final AttackService attackService;
     private final CardsUpdateService cardsUpdateService;
+    private final AttackShieldService attackShieldService;
+    private final AttackCreatureService attackCreatureService;
 
     public void block(GameStateDto currentState, GameStateDto incomingState) {
 
@@ -37,7 +37,7 @@ public class BlockService {
             var attackerCard = getCardDtoFromList(opponentBattleZone, attackerId);
             var targetCard = getCardDtoFromList(ownBattleZone, targetId);
 
-            attackService.attackCreature(
+            attackCreatureService.attackCreature(
                     attackerCard,
                     targetCard,
                     ownBattleZone,
@@ -59,13 +59,15 @@ public class BlockService {
             var targetCard = currentState.getShieldTriggersFlagsDto().isTargetShield() ? getCardDtoFromList(ownShields, targetId) : getCardDtoFromList(ownBattleZone, targetId);
 
             if (targetCard.isShield()) {
+
+
                 if (targetCard.getSpecialAbility().equalsIgnoreCase("SHIELD_TRIGGER")) {
                     currentState.getShieldTriggersFlagsDto().setShieldTrigger(true);
                     currentState.setOpponentHasBlocker(false);
                     currentState.getBlockerFlagsDto().setBlockerDecisionMade(false);
                     currentState.setShieldTriggerCard(targetCard);
                 } else {
-                    attackService.attackShield(
+                    attackShieldService.attackShield(
                             currentState,
                             ownShields,
                             targetId,
@@ -74,12 +76,13 @@ public class BlockService {
                             attackerCard
                     );
 
-                    currentState.setOpponentHasBlocker(false);
                     currentState.getBlockerFlagsDto().setBlockerDecisionMade(false);
                     currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
                 }
+
+
             } else {
-                attackService.attackCreature(
+                attackCreatureService.attackCreature(
                         attackerCard,
                         targetCard,
                         ownBattleZone,

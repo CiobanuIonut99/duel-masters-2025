@@ -16,7 +16,7 @@ public class CastShieldTriggerService {
 
     private final TopicService topicService;
     private final CardsUpdateService cardsUpdateService;
-    private final AttackService attackService;
+    private final AttackShieldService attackShieldService;
 
     public void triggerShieldTriggerLogic(GameStateDto currentState, GameStateDto incomingState) {
 
@@ -35,13 +35,6 @@ public class CastShieldTriggerService {
         var triggeredShieldId = currentState.getTargetId();
         var trigerredShield = new CardDto();
 
-//        if (incomingState.getShieldTriggersFlagsDto().isChosenAnyCards()) {
-//            trigerredShield = currentState.getShieldTriggerCard();
-//        } else {
-//            trigerredShield = getCardDtoFromList(ownCards.getShields(), triggeredShieldId);
-//        }
-//
-//
         if (incomingState.getTriggeredGameCardId() == null &&
                 incomingState.getShieldTriggersFlagsDto().getCardsChosen().isEmpty()) {
             trigerredShield = getCardDtoFromList(ownCards.getShields(), triggeredShieldId);
@@ -63,7 +56,7 @@ public class CastShieldTriggerService {
         var targetCard = getCardDtoFromList(ownCards.getShields(), currentState.getTargetId());
         var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), currentState.getAttackerId());
 
-        attackService
+        attackShieldService
                 .attackShield(
                         currentState,
                         ownCards.getShields(),

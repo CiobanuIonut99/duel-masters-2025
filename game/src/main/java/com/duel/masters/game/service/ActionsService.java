@@ -11,14 +11,14 @@ import org.springframework.stereotype.Service;
 public class ActionsService {
 
     private final TurnService turnService;
-    private final AttackService attackService;
     private final BlockService blockService;
     private final SummonToManaService summonToManaService;
-    private final SummonToBattleZoneService summonToBattleZoneService;
     private final CastShieldTriggerService castShieldTriggerService;
+    private final SummonToBattleZoneService summonToBattleZoneService;
+    private final AttackServiceImplementation attackServiceImplementation;
 
     public void attack(GameStateDto currentState, GameStateDto incomingState) {
-        attackService.attack(currentState, incomingState);
+        attackServiceImplementation.attack(currentState, incomingState);
     }
 
     public void block(GameStateDto currentState, GameStateDto incomingState) {

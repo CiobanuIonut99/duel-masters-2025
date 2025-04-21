@@ -1,0 +1,85 @@
+package com.duel.masters.game.service;
+
+import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.dto.card.service.CardDto;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+import static com.duel.masters.game.constant.Constant.SHIELD_TRIGGER;
+import static com.duel.masters.game.util.CardsDtoUtil.playCard;
+import static com.duel.masters.game.util.ValidatorUtil.battleZoneHasAtLeastOneBlocker;
+
+@Slf4j
+@Service
+@AllArgsConstructor
+public class AttackShieldService implements AttackService {
+
+    private final CardsUpdateService cardsUpdateService;
+
+    @Override
+    public void attack(GameStateDto currentState,
+                       GameStateDto incomingState,
+                       CardDto attackerCard,
+                       CardDto targetCard,
+                       String targetId) {
+
+        var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
+        var opponentShields = opponentCards.getShields();
+        var opponentHand = opponentCards.getHand();
+        var opponentBattleZone = opponentCards.getBattleZone();
+
+        var blockerFlagsDto = currentState.getBlockerFlagsDto();
+
+        if (battleZoneHasAtLeastOneBlocker(opponentBattleZone) &&
+                !blockerFlagsDto.isBlockerDecisionMade()) {
+
+            currentState.setOpponentHasBlocker(true);
+            blockerFlagsDto.setBlockerDecisionMade(true);
+
+        } else {
+
+            if (SHIELD_TRIGGER.equalsIgnoreCase(targetCard.getSpecialAbility())) {
+
+                currentState.getShieldTriggersFlagsDto().setShieldTrigger(true);
+                currentState.setShieldTriggerCard(targetCard);
+
+            } else {
+                attackShield(currentState,
+                        opponentShields,
+                        targetId,
+                        opponentHand,
+                        targetCard,
+                        attackerCard);
+            }
+
+            currentState.getBlockerFlagsDto().setBlockerDecisionMade(false);
+        }
+    }
+
+    public void attackShield(GameStateDto currentState,
+                             List<CardDto> opponentShields,
+                             String targetId,
+                             List<CardDto> opponentHand,
+                             CardDto targetCard,
+                             CardDto attackerCard) {
+
+        playCard(opponentShields, targetId, opponentHand);
+
+        attackerCard.setTapped(true);
+        attackerCard.setCanAttack(false);
+
+        targetCard.setShield(false);
+        targetCard.setCanBeAttacked(false);
+
+        currentState.setOpponentHasBlocker(false);
+    }
+
+
+    @Override
+    public void attack(GameStateDto currentState, GameStateDto incomingState) {
+    }
+
+}
