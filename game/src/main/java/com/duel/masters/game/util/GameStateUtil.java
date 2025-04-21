@@ -57,6 +57,7 @@ public class GameStateUtil {
                 .attackerId(gameStateDto.getAttackerId())
                 .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
                 .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
+                .blockerFlagsDto(gameStateDto.getBlockerFlagsDto())
                 .opponentSelectableCreatures(gameStateDto.getOpponentSelectableCreatures())
                 .build();
 
@@ -91,6 +92,7 @@ public class GameStateUtil {
                 .attackerId(gameStateDto.getAttackerId())
                 .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
                 .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
+                .blockerFlagsDto(gameStateDto.getBlockerFlagsDto())
                 .opponentSelectableCreatures(gameStateDto.getOpponentSelectableCreatures())
                 .build();
     }

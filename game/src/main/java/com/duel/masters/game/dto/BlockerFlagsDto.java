@@ -7,22 +7,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ShieldTriggersFlagsDto {
+public class BlockerFlagsDto {
 
-    private boolean targetShield;
-    private boolean shieldTrigger;
-    private boolean chosenAnyCards;
-    private boolean mustDrawCardsFromDeck;
-    private boolean mustSelectCreatureToTap;
-    private List<String> cardsChosen = new CopyOnWriteArrayList<>();
+    private boolean blockerDecisionMade;
 
 }

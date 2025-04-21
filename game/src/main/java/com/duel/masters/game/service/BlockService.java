@@ -61,9 +61,8 @@ public class BlockService {
             if (targetCard.isShield()) {
                 if (targetCard.getSpecialAbility().equalsIgnoreCase("SHIELD_TRIGGER")) {
                     currentState.getShieldTriggersFlagsDto().setShieldTrigger(true);
-//                    currentState.setShieldTrigger(true);
                     currentState.setOpponentHasBlocker(false);
-                    currentState.setAlreadyMadeADecision(false);
+                    currentState.getBlockerFlagsDto().setBlockerDecisionMade(false);
                     currentState.setShieldTriggerCard(targetCard);
                 } else {
                     attackService.attackShield(
@@ -76,9 +75,8 @@ public class BlockService {
                     );
 
                     currentState.setOpponentHasBlocker(false);
-                    currentState.setAlreadyMadeADecision(false);
+                    currentState.getBlockerFlagsDto().setBlockerDecisionMade(false);
                     currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
-//                    currentState.setShieldTrigger(false);
                 }
             } else {
                 attackService.attackCreature(

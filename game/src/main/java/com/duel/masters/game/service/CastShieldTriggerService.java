@@ -2,7 +2,6 @@ package com.duel.masters.game.service;
 
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
-import com.duel.masters.game.effects.ShieldTriggerEffect;
 import com.duel.masters.game.effects.ShieldTriggerRegistry;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,22 +26,32 @@ public class CastShieldTriggerService {
             doNotUseShieldTrigger(currentState, incomingState);
         }
         currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
-//        currentState.setShieldTrigger(false);
         topicService.sendGameStatesToTopics(currentState);
     }
 
     private void useShieldTrigger(GameStateDto currentState, GameStateDto incomingState) {
 
         var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
-        var shieldTriggerCardId = currentState.getTargetId();
-        var shieldTriggerCard = new CardDto();
-        if (incomingState.getTriggeredGameCardId() == null) {
-            shieldTriggerCard = getCardDtoFromList(ownCards.getShields(), shieldTriggerCardId);
+        var triggeredShieldId = currentState.getTargetId();
+        var trigerredShield = new CardDto();
+
+//        if (incomingState.getShieldTriggersFlagsDto().isChosenAnyCards()) {
+//            trigerredShield = currentState.getShieldTriggerCard();
+//        } else {
+//            trigerredShield = getCardDtoFromList(ownCards.getShields(), triggeredShieldId);
+//        }
+//
+//
+        if (incomingState.getTriggeredGameCardId() == null &&
+                incomingState.getShieldTriggersFlagsDto().getCardsChosen().isEmpty()) {
+            trigerredShield = getCardDtoFromList(ownCards.getShields(), triggeredShieldId);
         } else {
-            shieldTriggerCard = currentState.getShieldTriggerCard();
+            trigerredShield = currentState.getShieldTriggerCard();
         }
 
-        ShieldTriggerEffect shieldTriggerEffect = ShieldTriggerRegistry.getShieldTriggerEffect(shieldTriggerCard.getName());
+        var shieldTriggerEffect = ShieldTriggerRegistry
+                .getShieldTriggerEffect(trigerredShield.getName());
+
         shieldTriggerEffect.execute(currentState, incomingState, cardsUpdateService);
 
 

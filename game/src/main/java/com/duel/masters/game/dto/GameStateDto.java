@@ -37,7 +37,6 @@ public class GameStateDto {
 
     private String playerTopic;
 
-
     private boolean usingShieldTrigger;
     private CardDto shieldTriggerCard;
 
@@ -48,6 +47,8 @@ public class GameStateDto {
 
     private String action;
 
+    @Builder.Default
+    private BlockerFlagsDto blockerFlagsDto = new BlockerFlagsDto();
     @Builder.Default
     private ShieldTriggersFlagsDto shieldTriggersFlagsDto = new ShieldTriggersFlagsDto();
     @Builder.Default

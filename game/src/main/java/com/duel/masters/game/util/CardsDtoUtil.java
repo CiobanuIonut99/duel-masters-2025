@@ -112,5 +112,11 @@ public class CardsDtoUtil {
         deck.remove(card);
     }
 
+    public static void changeCardState(CardDto card, boolean tapped, boolean canAttack, boolean canBeAttacked) {
+        card.setTapped(tapped);
+        card.setCanAttack(canAttack);
+        card.setCanBeAttacked(canBeAttacked);
+    }
+
 
 }

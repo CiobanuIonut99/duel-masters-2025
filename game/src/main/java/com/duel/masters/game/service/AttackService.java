@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.duel.masters.game.util.CardsDtoUtil.getCardDtoFromList;
-import static com.duel.masters.game.util.CardsDtoUtil.playCard;
+import static com.duel.masters.game.constant.Constant.SHIELD_TRIGGER;
+import static com.duel.masters.game.util.CardsDtoUtil.*;
 import static com.duel.masters.game.util.ValidatorUtil.battleZoneHasAtLeastOneBlocker;
 
 @Slf4j
@@ -38,51 +38,53 @@ public class AttackService {
         var attackerCard = getCardDtoFromList(ownBattleZone, attackerId);
         var targetCard = incomingState.getShieldTriggersFlagsDto().isTargetShield() ? getCardDtoFromList(opponentShields, targetId) : getCardDtoFromList(opponentBattleZone, targetId);
 
+        var blockerFlagsDto = currentState.getBlockerFlagsDto();
+
         currentState
                 .getShieldTriggersFlagsDto()
                 .setTargetShield(incomingState.getShieldTriggersFlagsDto().isTargetShield());
-//        currentState.setTargetShield(incomingState.isTargetShield());
         currentState.setAttackerId(attackerId);
         currentState.setTargetId(targetId);
 
-        if (attackerCard.isCanAttack() && targetCard.isCanBeAttacked()) {
-            if (battleZoneHasAtLeastOneBlocker(opponentBattleZone) &&
-                    !currentState.isAlreadyMadeADecision()) {
-                log.info("Does opponent has at least one blocker ");
-                currentState.setOpponentHasBlocker(true);
-                currentState.setAlreadyMadeADecision(true);
-            } else {
-                if (targetCard.isShield()) {
-                     if (targetCard
-                            .getSpecialAbility().
-                            equalsIgnoreCase("SHIELD_TRIGGER")) {
-                        currentState.getShieldTriggersFlagsDto().setShieldTrigger(true);
-//                        currentState.setShieldTrigger(true);
-                        currentState.setShieldTriggerCard(targetCard);
-                    } else {
-                        attackShield(currentState,
-                                opponentShields,
-                                targetId,
-                                opponentHand,
-                                targetCard,
-                                attackerCard);
-                    }
-                } else {
-                    attackCreature(
-                            attackerCard,
-                            targetCard,
-                            opponentBattleZone,
-                            opponentGraveyard,
-                            ownBattleZone,
-                            ownGraveyard,
-                            currentState
-                    );
-                    currentState.setOpponentHasBlocker(false);
-                }
-            }
-            topicService.sendGameStatesToTopics(currentState);
+        if (!attackerCard.isCanAttack() || !targetCard.isCanBeAttacked()) {
+            return;
         }
 
+        if (battleZoneHasAtLeastOneBlocker(opponentBattleZone) &&
+                !blockerFlagsDto.isBlockerDecisionMade()) {
+
+            currentState.setOpponentHasBlocker(true);
+            blockerFlagsDto.setBlockerDecisionMade(true);
+
+        } else {
+            if (targetCard.isShield()) {
+                if (SHIELD_TRIGGER.equalsIgnoreCase(targetCard.getSpecialAbility())) {
+
+                    currentState.getShieldTriggersFlagsDto().setShieldTrigger(true);
+                    currentState.setShieldTriggerCard(targetCard);
+
+                } else {
+                    attackShield(currentState,
+                            opponentShields,
+                            targetId,
+                            opponentHand,
+                            targetCard,
+                            attackerCard);
+                }
+            } else {
+                attackCreature(
+                        attackerCard,
+                        targetCard,
+                        opponentBattleZone,
+                        opponentGraveyard,
+                        ownBattleZone,
+                        ownGraveyard,
+                        currentState
+                );
+                currentState.setOpponentHasBlocker(false);
+            }
+        }
+        topicService.sendGameStatesToTopics(currentState);
     }
 
     public void attackShield(GameStateDto currentState,
@@ -93,11 +95,13 @@ public class AttackService {
                              CardDto attackerCard) {
 
         playCard(opponentShields, targetId, opponentHand);
-        log.info("target was shield : {}", targetCard.getName());
+
         attackerCard.setTapped(true);
         attackerCard.setCanAttack(false);
+
         targetCard.setCanBeAttacked(false);
         targetCard.setShield(false);
+
         currentState.setOpponentHasBlocker(false);
     }
 
@@ -115,48 +119,35 @@ public class AttackService {
         if (attackerPower > targetPower) {
             playCard(opponentBattleZone, targetCard.getGameCardId(), opponentGraveyard);
 
-            attackerCard.setTapped(true);
-            attackerCard.setCanAttack(false);
-            attackerCard.setCanBeAttacked(true);
-
-            targetCard.setCanBeAttacked(false);
-            targetCard.setCanAttack(false);
-
-            targetCard.setTapped(false);
+            changeCardState(attackerCard, true, false, true);
+            changeCardState(targetCard, false, false, false);
 
             log.info("{} won", attackerCard.getName());
         }
 
         if (attackerPower == targetPower) {
+
             playCard(opponentBattleZone, targetCard.getGameCardId(), opponentGraveyard);
             playCard(ownBattleZone, attackerCard.getGameCardId(), ownGraveyard);
 
-            attackerCard.setCanBeAttacked(false);
-            attackerCard.setCanAttack(false);
-
-            targetCard.setCanBeAttacked(false);
-            targetCard.setCanAttack(false);
-
-            targetCard.setTapped(false);
-            attackerCard.setTapped(false);
+            changeCardState(attackerCard, false, false, false);
+            changeCardState(targetCard, false, false, false);
 
             log.info("Both lost");
         }
 
         if (attackerPower < targetPower) {
+
             playCard(ownBattleZone, attackerCard.getGameCardId(), ownGraveyard);
 
-            attackerCard.setCanBeAttacked(false);
-            attackerCard.setCanAttack(false);
-
-            targetCard.setCanBeAttacked(true);
-            targetCard.setCanAttack(false);
-
-            attackerCard.setTapped(false);
-            targetCard.setTapped(true);
+            changeCardState(attackerCard, false, false, false);
+            changeCardState(targetCard, true, false, true);
 
             log.info("{} lost", attackerCard.getName());
         }
-        currentState.setAlreadyMadeADecision(false);
+
+        currentState.getBlockerFlagsDto().setBlockerDecisionMade(false);
     }
+
+
 }
