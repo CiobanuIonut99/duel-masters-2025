@@ -48,9 +48,14 @@ public class AttackShieldService implements AttackService {
             if (SHIELD_TRIGGER.equalsIgnoreCase(targetCard.getSpecialAbility())) {
 
                 currentState.getShieldTriggersFlagsDto().setShieldTrigger(true);
-                currentState.setShieldTriggerCard(targetCard);
                 currentState.setOpponentHasBlocker(false);
                 currentState.setShieldTriggerCard(targetCard);
+
+            } else if (SHIELD_TRIGGER.equalsIgnoreCase(attackerCard.getSpecialAbility())) {
+
+                currentState.getShieldTriggersFlagsDto().setShieldTrigger(true);
+                currentState.setOpponentHasBlocker(false);
+                currentState.setShieldTriggerCard(attackerCard);
 
             } else {
                 attackShieldAsPlayerOrOpponent(currentState,

@@ -71,8 +71,8 @@ public class AttackCreatureService implements AttackService {
         if (attackerPower > targetPower) {
             playCard(opponentBattleZone, targetCard.getGameCardId(), opponentGraveyard);
 
-            changeCardState(attackerCard, true, false, true);
-            changeCardState(targetCard, false, false, false);
+            changeCardState(attackerCard, true, false, true, false);
+            changeCardState(targetCard, false, false, false, false);
 
             log.info("{} won", attackerCard.getName());
         }
@@ -82,8 +82,8 @@ public class AttackCreatureService implements AttackService {
             playCard(opponentBattleZone, targetCard.getGameCardId(), opponentGraveyard);
             playCard(ownBattleZone, attackerCard.getGameCardId(), ownGraveyard);
 
-            changeCardState(attackerCard, false, false, false);
-            changeCardState(targetCard, false, false, false);
+            changeCardState(attackerCard, false, false, false, false);
+            changeCardState(targetCard, false, false, false, false);
 
             log.info("Both lost");
         }
@@ -92,8 +92,8 @@ public class AttackCreatureService implements AttackService {
 
             playCard(ownBattleZone, attackerCard.getGameCardId(), ownGraveyard);
 
-            changeCardState(attackerCard, false, false, false);
-            changeCardState(targetCard, true, false, true);
+            changeCardState(attackerCard, false, false, false, false);
+            changeCardState(targetCard, true, false, true, false);
 
             log.info("{} lost", attackerCard.getName());
         }

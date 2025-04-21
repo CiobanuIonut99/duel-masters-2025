@@ -172,7 +172,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             .map((c) => CardModel.fromJson(c))
             .toList();
 
-    if (opponentHasBlocker && currentTurnPlayerId != currentPlayerId) {
+    if (opponentHasBlocker) {
       Future.microtask(() => _showBlockerSelectionDialog());
     }
 
