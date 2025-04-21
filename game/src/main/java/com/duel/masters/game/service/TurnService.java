@@ -31,6 +31,7 @@ public class TurnService {
         setCardsSummonable(opponentManaZone, opponentHand);
         setOpponentsCreaturesCanAttack(opponentBattleZone);
         cureOpponentsCreaturesSickness(opponentBattleZone);
+        opponentBattleZone.forEach(cardDto -> cardDto.setCanBeAttacked(false));
         setOpponentsCreaturesAttackable(cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone());
 
         topicService.sendGameStatesToTopics(currentState);

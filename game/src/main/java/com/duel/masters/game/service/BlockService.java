@@ -27,7 +27,6 @@ public class BlockService {
         var ownShields = ownCards.getShields();
         var ownBattleZone = ownCards.getBattleZone();
         var ownGraveyard = ownCards.getGraveyard();
-        var ownHand = ownCards.getHand();
 
         if (incomingState.isHasSelectedBlocker()) {
 
@@ -60,28 +59,16 @@ public class BlockService {
 
             if (targetCard.isShield()) {
 
-
-                if (targetCard.getSpecialAbility().equalsIgnoreCase("SHIELD_TRIGGER")) {
-                    currentState.getShieldTriggersFlagsDto().setShieldTrigger(true);
-                    currentState.setOpponentHasBlocker(false);
-                    currentState.getBlockerFlagsDto().setBlockerDecisionMade(false);
-                    currentState.setShieldTriggerCard(targetCard);
-                } else {
-                    attackShieldService.attackShield(
-                            currentState,
-                            ownShields,
-                            targetId,
-                            ownHand,
-                            targetCard,
-                            attackerCard
-                    );
-
-                    currentState.getBlockerFlagsDto().setBlockerDecisionMade(false);
-                    currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
-                }
-
+                attackShieldService.attack(
+                        currentState,
+                        incomingState,
+                        targetCard,
+                        attackerCard,
+                        attackerId
+                );
 
             } else {
+
                 attackCreatureService.attackCreature(
                         attackerCard,
                         targetCard,

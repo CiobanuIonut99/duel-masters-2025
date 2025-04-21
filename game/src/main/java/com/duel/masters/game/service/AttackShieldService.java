@@ -1,5 +1,7 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.dto.BlockerFlagsDto;
+import com.duel.masters.game.dto.CardsDto;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import lombok.AllArgsConstructor;
@@ -27,6 +29,7 @@ public class AttackShieldService implements AttackService {
                        String targetId) {
 
         var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
+        var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
         var opponentShields = opponentCards.getShields();
         var opponentHand = opponentCards.getHand();
         var opponentBattleZone = opponentCards.getBattleZone();
@@ -41,21 +44,52 @@ public class AttackShieldService implements AttackService {
 
         } else {
 
+
             if (SHIELD_TRIGGER.equalsIgnoreCase(targetCard.getSpecialAbility())) {
 
                 currentState.getShieldTriggersFlagsDto().setShieldTrigger(true);
                 currentState.setShieldTriggerCard(targetCard);
+                currentState.setOpponentHasBlocker(false);
+                currentState.setShieldTriggerCard(targetCard);
 
             } else {
-                attackShield(currentState,
-                        opponentShields,
-                        targetId,
-                        opponentHand,
+                attackShieldAsPlayerOrOpponent(currentState,
+                        attackerCard,
                         targetCard,
-                        attackerCard);
+                        targetId,
+                        blockerFlagsDto,
+                        ownCards,
+                        opponentShields,
+                        opponentHand);
+
+                currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
             }
 
             currentState.getBlockerFlagsDto().setBlockerDecisionMade(false);
+        }
+    }
+
+    private void attackShieldAsPlayerOrOpponent(GameStateDto currentState, CardDto attackerCard, CardDto targetCard, String targetId, BlockerFlagsDto blockerFlagsDto, CardsDto ownCards, List<CardDto> opponentShields, List<CardDto> opponentHand) {
+//        Daca ai selectat ca nu vrei sa blochezi cu blocker
+//        se executa primul IF dpdv oponent
+//        altfel se executa else dpdv player
+        if (blockerFlagsDto.isBlockerDecisionMade()) {
+            attackShield(
+                    currentState,
+                    ownCards.getShields(),
+                    attackerCard.getGameCardId(),
+                    ownCards.getHand(),
+                    attackerCard,
+                    targetCard
+            );
+        } else {
+            attackShield(
+                    currentState,
+                    opponentShields,
+                    targetId,
+                    opponentHand,
+                    targetCard,
+                    attackerCard);
         }
     }
 
