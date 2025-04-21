@@ -36,9 +36,12 @@ public class AttackService {
         var attackerId = incomingState.getAttackerId();
 
         var attackerCard = getCardDtoFromList(ownBattleZone, attackerId);
-        var targetCard = incomingState.isTargetShield() ? getCardDtoFromList(opponentShields, targetId) : getCardDtoFromList(opponentBattleZone, targetId);
+        var targetCard = incomingState.getShieldTriggersFlagsDto().isTargetShield() ? getCardDtoFromList(opponentShields, targetId) : getCardDtoFromList(opponentBattleZone, targetId);
 
-        currentState.setTargetShield(incomingState.isTargetShield());
+        currentState
+                .getShieldTriggersFlagsDto()
+                .setTargetShield(incomingState.getShieldTriggersFlagsDto().isTargetShield());
+//        currentState.setTargetShield(incomingState.isTargetShield());
         currentState.setAttackerId(attackerId);
         currentState.setTargetId(targetId);
 
@@ -50,10 +53,11 @@ public class AttackService {
                 currentState.setAlreadyMadeADecision(true);
             } else {
                 if (targetCard.isShield()) {
-                    if (targetCard
+                     if (targetCard
                             .getSpecialAbility().
                             equalsIgnoreCase("SHIELD_TRIGGER")) {
-                        currentState.setShieldTrigger(true);
+                        currentState.getShieldTriggersFlagsDto().setShieldTrigger(true);
+//                        currentState.setShieldTrigger(true);
                         currentState.setShieldTriggerCard(targetCard);
                     } else {
                         attackShield(currentState,

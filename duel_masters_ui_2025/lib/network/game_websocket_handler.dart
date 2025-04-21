@@ -333,12 +333,11 @@ class GameWebSocketHandler {
       "action": "ATTACK",
       "attackerId": attackerId,
       "targetId": targetId,
-      "targetShield": targetShield,
+      "shieldTriggersFlagsDto": {"targetShield": targetShield},
     };
     stompClient.send(
       destination: '/duel-masters/game/action',
       body: jsonEncode(payload),
     );
   }
-
 }

@@ -26,8 +26,8 @@ public class CastShieldTriggerService {
         } else {
             doNotUseShieldTrigger(currentState, incomingState);
         }
-
-        currentState.setShieldTrigger(false);
+        currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
+//        currentState.setShieldTrigger(false);
         topicService.sendGameStatesToTopics(currentState);
     }
 

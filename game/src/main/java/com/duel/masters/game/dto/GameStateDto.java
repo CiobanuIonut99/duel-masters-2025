@@ -37,8 +37,7 @@ public class GameStateDto {
 
     private String playerTopic;
 
-    private boolean targetShield;
-    private boolean shieldTrigger;
+
     private boolean usingShieldTrigger;
     private CardDto shieldTriggerCard;
 

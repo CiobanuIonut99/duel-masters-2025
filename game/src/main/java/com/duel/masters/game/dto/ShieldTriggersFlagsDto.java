@@ -14,5 +14,9 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ShieldTriggersFlagsDto {
+
+    private boolean targetShield;
+    private boolean shieldTrigger;
     private boolean mustSelectCreatureToTap;
+
 }

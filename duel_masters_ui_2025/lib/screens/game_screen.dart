@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
@@ -12,6 +11,7 @@ import '../dialogs/creature_selection_dialog.dart';
 import '../dialogs/mana_selection_dialog.dart';
 import '../dialogs/shield_trigger_dialog.dart';
 import '../models/card_model.dart';
+import '../models/shiel_trigger_flags_dto.dart';
 import '../network/game_data_service.dart';
 import '../network/game_state_parse.dart';
 import '../network/game_websocket_handler.dart';
@@ -29,6 +29,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool opponentHasBlocker = false;
   bool shieldTrigger = false;
   CardModel? selectedBlocker;
+
+  ShieldTriggersFlagsDto? shieldFlags;
 
   // Current player overall cards
   List<CardModel> playerHand = [];
@@ -154,13 +156,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void _updateGameState(Map<String, dynamic> responseBody) {
-    final newTurnPlayerId = responseBody['currentTurnPlayerId'];
 
-    mustSelectCreatureToTap =
-        responseBody['shieldTriggersFlagsDto']?['mustSelectCreatureToTap'] ?? false;
+    final newTurnPlayerId = responseBody['currentTurnPlayerId'];
+    final shieldTriggerFlagsJson = responseBody['shieldTriggersFlagsDto'] ?? {};
+
+    shieldFlags = ShieldTriggersFlagsDto.fromJson(shieldTriggerFlagsJson);
+
+    mustSelectCreatureToTap = shieldFlags?.mustSelectCreatureToTap ?? false;
+    shieldTrigger = shieldFlags?.shieldTrigger ?? false;
 
     opponentHasBlocker = responseBody['opponentHasBlocker'];
-    shieldTrigger = responseBody['shieldTrigger'];
 
     opponentSelectableCreatures =
         (responseBody['opponentSelectableCreatures'] as List? ?? [])
@@ -194,12 +199,14 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final zones = GameStateParser.parse(responseBody);
 
     setState(() {
+
       currentTurnPlayerId = newTurnPlayerId;
       previousTurnPlayerId = newTurnPlayerId;
       opponentId = responseBody['opponentId'];
       playedMana = responseBody['playedMana'];
       opponentHasBlocker = responseBody['opponentHasBlocker'];
-      shieldTrigger = responseBody['shieldTrigger'];
+      shieldTrigger = shieldFlags?.shieldTrigger ?? false;
+      // shieldTrigger = responseBody['shieldTrigger'];
 
       playerHand = zones.playerHand;
       playerDeck = zones.playerDeck;

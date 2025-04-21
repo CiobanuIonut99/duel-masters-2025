@@ -56,11 +56,12 @@ public class BlockService {
             var targetId = currentState.getTargetId();
 
             var attackerCard = getCardDtoFromList(opponentBattleZone, attackerId);
-            var targetCard = currentState.isTargetShield() ? getCardDtoFromList(ownShields, targetId) : getCardDtoFromList(ownBattleZone, targetId);
+            var targetCard = currentState.getShieldTriggersFlagsDto().isTargetShield() ? getCardDtoFromList(ownShields, targetId) : getCardDtoFromList(ownBattleZone, targetId);
 
             if (targetCard.isShield()) {
                 if (targetCard.getSpecialAbility().equalsIgnoreCase("SHIELD_TRIGGER")) {
-                    currentState.setShieldTrigger(true);
+                    currentState.getShieldTriggersFlagsDto().setShieldTrigger(true);
+//                    currentState.setShieldTrigger(true);
                     currentState.setOpponentHasBlocker(false);
                     currentState.setAlreadyMadeADecision(false);
                     currentState.setShieldTriggerCard(targetCard);
@@ -76,7 +77,8 @@ public class BlockService {
 
                     currentState.setOpponentHasBlocker(false);
                     currentState.setAlreadyMadeADecision(false);
-                    currentState.setShieldTrigger(false);
+                    currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
+//                    currentState.setShieldTrigger(false);
                 }
             } else {
                 attackService.attackCreature(

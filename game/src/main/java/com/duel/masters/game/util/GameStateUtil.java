@@ -7,7 +7,6 @@ import com.duel.masters.game.dto.player.service.PlayerDto;
 public class GameStateUtil {
 
     public static GameStateDto getGameStateDto(String gameId, PlayerDto player, PlayerDto opponent, boolean isPlayer1Chosen, String playerTopic) {
-        ShieldTriggersFlagsDto shieldTriggersFlagsDto = new ShieldTriggersFlagsDto();
         return GameStateDto
                 .builder()
                 .gameId(gameId)
@@ -56,7 +55,6 @@ public class GameStateUtil {
                 .opponentHasBlocker(gameStateDto.isOpponentHasBlocker())
                 .hasSelectedBlocker(gameStateDto.isHasSelectedBlocker())
                 .attackerId(gameStateDto.getAttackerId())
-                .shieldTrigger(gameStateDto.isShieldTrigger())
                 .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
                 .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
                 .opponentSelectableCreatures(gameStateDto.getOpponentSelectableCreatures())
@@ -91,7 +89,6 @@ public class GameStateUtil {
                 .opponentHasBlocker(gameStateDto.isOpponentHasBlocker())
                 .hasSelectedBlocker(gameStateDto.isHasSelectedBlocker())
                 .attackerId(gameStateDto.getAttackerId())
-                .shieldTrigger(gameStateDto.isShieldTrigger())
                 .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
                 .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
                 .opponentSelectableCreatures(gameStateDto.getOpponentSelectableCreatures())
