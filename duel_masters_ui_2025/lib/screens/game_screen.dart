@@ -11,6 +11,7 @@ import '../dialogs/creature_selection_dialog.dart';
 import '../dialogs/mana_selection_dialog.dart';
 import '../dialogs/select_cards_from_deck_dialog.dart';
 import '../dialogs/shield_trigger_dialog.dart';
+import '../dialogs/styled_dialog_container.dart';
 import '../models/card_model.dart';
 import '../models/shiel_trigger_flags_dto.dart';
 import '../network/game_data_service.dart';
@@ -658,18 +659,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  /// Creates a standard zone UI with consistent styling.
   void _showBlockerSelectionDialog() {
     final isDefendingPlayer = currentTurnPlayerId != currentPlayerId;
-    if (!isDefendingPlayer) return;
-
-    final blockers =
-        playerBattleZone.where((c) => c.specialAbility == 'BLOCKER').toList();
+    final blockers = playerBattleZone.where((c) => c.specialAbility == 'BLOCKER').toList();
 
     showDialog(
       context: context,
-      builder:
-          (_) => BlockerSelectionDialog(
+      barrierDismissible: false,
+      builder: (_) {
+        if (isDefendingPlayer) {
+          // Defender: Select a blocker
+          return BlockerSelectionDialog(
             blockers: blockers,
             onConfirm: (selected) {
               wsHandler.confirmBlockerSelection(
@@ -685,6 +685,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     _cancelAttackSelection();
                     opponentHasBlocker = false;
                   });
+                  Navigator.pop(context);
                 },
               );
             },
@@ -699,12 +700,52 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     _cancelAttackSelection();
                     opponentHasBlocker = false;
                   });
+                  Navigator.pop(context);
                 },
               );
             },
-          ),
+          );
+        } else {
+          // Attacker: Just wait and see this info
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+            child: StyledDialogContainer(
+              borderColor: Colors.greenAccent,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "Waiting for opponent to block...",
+                    style: kDialogTitleStyle,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "The defending player is choosing a blocker...",
+                    style: kDialogSubtitleStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  if (selectedAttacker != null) ...[
+                    const Text(
+                      "Attacking with:",
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 6),
+                    Image.asset(selectedAttacker!.imagePath, width: 80),
+                    const SizedBox(height: 16),
+                  ],
+                  const CircularProgressIndicator(color: Colors.greenAccent),
+                ],
+              ),
+            ),
+          );
+        }
+      },
     );
   }
+
+
 
   void _showShieldTriggerDialog() {
     if (shieldTrigger && shieldTriggerCard != null) {
