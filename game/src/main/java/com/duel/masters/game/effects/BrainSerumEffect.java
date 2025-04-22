@@ -29,6 +29,7 @@ public class BrainSerumEffect implements ShieldTriggerEffect {
 
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
 
+            currentState.setAlreadyMadeADecision(true);
             currentState.getShieldTriggersFlagsDto().setMustDrawCardsFromDeck(false);
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 

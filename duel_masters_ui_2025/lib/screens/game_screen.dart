@@ -188,7 +188,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
 
     if (!shieldTrigger && Navigator.canPop(context)) {
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(); //dismiss for opponent
+    }
+
+    if (!opponentHasBlocker && Navigator.canPop(context)) {
+      Navigator.of(context).pop(); //dismiss for opponent
     }
 
     if (previousTurnPlayerId != null &&
@@ -661,7 +665,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void _showBlockerSelectionDialog() {
     final isDefendingPlayer = currentTurnPlayerId != currentPlayerId;
-    final blockers = playerBattleZone.where((c) => c.specialAbility == 'BLOCKER').toList();
+    final blockers =
+        playerBattleZone.where((c) => c.specialAbility == 'BLOCKER').toList();
 
     showDialog(
       context: context,
@@ -744,8 +749,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       },
     );
   }
-
-
 
   void _showShieldTriggerDialog() {
     if (shieldTrigger && shieldTriggerCard != null) {

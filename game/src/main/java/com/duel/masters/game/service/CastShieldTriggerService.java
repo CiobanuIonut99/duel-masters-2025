@@ -66,6 +66,8 @@ public class CastShieldTriggerService {
                         attackerCard
                 );
 
+        currentState.setAlreadyMadeADecision(false);
+
     }
 
 
