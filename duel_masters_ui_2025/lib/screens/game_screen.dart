@@ -93,6 +93,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool tapped = false;
 
   bool mustSelectCreatureToTap = false;
+  bool mustDrawCardsFromDeck = false;
 
   List<CardModel> opponentSelectableCreatures = [];
   CardModel? selectedOpponentCreature;
@@ -163,7 +164,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     shieldFlags = ShieldTriggersFlagsDto.fromJson(shieldTriggerFlagsJson);
 
     mustSelectCreatureToTap = shieldFlags?.mustSelectCreatureToTap ?? false;
-    mustSelectCreatureToTap = shieldFlags?.mustDrawCardsFromDeck ?? false;
+    mustDrawCardsFromDeck = shieldFlags?.mustDrawCardsFromDeck ?? false;
     shieldTrigger = shieldFlags?.shieldTrigger ?? false;
 
     opponentHasBlocker = responseBody['opponentHasBlocker'];
@@ -181,7 +182,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       Future.microtask(() => _showShieldTriggerDialog());
     }
 
-    if (shieldFlags?.mustDrawCardsFromDeck == true) {
+    if (mustDrawCardsFromDeck) {
       Future.microtask(() => _showDrawFromDeckDialog());
     }
 
@@ -210,7 +211,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       playedMana = responseBody['playedMana'];
       opponentHasBlocker = responseBody['opponentHasBlocker'];
       shieldTrigger = shieldFlags?.shieldTrigger ?? false;
-      // shieldTrigger = responseBody['shieldTrigger'];
+      mustDrawCardsFromDeck = shieldFlags?.mustDrawCardsFromDeck ?? false;
 
       playerHand = zones.playerHand;
       playerDeck = zones.playerDeck;
@@ -881,14 +882,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 action: "CAST_SHIELD_TRIGGER",
                 cardsChosen: selectedIds,
                 shieldTriggerDecisionMade: true,
+                usingShieldTrigger: true,
                 onSuccess: () {
                   setState(() {
                     shieldTrigger = false;
                     shieldTriggerCard = null;
                   });
-                  Navigator.pop(
-                    context,
-                  ); // ✅ Close it here after backend success
                 },
               );
             },

@@ -245,6 +245,34 @@ class GameWebSocketHandler {
     );
   }
 
+  void sendDrawCardsFromDeck({
+    required String? gameId,
+    required int playerId,
+    required int? currentTurnPlayerId,
+    required String? action,
+    required Null Function() onSuccess,
+    required List<String> cardsChosen,
+    required bool? shieldTriggerDecisionMade,
+    required usingShieldTrigger,
+  }) {
+    if (!stompClient.connected) return;
+    final payload = {
+      "gameId": gameId,
+      "playerId": currentPlayerId,
+      "currentTurnPlayerId": currentTurnPlayerId,
+      "action": action,
+      "shieldTriggersFlagsDto": {
+        "cardsChosen": cardsChosen,
+        "shieldTriggerDecisionMade": shieldTriggerDecisionMade,
+      },
+      "usingShieldTrigger":usingShieldTrigger
+    };
+    stompClient.send(
+      destination: '/duel-masters/game/action',
+      body: jsonEncode(payload),
+    );
+  }
+
   void doNotUseShieldTriggerCard({
     required String? gameId,
     required int playerId,
@@ -334,32 +362,6 @@ class GameWebSocketHandler {
       "attackerId": attackerId,
       "targetId": targetId,
       "shieldTriggersFlagsDto": {"targetShield": targetShield},
-    };
-    stompClient.send(
-      destination: '/duel-masters/game/action',
-      body: jsonEncode(payload),
-    );
-  }
-
-  void sendDrawCardsFromDeck({
-    required String? gameId,
-    required int playerId,
-    required int? currentTurnPlayerId,
-    required String? action,
-    required Null Function() onSuccess,
-    required List<String> cardsChosen,
-    required bool? shieldTriggerDecisionMade,
-  }) {
-    if (!stompClient.connected) return;
-    final payload = {
-      "gameId": gameId,
-      "playerId": currentPlayerId,
-      "currentTurnPlayerId": currentTurnPlayerId,
-      "action": action,
-      "shieldTriggersFlagsDto": {
-        "cardsChosen": cardsChosen,
-        "shieldTriggerDecisionMade": shieldTriggerDecisionMade,
-      }
     };
     stompClient.send(
       destination: '/duel-masters/game/action',
