@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class CardModel {
   final int id;
   final String gameCardId;
@@ -18,7 +16,8 @@ class CardModel {
   bool summoningSickness;
   bool canBeAttacked;
   bool canAttack;
-  bool? shield; // NEW
+  bool? shield;
+  bool destroyed;
 
   CardModel({
     required this.id,
@@ -37,7 +36,8 @@ class CardModel {
     this.summoningSickness = false,
     this.canBeAttacked = false,
     this.canAttack = false,
-    this.shield = false, // NEW
+    this.shield = false,
+    this.destroyed = false,
   });
 
   void toggleTap() {
@@ -61,7 +61,8 @@ class CardModel {
     'summoningSickness': summoningSickness,
     'canBeAttacked': canBeAttacked,
     'canAttack': canAttack,
-    'shield': shield, // NEW
+    'shield': shield,
+    'destroyed': destroyed,
   };
 
   factory CardModel.fromJson(Map<String, dynamic> json) {
@@ -82,7 +83,8 @@ class CardModel {
       summoningSickness: json['summoningSickness'] ?? false,
       canBeAttacked: json['canBeAttacked'] ?? false,
       canAttack: json['canAttack'] ?? false,
-      shield: json['shield'] ?? false, // NEW
+      shield: json['shield'] ?? false,
+      destroyed: json['destroyed'] ?? false,
     );
   }
 

@@ -29,4 +29,6 @@ public class CardDto {
     private boolean canBeAttacked;
     private boolean canAttack;
     private boolean shield;
+    private boolean destroyed;
+
 }

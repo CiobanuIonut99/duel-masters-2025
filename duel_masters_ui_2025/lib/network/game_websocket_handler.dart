@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_config.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
@@ -30,14 +31,16 @@ class GameWebSocketHandler {
       config: StompConfig(
         url: url,
         onConnect: _onConnect,
+        onDisconnect: (frame) {
+          debugPrint('❌ WebSocket disconnected: $frame');
+        },
         onWebSocketError: (dynamic error) => print('WebSocket Error: $error'),
+        reconnectDelay: Duration(seconds: 5),
         heartbeatOutgoing: Duration(seconds: 10),
-        // 🫀 send heartbeat every 10s
-        heartbeatIncoming: Duration(
-          seconds: 10,
-        ), // 🫀 expect heartbeat every 10s
+        heartbeatIncoming: Duration(seconds: 10),
       ),
     );
+
   }
 
   void connect() {

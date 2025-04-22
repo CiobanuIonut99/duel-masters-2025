@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static com.duel.masters.game.util.CardsDtoUtil.changeCardState;
 import static com.duel.masters.game.util.CardsDtoUtil.playCard;
@@ -18,6 +20,8 @@ import static com.duel.masters.game.util.ValidatorUtil.battleZoneHasAtLeastOneBl
 public class AttackCreatureService implements AttackService {
 
     private final CardsUpdateService cardsUpdateService;
+    private final TopicService topicService;
+
 
     @Override
     public void attack(GameStateDto currentState,
@@ -65,37 +69,70 @@ public class AttackCreatureService implements AttackService {
                                List<CardDto> ownGraveyard,
                                GameStateDto currentState) {
 
+
         var attackerPower = attackerCard.getPower();
         var targetPower = targetCard.getPower();
 
         if (attackerPower > targetPower) {
-            playCard(opponentBattleZone, targetCard.getGameCardId(), opponentGraveyard);
+            targetCard.setDestroyed(true);
 
-            changeCardState(attackerCard, true, false, true, false);
-            changeCardState(targetCard, false, false, false, false);
+            Executors
+                    .newSingleThreadScheduledExecutor()
+                    .schedule(
+                            () -> {
+                                playCard(opponentBattleZone, targetCard.getGameCardId(), opponentGraveyard);
+                                changeCardState(attackerCard, true, false, true, false);
+                                changeCardState(targetCard, false, false, false, false);
+                                log.info("{} won", attackerCard.getName());
+                                targetCard.setDestroyed(false);
+                                topicService.sendGameStatesToTopics(currentState);
+                            }
+                            , 700, TimeUnit.MILLISECONDS);
 
-            log.info("{} won", attackerCard.getName());
         }
 
         if (attackerPower == targetPower) {
 
-            playCard(opponentBattleZone, targetCard.getGameCardId(), opponentGraveyard);
-            playCard(ownBattleZone, attackerCard.getGameCardId(), ownGraveyard);
+            targetCard.setDestroyed(true);
+            attackerCard.setDestroyed(true);
 
-            changeCardState(attackerCard, false, false, false, false);
-            changeCardState(targetCard, false, false, false, false);
+            Executors
+                    .newSingleThreadScheduledExecutor()
+                    .schedule(
+                            () -> {
+                                playCard(opponentBattleZone, targetCard.getGameCardId(), opponentGraveyard);
+                                playCard(ownBattleZone, attackerCard.getGameCardId(), ownGraveyard);
 
-            log.info("Both lost");
+                                changeCardState(attackerCard, false, false, false, false);
+                                changeCardState(targetCard, false, false, false, false);
+                                targetCard.setDestroyed(false);
+                                attackerCard.setDestroyed(false);
+                                log.info("Both lost");
+
+                                topicService.sendGameStatesToTopics(currentState);
+                            },
+                            700, TimeUnit.MILLISECONDS
+                    );
+
         }
 
         if (attackerPower < targetPower) {
 
-            playCard(ownBattleZone, attackerCard.getGameCardId(), ownGraveyard);
+            attackerCard.setDestroyed(true);
 
-            changeCardState(attackerCard, false, false, false, false);
-            changeCardState(targetCard, true, false, true, false);
+            Executors
+                    .newSingleThreadScheduledExecutor()
+                    .schedule(() -> {
+                                playCard(ownBattleZone, attackerCard.getGameCardId(), ownGraveyard);
+                                changeCardState(attackerCard, false, false, false, false);
+                                changeCardState(targetCard, true, false, true, false);
+                                log.info("{} lost", attackerCard.getName());
+                                attackerCard.setDestroyed(false);
 
-            log.info("{} lost", attackerCard.getName());
+                                topicService.sendGameStatesToTopics(currentState);
+                            },
+                            700, TimeUnit.MILLISECONDS);
+
         }
 
         currentState.getBlockerFlagsDto().setBlockerDecisionMade(false);

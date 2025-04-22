@@ -62,8 +62,8 @@ public class BlockService {
                 attackShieldService.attack(
                         currentState,
                         incomingState,
-                        targetCard,
                         attackerCard,
+                        targetCard,
                         attackerId
                 );
 

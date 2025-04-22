@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
+import '../animations/destruction_effect.dart';
 import '../models/card_model.dart';
 
 class CardRow extends StatefulWidget {
@@ -58,7 +59,7 @@ class _CardRowState extends State<CardRow> {
                 widget.glowingManaCardIds.contains(card.gameCardId) ||
                 widget.glowAttackableCreatures.contains(card.gameCardId);
 
-            return Padding(
+            final cardWidget =  Padding(
               padding: EdgeInsets.symmetric(horizontal: card.tapped ? 16 : 8),
               child: MouseRegion(
                 onEnter: (_) => setState(() => hoveredCard = card),
@@ -248,11 +249,15 @@ class _CardRowState extends State<CardRow> {
                             ),
                           ),
                         ),
+
                     ],
                   ),
                 ),
               ),
             );
+            return card.destroyed
+                ? CreatureDestructionEffect(child: cardWidget)
+                : cardWidget;
           }).toList(),
     );
   }
