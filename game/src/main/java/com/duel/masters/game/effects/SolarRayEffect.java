@@ -3,6 +3,7 @@ package com.duel.masters.game.effects;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.service.CardsUpdateService;
 
+import static com.duel.masters.game.constant.Constant.CREATURE;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class SolarRayEffect implements ShieldTriggerEffect {
@@ -34,7 +35,7 @@ public class SolarRayEffect implements ShieldTriggerEffect {
             opponentCards
                     .getBattleZone()
                     .stream()
-                    .filter(cardDto -> "Creature".equalsIgnoreCase(cardDto.getType())
+                    .filter(cardDto -> CREATURE.equalsIgnoreCase(cardDto.getType())
                             &&
                             !cardDto.isTapped()
                             &&

@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Flame.device.setLandscape();
+  Flame.device.fullScreen();
   Flame.images.prefix = ''; // 👈 VERY IMPORTANT: disables "images/" prefix
   await Flame.device.fullScreen(); // Optional for mobile/web
   await Flame.device.setLandscape(); // Optional for game orientation

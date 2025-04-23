@@ -71,8 +71,8 @@ class _CreatureDestructionEffectState extends State<CreatureDestructionEffect>
               height: 80,
               child: GameWidget(
                 game: ExplosionEffectGame(),
-                backgroundBuilder: (context) => Container(), // Transparent background
-              ),
+                backgroundBuilder: (_) => const SizedBox.shrink(), // <- ✨ Completely transparent
+              )
             ),
 
         AnimatedBuilder(

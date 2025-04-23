@@ -10,6 +10,7 @@ public class Constant {
     public static final String END_TURN = "END_TURN";
     public static final String BLOCK = "BLOCK";
     public static final String BLOCKER = "BLOCKER";
+    public static final String CREATURE = "CREATURE";
     public static final String CAST_SHIELD_TRIGGER = "CAST_SHIELD_TRIGGER";
     public static final String SUMMON_TO_BATTLE_ZONE = "SUMMON_TO_BATTLE_ZONE";
     public static final String ATTACK = "ATTACK";
