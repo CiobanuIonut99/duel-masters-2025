@@ -21,8 +21,9 @@ public class ShieldTriggersFlagsDto {
     private boolean targetShield;
     private boolean shieldTrigger;
     private boolean chosenAnyCards;
-    private boolean mustDrawCardsFromDeck;
-    private boolean mustSelectCreatureToTap;
+    private boolean brainSerumMustDrawCards;
+    private boolean crystalMemoryMustDrawCard;
+    private boolean solarRayMustSelectCreature;
 
     private boolean shieldTriggerDecisionMade;
 

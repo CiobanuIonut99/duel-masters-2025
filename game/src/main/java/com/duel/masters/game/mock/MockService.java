@@ -20,12 +20,6 @@ public class MockService {
         boolean foundInHand = false;
         boolean foundInDeck = false;
 
-        for (var shield : shields) {
-            if (Objects.equals(shield.getId(), futureShieldId)) {
-                continue;
-            }
-        }
-
         for (var card : hand) {
             if (Objects.equals(card.getId(), futureShieldId)) {
                 soonToBeShield = card;

@@ -4,12 +4,14 @@ import '../models/card_model.dart';
 class SelectCardsFromDeckDialog extends StatefulWidget {
   final List<CardModel> deck;
   final int maxSelection;
+  final int minSelection;
   final void Function(List<String> selectedIds) onConfirm;
 
   const SelectCardsFromDeckDialog({
     super.key,
     required this.deck,
     this.maxSelection = 2,
+    this.minSelection = 1,
     required this.onConfirm,
   });
 
@@ -31,7 +33,7 @@ class _SelectCardsFromDeckDialogState extends State<SelectCardsFromDeckDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "Select ${widget.maxSelection} cards",
+              "Select at least 1 card",
               style: TextStyle(color: Colors.white, fontSize: 20),
             ),
             SizedBox(height: 12),
@@ -80,14 +82,16 @@ class _SelectCardsFromDeckDialogState extends State<SelectCardsFromDeckDialog> {
             ),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: selectedCardIds.length == widget.maxSelection
+              onPressed: (selectedCardIds.length >= widget.minSelection &&
+                  selectedCardIds.length <= widget.maxSelection)
                   ? () {
-                Navigator.pop(context); // ✅ Close first
-                widget.onConfirm(selectedCardIds.toList()); // ✅ Then call confirm
+                Navigator.pop(context);
+                widget.onConfirm(selectedCardIds.toList());
               }
                   : null,
               child: Text("Confirm"),
             ),
+
           ],
         ),
       ),

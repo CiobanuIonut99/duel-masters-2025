@@ -3,9 +3,11 @@ package com.duel.masters.game.effects;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.service.CardsUpdateService;
 
+import java.util.Collections;
+
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
-public class BrainSerumEffect implements ShieldTriggerEffect {
+public class CrystalMemoryEffect implements ShieldTriggerEffect {
     @Override
     public void execute(GameStateDto currentState, GameStateDto incomingState, CardsUpdateService cardsUpdateService) {
 
@@ -29,14 +31,16 @@ public class BrainSerumEffect implements ShieldTriggerEffect {
 
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
 
-            currentState.getShieldTriggersFlagsDto().setBrainSerumMustDrawCards(false);
+            currentState.getShieldTriggersFlagsDto().setCrystalMemoryMustDrawCard(false);
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 
             changeCardState(attackerCard, true, false, true, false);
 
+            Collections.shuffle(ownCards.getDeck());
+
         } else {
 
-            currentState.getShieldTriggersFlagsDto().setBrainSerumMustDrawCards(true);
+            currentState.getShieldTriggersFlagsDto().setCrystalMemoryMustDrawCard(true);
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(true);
 
         }

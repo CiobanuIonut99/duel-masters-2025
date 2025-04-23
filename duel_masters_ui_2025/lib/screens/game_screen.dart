@@ -14,7 +14,6 @@ import '../dialogs/shield_trigger_dialog.dart';
 import '../dialogs/styled_dialog_container.dart';
 import '../models/card_model.dart';
 import '../models/shiel_trigger_flags_dto.dart';
-import '../network/game_data_service.dart';
 import '../network/game_state_parse.dart';
 import '../network/game_websocket_handler.dart';
 import '../widgets/opponent_field.dart';
@@ -93,8 +92,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool animateShieldToHand = false;
   bool tapped = false;
 
-  bool mustSelectCreatureToTap = false;
-  bool mustDrawCardsFromDeck = false;
+  bool solarRayMustSelectCreature = false;
+  bool brainSerumMustDrawCards = false;
+  bool crystalMemoryMustDrawCard = false;
 
   List<CardModel> opponentSelectableCreatures = [];
   CardModel? selectedOpponentCreature;
@@ -112,7 +112,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    // fetchGameData();
 
     wsHandler = GameWebSocketHandler(
       url: 'ws://localhost:8080/duel-masters-ws',
@@ -144,28 +143,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  // Future<void> fetchGameData() async {
-  //   try {
-  //     final result = await GameDataService.fetchInitialGameData();
-  //     setState(() {
-  //       playerDeck = result['deck']!;
-  //       playerShields = result['shields']!;
-  //       playerHand = result['hand']!;
-  //       deckSize = playerDeck.length;
-  //     });
-  //   } catch (e) {
-  //     print("Error loading game data: $e");
-  //   }
-  // }
-
   void _updateGameState(Map<String, dynamic> responseBody) {
     final newTurnPlayerId = responseBody['currentTurnPlayerId'];
     final shieldTriggerFlagsJson = responseBody['shieldTriggersFlagsDto'] ?? {};
 
     shieldFlags = ShieldTriggersFlagsDto.fromJson(shieldTriggerFlagsJson);
 
-    mustSelectCreatureToTap = shieldFlags?.mustSelectCreatureToTap ?? false;
-    mustDrawCardsFromDeck = shieldFlags?.mustDrawCardsFromDeck ?? false;
+    solarRayMustSelectCreature =
+        shieldFlags?.solarRayMustSelectCreature ?? false;
+
+    brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
+    crystalMemoryMustDrawCard = shieldFlags?.crystalMemoryMustDrawCard ?? false;
+
     shieldTrigger = shieldFlags?.shieldTrigger ?? false;
 
     opponentHasBlocker = responseBody['opponentHasBlocker'];
@@ -183,8 +172,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       Future.microtask(() => _showShieldTriggerDialog());
     }
 
-    if (mustDrawCardsFromDeck) {
-      Future.microtask(() => _showDrawFromDeckDialog());
+    if (brainSerumMustDrawCards) {
+      Future.microtask(() => _showDrawFromDeckDialog(1, 2));
+    }
+
+    if (crystalMemoryMustDrawCard) {
+      Future.microtask(() => _showDrawFromDeckDialog(1, 1));
     }
 
     if (!shieldTrigger && Navigator.canPop(context)) {
@@ -206,7 +199,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       shieldTrigger = true;
     }
 
-    // ✅ Use the new parser
     final zones = GameStateParser.parse(responseBody);
 
     setState(() {
@@ -216,7 +208,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       playedMana = responseBody['playedMana'];
       opponentHasBlocker = responseBody['opponentHasBlocker'];
       shieldTrigger = shieldFlags?.shieldTrigger ?? false;
-      mustDrawCardsFromDeck = shieldFlags?.mustDrawCardsFromDeck ?? false;
+      brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
+      crystalMemoryMustDrawCard =
+          shieldFlags?.crystalMemoryMustDrawCard ?? false;
 
       playerHand = zones.playerHand;
       playerDeck = zones.playerDeck;
@@ -302,7 +296,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 print("📡 Subscribed to: /topic/game/$gameId/$playerTopic");
 
                 final responseBody = jsonDecode(frame.body!);
-                print("📩 Received game payload size: ${frame.body?.length ?? 0} bytes");
+                print(
+                  "📩 Received game payload size: ${frame.body?.length ?? 0} bytes",
+                );
 
                 currentGameId = responseBody['gameId'];
                 myPlayerTopic = responseBody['playerTopic'];
@@ -624,7 +620,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            if (mustSelectCreatureToTap) _showCreatureSelectionOverlay(),
+            if (solarRayMustSelectCreature) _showCreatureSelectionOverlay(),
           ],
         ),
       ),
@@ -912,14 +908,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showDrawFromDeckDialog() {
+  void _showDrawFromDeckDialog(int minSelection, int maxSelection) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder:
           (_) => SelectCardsFromDeckDialog(
             deck: playerDeck,
-            maxSelection: 2,
+            minSelection: minSelection,
+            maxSelection: maxSelection,
             onConfirm: (selectedIds) {
               wsHandler.sendDrawCardsFromDeck(
                 gameId: currentGameId,

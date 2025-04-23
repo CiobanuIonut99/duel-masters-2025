@@ -10,6 +10,7 @@ public class ShieldTriggerRegistry {
         shieldTriggerEffects.put("Holy Awe", new HolyAweEffect());
         shieldTriggerEffects.put("Solar Ray", new SolarRayEffect());
         shieldTriggerEffects.put("Brain Serum", new BrainSerumEffect());
+        shieldTriggerEffects.put("Crystal Memory", new CrystalMemoryEffect());
     }
 
     public static ShieldTriggerEffect getShieldTriggerEffect(String name) {

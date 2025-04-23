@@ -98,14 +98,22 @@ public class DeckService {
                 .filter(cardDto -> cardDto.getId() == 37)
                 .findFirst()
                 .orElseThrow();
+
+        var crystalMemory = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 39)
+                .findFirst()
+                .orElseThrow();
         List<CardDto> cardsToAdd = new ArrayList<>();
 
 // These always get added later
         cardsToAdd.add(holyawe);
         cardsToAdd.add(solarRay);
         cardsToAdd.add(brainSerum);
+        cardsToAdd.add(crystalMemory);
 
-        deck.removeIf(c -> c.getId() == 16 || c.getId() == 29 || c.getId() == 37);
+        deck.removeIf(c -> c.getId() == 16 || c.getId() == 29 || c.getId() == 37
+         || c.getId() == 39);
         while (deck.size() + cardsToAdd.size() > 40) {
             deck.removeFirst(); // remove extras
         }

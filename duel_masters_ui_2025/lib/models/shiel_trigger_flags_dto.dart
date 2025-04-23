@@ -1,22 +1,25 @@
 class ShieldTriggersFlagsDto {
-  final bool mustSelectCreatureToTap;
+  final bool solarRayMustSelectCreature;
   final bool targetShield;
   final bool shieldTrigger;
-  final bool mustDrawCardsFromDeck;
+  final bool brainSerumMustDrawCards;
+  final bool crystalMemoryMustDrawCard;
 
   ShieldTriggersFlagsDto({
-    required this.mustSelectCreatureToTap,
+    required this.solarRayMustSelectCreature,
     required this.targetShield,
     required this.shieldTrigger,
-    required this.mustDrawCardsFromDeck,
+    required this.brainSerumMustDrawCards,
+    required this.crystalMemoryMustDrawCard,
   });
 
   factory ShieldTriggersFlagsDto.fromJson(Map<String, dynamic> json) {
     return ShieldTriggersFlagsDto(
-      mustSelectCreatureToTap: json['mustSelectCreatureToTap'] ?? false,
+      solarRayMustSelectCreature: json['solarRayMustSelectCreature'] ?? false,
       targetShield: json['targetShield'] ?? false,
       shieldTrigger: json['shieldTrigger'] ?? false,
-      mustDrawCardsFromDeck: json['mustDrawCardsFromDeck'] ?? false,
+      brainSerumMustDrawCards: json['brainSerumMustDrawCards'] ?? false,
+      crystalMemoryMustDrawCard: json['crystalMemoryMustDrawCard'] ?? false,
     );
   }
 }

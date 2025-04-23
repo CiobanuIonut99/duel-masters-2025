@@ -23,7 +23,7 @@ public class SolarRayEffect implements ShieldTriggerEffect {
             opponentCardToBeTapped.setTapped(true);
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
 
-            currentState.getShieldTriggersFlagsDto().setMustSelectCreatureToTap(false);
+            currentState.getShieldTriggersFlagsDto().setSolarRayMustSelectCreature(false);
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 
             changeCardState(attackerCard, true, false, true, false);
@@ -47,13 +47,13 @@ public class SolarRayEffect implements ShieldTriggerEffect {
 
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
 
-                currentState.getShieldTriggersFlagsDto().setMustSelectCreatureToTap(false);
+                currentState.getShieldTriggersFlagsDto().setSolarRayMustSelectCreature(false);
                 currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
 
                 changeCardState(attackerCard, true, false, true, false);
 
             } else {
-                currentState.getShieldTriggersFlagsDto().setMustSelectCreatureToTap(true);
+                currentState.getShieldTriggersFlagsDto().setSolarRayMustSelectCreature(true);
             }
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(true);
         }
