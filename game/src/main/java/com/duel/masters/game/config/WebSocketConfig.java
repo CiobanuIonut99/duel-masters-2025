@@ -42,7 +42,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         return scheduler;
     }
 
-    // ✅ CRUCIAL: Apply transport limits here
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
         registry

@@ -24,7 +24,6 @@ public class ShieldTriggersFlagsDto {
     private boolean brainSerumMustDrawCards;
     private boolean crystalMemoryMustDrawCard;
     private boolean solarRayMustSelectCreature;
-
     private boolean shieldTriggerDecisionMade;
 
     private List<String> cardsChosen = new CopyOnWriteArrayList<>();
