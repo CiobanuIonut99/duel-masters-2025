@@ -43,8 +43,6 @@ public class GameStateDto {
     private boolean opponentHasBlocker;
     private boolean hasSelectedBlocker;
 
-    private boolean alreadyMadeADecision;
-
     private String action;
 
     @Builder.Default
