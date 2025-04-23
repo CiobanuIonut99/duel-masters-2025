@@ -98,23 +98,20 @@ public class DeckService {
                 .filter(cardDto -> cardDto.getId() == 37)
                 .findFirst()
                 .orElseThrow();
+        List<CardDto> cardsToAdd = new ArrayList<>();
 
-        boolean removedForHolyawe = deck.removeIf(c -> c.getId() == 16);
-        boolean removedForSolarRay = deck.removeIf(c -> c.getId() == 29);
-        boolean removedForBrainSerum = deck.removeIf(c -> c.getId() == 37);
+// These always get added later
+        cardsToAdd.add(holyawe);
+        cardsToAdd.add(solarRay);
+        cardsToAdd.add(brainSerum);
 
-        if(!removedForHolyawe)
-        deck.removeFirst();
-        deck.add(holyawe);
+        deck.removeIf(c -> c.getId() == 16 || c.getId() == 29 || c.getId() == 37);
+        while (deck.size() + cardsToAdd.size() > 40) {
+            deck.removeFirst(); // remove extras
+        }
 
-        if(!removedForSolarRay)
-        deck.removeFirst();
-        deck.add(solarRay);
-
-        if(!removedForBrainSerum)
-        deck.removeFirst();
-        deck.add(brainSerum);
-
+// Add the required cards
+        deck.addAll(cardsToAdd);
         assignGameCardId(deck);
         return
                 DeckDto

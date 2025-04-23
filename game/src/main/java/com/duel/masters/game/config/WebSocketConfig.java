@@ -9,12 +9,14 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @Configuration
 @EnableWebSocketMessageBroker
 @Slf4j
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
@@ -24,12 +26,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setApplicationDestinationPrefixes("/duel-masters"); // client sends messages here
+        registry.setApplicationDestinationPrefixes("/duel-masters");
         registry.enableSimpleBroker("/topic", "/queue")
-                .setHeartbeatValue(new long[]{10_000, 10_000})
+                .setHeartbeatValue(new long[]{10000, 10000})
                 .setTaskScheduler(brokerTaskScheduler());
         registry.setUserDestinationPrefix("/user");
-
     }
 
     @Bean
@@ -41,12 +42,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         return scheduler;
     }
 
+    // ✅ CRUCIAL: Apply transport limits here
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
+        registry
+                .setMessageSizeLimit(1024 * 1024)         // 1MB max message size
+                .setSendBufferSizeLimit(1024 * 1024 * 2)  // 2MB buffer
+                .setSendTimeLimit(30 * 1000);             // 30 seconds to send message
+    }
 
     @EventListener
     public void handleSessionDisconnect(SessionDisconnectEvent event) {
         log.info("💥 Disconnected: {}", event.getMessage());
     }
-
-
 }
-

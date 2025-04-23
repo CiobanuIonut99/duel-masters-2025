@@ -5,6 +5,7 @@ import com.duel.masters.game.dto.card.service.CardDto;
 import java.util.HashSet;
 import java.util.List;
 
+import static com.duel.masters.game.constant.Constant.BLOCKER;
 import static com.duel.masters.game.util.CardsDtoUtil.untappedCards;
 
 public class ValidatorUtil {
@@ -34,8 +35,7 @@ public class ValidatorUtil {
     public static boolean battleZoneHasAtLeastOneBlocker(List<CardDto> battleZone) {
         return battleZone
                 .stream()
-                .anyMatch(cardDto -> cardDto.getSpecialAbility().equalsIgnoreCase("BLOCKER") &&
-                        !cardDto.isTapped());
+                .anyMatch(cardDto -> BLOCKER.equalsIgnoreCase(cardDto.getSpecialAbility()) && !cardDto.isTapped());
     }
 }
 

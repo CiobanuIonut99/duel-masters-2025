@@ -3,6 +3,7 @@ package com.duel.masters.game.controller;
 import com.duel.masters.game.dto.player.service.PlayerDto;
 import com.duel.masters.game.service.GameLogicService;
 import com.duel.masters.game.service.GameService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -20,7 +21,7 @@ public class GameWebSocketController {
     private final GameLogicService gameLogicService;
 
     @MessageMapping("/game/start")
-    public void startGame(@Payload PlayerDto player) {
+    public void startGame(@Payload PlayerDto player) throws JsonProcessingException {
         gameService.startGame(player);
     }
 

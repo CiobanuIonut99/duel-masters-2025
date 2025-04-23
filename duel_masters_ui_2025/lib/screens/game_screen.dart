@@ -112,7 +112,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    fetchGameData();
+    // fetchGameData();
 
     wsHandler = GameWebSocketHandler(
       url: 'ws://localhost:8080/duel-masters-ws',
@@ -144,19 +144,19 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<void> fetchGameData() async {
-    try {
-      final result = await GameDataService.fetchInitialGameData();
-      setState(() {
-        playerDeck = result['deck']!;
-        playerShields = result['shields']!;
-        playerHand = result['hand']!;
-        deckSize = playerDeck.length;
-      });
-    } catch (e) {
-      print("Error loading game data: $e");
-    }
-  }
+  // Future<void> fetchGameData() async {
+  //   try {
+  //     final result = await GameDataService.fetchInitialGameData();
+  //     setState(() {
+  //       playerDeck = result['deck']!;
+  //       playerShields = result['shields']!;
+  //       playerHand = result['hand']!;
+  //       deckSize = playerDeck.length;
+  //     });
+  //   } catch (e) {
+  //     print("Error loading game data: $e");
+  //   }
+  // }
 
   void _updateGameState(Map<String, dynamic> responseBody) {
     final newTurnPlayerId = responseBody['currentTurnPlayerId'];
@@ -302,6 +302,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 print("📡 Subscribed to: /topic/game/$gameId/$playerTopic");
 
                 final responseBody = jsonDecode(frame.body!);
+                print("📩 Received game payload size: ${frame.body?.length ?? 0} bytes");
+
                 currentGameId = responseBody['gameId'];
                 myPlayerTopic = responseBody['playerTopic'];
                 currentTurnPlayerId = responseBody['currentTurnPlayerId'];

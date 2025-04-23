@@ -2,6 +2,7 @@ package com.duel.masters.game.service;
 
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.player.service.PlayerDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -21,12 +22,15 @@ import static com.duel.masters.game.util.GameStateUtil.getGameStateDto;
 @AllArgsConstructor
 public class GameService {
 
+    private final GameStateStore gameStateStore;
+    private final InitialStateService initialStateService;
     private final MatchmakingService matchmakingService;
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final GameStateStore gameStateStore;
 
-    public void startGame(PlayerDto playerDto) {
+    public void startGame(PlayerDto playerDto) throws JsonProcessingException {
         log.info(playerDto.getUsername().concat(" is searching for an opponent  ..."));
+
+        setPlayerData(playerDto);
 
         matchmakingService
                 .tryMatchPlayer(playerDto)
@@ -35,6 +39,7 @@ public class GameService {
                             String gameId = UUID.randomUUID().toString();
                             var player = playerList.get(0);
                             var opponent = playerList.get(1);
+
                             var randomPlayer = ThreadLocalRandom.current().nextInt(1, 3);
                             var isPlayer1Chosen = randomPlayer == 1;
 
@@ -61,6 +66,17 @@ public class GameService {
 
     }
 
+    private void setPlayerData(PlayerDto playerDto) {
+        var initialState = initialStateService.getInitialState();
+        playerDto.setPlayerDeck(initialState.getDeck());
+        playerDto.setPlayerHand(initialState.getHand());
+        playerDto.setPlayerShields(initialState.getShields());
+        log.info("Set data to player {}", playerDto.getUsername());
+        log.info("Set deck to player {}", playerDto.getPlayerDeck().size());
+        log.info("Set shields to player {}", playerDto.getPlayerShields().size());
+        log.info("Set hand to player {}", playerDto.getPlayerHand().size());
+    }
+
     private void sendGameStatesToTopics(String topic1,
                                         GameStateDto gameStatePlayer,
                                         String topic2,
@@ -76,6 +92,6 @@ public class GameService {
                 log.info("✅ Sent to topic2: {}", topic2);
                 log.info("🎮 Matched players {} vs {}", player.getUsername(), opponent.getUsername());
             }
-        }, 1000);
+        }, 2000);
     }
 }

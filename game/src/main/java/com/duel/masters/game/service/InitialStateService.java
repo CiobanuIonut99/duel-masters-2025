@@ -4,7 +4,6 @@ import com.duel.masters.game.dto.InitialStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import com.duel.masters.game.dto.deck.service.DeckDto;
 import com.duel.masters.game.mock.MockService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +41,7 @@ public class InitialStateService {
         }
     }
 
-    public InitialStateDto getInitialState() throws JsonProcessingException {
+    public InitialStateDto getInitialState() {
         var deckDto = getDeckCard();
         var deck = deckDto.getCards();
         var shields = get5Cards(deck);
@@ -55,12 +54,6 @@ public class InitialStateService {
         log.info("Deck has {} cards", deck.size());
         log.info("Shields has {} cards", shields.size());
         log.info("Hand has {} cards", hand.size());
-
-        log.info("Start getInitialState in GameService \n");
-        log.info("Deck: {}",
-                new ObjectMapper()
-                        .writerWithDefaultPrettyPrinter()
-                        .writeValueAsString(deck));
 
         shields.forEach(shield -> {
                     shield.setCanBeAttacked(true);

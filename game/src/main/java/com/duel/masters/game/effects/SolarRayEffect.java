@@ -3,8 +3,7 @@ package com.duel.masters.game.effects;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.service.CardsUpdateService;
 
-import static com.duel.masters.game.util.CardsDtoUtil.getCardDtoFromList;
-import static com.duel.masters.game.util.CardsDtoUtil.playCard;
+import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class SolarRayEffect implements ShieldTriggerEffect {
     @Override
@@ -17,18 +16,17 @@ public class SolarRayEffect implements ShieldTriggerEffect {
         var attackerId = currentState.getAttackerId();
         var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
 
-        if (currentState.isAlreadyMadeADecision()) {
+        if (currentState.getShieldTriggersFlagsDto().isShieldTriggerDecisionMade()) {
 
             var opponentCardToBeTapped = getCardDtoFromList(opponentCards.getBattleZone(), opponentCardIdToBeTapped);
             opponentCardToBeTapped.setTapped(true);
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
 
-            currentState.setAlreadyMadeADecision(false);
+            currentState.setAlreadyMadeADecision(true);
             currentState.getShieldTriggersFlagsDto().setMustSelectCreatureToTap(false);
+            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 
-            attackerCard.setTapped(true);
-            attackerCard.setCanBeAttacked(true);
-            attackerCard.setCanAttack(false);
+            changeCardState(attackerCard, true, false, true, false);
 
         } else {
 
@@ -37,7 +35,7 @@ public class SolarRayEffect implements ShieldTriggerEffect {
             opponentCards
                     .getBattleZone()
                     .stream()
-                    .filter(cardDto -> cardDto.getType().equalsIgnoreCase("Creature")
+                    .filter(cardDto -> "Creature".equalsIgnoreCase(cardDto.getType())
                             &&
                             !cardDto.isTapped()
                             &&
@@ -51,15 +49,15 @@ public class SolarRayEffect implements ShieldTriggerEffect {
 
                 currentState.getShieldTriggersFlagsDto().setMustSelectCreatureToTap(false);
                 currentState.setAlreadyMadeADecision(true);
+                currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
 
-                attackerCard.setTapped(true);
-                attackerCard.setCanBeAttacked(true);
-                attackerCard.setCanAttack(false);
+                changeCardState(attackerCard, true, false, true, false);
 
             } else {
                 currentState.getShieldTriggersFlagsDto().setMustSelectCreatureToTap(true);
                 currentState.setAlreadyMadeADecision(true);
             }
+            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(true);
         }
     }
 }

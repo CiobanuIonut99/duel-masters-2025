@@ -24,3 +24,10 @@ eureka:
     ip-address: 127.0.0.1
     hostname: localhost
     instance-id: ${spring.application.name}
+
+logging:
+  level:
+    org.springframework.web.socket: DEBUG
+    org.springframework.messaging.simp.stomp: DEBUG
+    org.springframework.messaging.simp.broker.SimpleBrokerMessageHandler: DEBUG
+
