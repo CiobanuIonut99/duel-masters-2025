@@ -7,6 +7,9 @@ import static com.duel.masters.game.constant.Constant.CREATURE;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class SolarRayEffect implements ShieldTriggerEffect {
+
+//    Choose 1 of your opponents creatures in the battlezone and tap it
+
     @Override
     public void execute(GameStateDto currentState, GameStateDto incomingState, CardsUpdateService cardsUpdateService) {
 

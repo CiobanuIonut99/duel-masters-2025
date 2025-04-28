@@ -8,6 +8,9 @@ import java.util.Collections;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class CrystalMemoryEffect implements ShieldTriggerEffect {
+
+//    Search your deck, you may take a card from your deck and put it in your hand, then shuffle your deck
+
     @Override
     public void execute(GameStateDto currentState, GameStateDto incomingState, CardsUpdateService cardsUpdateService) {
 

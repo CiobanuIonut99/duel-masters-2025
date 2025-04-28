@@ -8,6 +8,8 @@ import static com.duel.masters.game.util.CardsDtoUtil.tapCards;
 
 public class HolyAweEffect implements ShieldTriggerEffect {
 
+//    Tap all your opponnents creatures in the battle zone
+
     @Override
     public void execute(GameStateDto currentState,
                         GameStateDto incomingState,

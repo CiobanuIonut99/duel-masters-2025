@@ -11,6 +11,7 @@ public class ShieldTriggerRegistry {
         shieldTriggerEffects.put("Solar Ray", new SolarRayEffect());
         shieldTriggerEffects.put("Brain Serum", new BrainSerumEffect());
         shieldTriggerEffects.put("Crystal Memory", new CrystalMemoryEffect());
+        shieldTriggerEffects.put("Spiral Gate", new SpiralGateEffect());
     }
 
     public static ShieldTriggerEffect getShieldTriggerEffect(String name) {

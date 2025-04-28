@@ -6,6 +6,9 @@ import com.duel.masters.game.service.CardsUpdateService;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class BrainSerumEffect implements ShieldTriggerEffect {
+
+//    Draw up to 2 cards
+
     @Override
     public void execute(GameStateDto currentState, GameStateDto incomingState, CardsUpdateService cardsUpdateService) {
 
