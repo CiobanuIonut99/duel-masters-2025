@@ -14,5 +14,6 @@ public class Constant {
     public static final String CAST_SHIELD_TRIGGER = "CAST_SHIELD_TRIGGER";
     public static final String SUMMON_TO_BATTLE_ZONE = "SUMMON_TO_BATTLE_ZONE";
     public static final String ATTACK = "ATTACK";
+    public static final String START = "START";
     public static final String SHIELD_TRIGGER = "SHIELD_TRIGGER";
 }

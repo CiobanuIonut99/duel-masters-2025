@@ -1,6 +1,7 @@
 package com.duel.masters.game.dto;
 
 import com.duel.masters.game.dto.card.service.CardDto;
+import com.duel.masters.game.dto.player.service.PlayerDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GameStateDto {
+
+    //added for unity raw websocket
+    private String type;
+    private PlayerDto playerDto;
 
     private String gameId;
     private String targetId;

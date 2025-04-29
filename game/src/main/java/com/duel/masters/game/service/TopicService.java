@@ -17,7 +17,7 @@ import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoPlayer;
 @Slf4j
 public class TopicService {
     private final GameStateStore gameStateStore;
-    private final SimpMessagingTemplate simpMessagingTemplate;
+//    private final SimpMessagingTemplate simpMessagingTemplate;
 
     public void sendGameStatesToTopics(GameStateDto currentState) {
         gameStateStore.saveGameState(currentState);
@@ -28,8 +28,8 @@ public class TopicService {
         var gameState1 = getGameStateDtoPlayer(currentState, PLAYER_1_TOPIC);
         var gameState2 = getGameStateDtoOpponent(currentState, PLAYER_2_TOPIC);
 
-        simpMessagingTemplate.convertAndSend(topic1, gameState1);
-        simpMessagingTemplate.convertAndSend(topic2, gameState2);
+//        simpMessagingTemplate.convertAndSend(topic1, gameState1);
+//        simpMessagingTemplate.convertAndSend(topic2, gameState2);
         log.info("✅ Sent to topic1: {}", topic1);
         log.info("✅ Sent to topic2: {}", topic2);
     }

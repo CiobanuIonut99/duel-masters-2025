@@ -2,7 +2,6 @@ package com.duel.masters.game.service;
 
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.player.service.PlayerDto;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -25,9 +24,9 @@ public class GameService {
     private final GameStateStore gameStateStore;
     private final InitialStateService initialStateService;
     private final MatchmakingService matchmakingService;
-    private final SimpMessagingTemplate simpMessagingTemplate;
+//    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public void startGame(PlayerDto playerDto) throws JsonProcessingException {
+    public void startGame(PlayerDto playerDto) {
         log.info(playerDto.getUsername().concat(" is searching for an opponent  ..."));
 
         setPlayerData(playerDto);
@@ -48,7 +47,7 @@ public class GameService {
                             var gameStates = List.of(gameStatePlayer, gameStateOpponent);
 
                             gameStateStore.saveGameState(gameStatePlayer);
-                            simpMessagingTemplate.convertAndSend(MATCHMAKING_TOPIC, gameStates);
+//                            simpMessagingTemplate.convertAndSend(MATCHMAKING_TOPIC, gameStates);
 
                             log.info("sent to general topic : topic/matchmaking");
 
@@ -59,7 +58,7 @@ public class GameService {
                         },
                         () -> {
                             // 💡 THIS is the fix: notify that this player is still waiting
-                            simpMessagingTemplate.convertAndSend(MATCHMAKING_TOPIC, List.of(playerDto));
+//                            simpMessagingTemplate.convertAndSend(MATCHMAKING_TOPIC, List.of(playerDto));
                             log.info("🕒 No opponent yet, broadcasting waiting player {}", playerDto.getUsername());
                         }
                 );
@@ -86,8 +85,8 @@ public class GameService {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                simpMessagingTemplate.convertAndSend(topic1, gameStatePlayer);
-                simpMessagingTemplate.convertAndSend(topic2, gameStateOpponent);
+//                simpMessagingTemplate.convertAndSend(topic1, gameStatePlayer);
+//                simpMessagingTemplate.convertAndSend(topic2, gameStateOpponent);
                 log.info("✅ Sent to topic1: {}", topic1);
                 log.info("✅ Sent to topic2: {}", topic2);
                 log.info("🎮 Matched players {} vs {}", player.getUsername(), opponent.getUsername());
