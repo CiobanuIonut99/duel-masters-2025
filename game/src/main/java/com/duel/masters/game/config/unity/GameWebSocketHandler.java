@@ -41,7 +41,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     private void handleAction(WebSocketSession session, GameStateDto incomingState) {
         log.info("⚡ Action received: {}", incomingState);
         playerSessions.putIfAbsent(incomingState.getPlayerDto().getId(), session);
-        gameLogicService.act(incomingState);
+        gameLogicService.act(incomingState, this);
     }
 
     @Override
@@ -54,6 +54,10 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     private void sendToClient(WebSocketSession session, Object response) throws Exception {
         String json = objectMapper.writeValueAsString(response);
         session.sendMessage(new TextMessage(json));
+    }
+
+    public WebSocketSession getSessionForPlayer(Long playerId) {
+        return playerSessions.get(playerId);
     }
 
 }

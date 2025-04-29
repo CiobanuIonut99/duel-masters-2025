@@ -1,7 +1,6 @@
 package com.duel.masters.game.service;
 
 import com.duel.masters.game.dto.GameStateDto;
-import com.duel.masters.game.dto.player.service.PlayerDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ public class ActionsService {
     private final CastShieldTriggerService castShieldTriggerService;
     private final SummonToBattleZoneService summonToBattleZoneService;
     private final AttackServiceImplementation attackServiceImplementation;
-    private final GameService gameService;
 
     public void attack(GameStateDto currentState, GameStateDto incomingState) {
         attackServiceImplementation.attack(currentState, incomingState);
@@ -43,7 +41,4 @@ public class ActionsService {
         castShieldTriggerService.triggerShieldTriggerLogic(currentState, incomingState);
     }
 
-    public void startGame(PlayerDto playerDto) {
-        gameService.startGame(playerDto);
-    }
 }
