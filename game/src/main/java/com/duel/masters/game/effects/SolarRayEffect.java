@@ -51,13 +51,14 @@ public class SolarRayEffect implements ShieldTriggerEffect {
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
 
                 currentState.getShieldTriggersFlagsDto().setSolarRayMustSelectCreature(false);
-                currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
+
 
                 changeCardState(attackerCard, true, false, true, false);
 
             } else {
                 currentState.getShieldTriggersFlagsDto().setSolarRayMustSelectCreature(true);
             }
+            currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(true);
         }
     }
