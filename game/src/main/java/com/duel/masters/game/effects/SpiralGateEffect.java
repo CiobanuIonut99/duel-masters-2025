@@ -22,13 +22,16 @@ public class SpiralGateEffect implements ShieldTriggerEffect {
         var opponentBattleZone = opponentCards.getBattleZone();
         var opponentHand = opponentCards.getHand();
 
-        if (currentState.getShieldTriggersFlagsDto().isShieldTriggerDecisionMade()) {
+        var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
+        var newTriggerGameCardId = incomingState.getTriggeredGameCardId();
+
+        if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
 
             AtomicBoolean foundCard = new AtomicBoolean(false);
 
             ownBattleZone
                     .stream()
-                    .filter(ownCard -> ownCard.getGameCardId().equalsIgnoreCase(incomingState.getTriggeredGameCardId()))
+                    .filter(ownCard -> ownCard.getGameCardId().equalsIgnoreCase(newTriggerGameCardId))
                     .forEach(ownCard -> {
                         playCard(ownBattleZone, ownCard.getGameCardId(), ownHand);
                         foundCard.set(true);
@@ -37,23 +40,23 @@ public class SpiralGateEffect implements ShieldTriggerEffect {
             if (!foundCard.get()) {
                 opponentBattleZone
                         .stream()
-                        .filter(opponentCard -> opponentCard.getGameCardId().equalsIgnoreCase(incomingState.getTriggeredGameCardId()))
+                        .filter(opponentCard -> opponentCard.getGameCardId().equalsIgnoreCase(newTriggerGameCardId))
                         .forEach(opponentCard -> playCard(opponentBattleZone, opponentCard.getGameCardId(), opponentHand));
             }
 
         } else {
             if (ownBattleZone.isEmpty() && opponentBattleZone.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
-                currentState.getShieldTriggersFlagsDto().setSpiralGateMustSelectCreature(false);
+                shieldTriggersFlags.setSpiralGateMustSelectCreature(false);
             } else {
-                var eachPlayerBattleZone = currentState.getShieldTriggersFlagsDto().getEachPlayerBattleZone();
+                var eachPlayerBattleZone = shieldTriggersFlags.getEachPlayerBattleZone();
                 eachPlayerBattleZone.put(currentState.getPlayerId().toString(), ownBattleZone);
                 eachPlayerBattleZone.put(currentState.getOpponentId().toString(), opponentBattleZone);
 
-                currentState.getShieldTriggersFlagsDto().setSpiralGateMustSelectCreature(true);
+                shieldTriggersFlags.setSpiralGateMustSelectCreature(true);
             }
-            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(true);
-            currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
+            shieldTriggersFlags.setShieldTriggerDecisionMade(true);
+            shieldTriggersFlags.setShieldTrigger(false);
         }
     }
 }

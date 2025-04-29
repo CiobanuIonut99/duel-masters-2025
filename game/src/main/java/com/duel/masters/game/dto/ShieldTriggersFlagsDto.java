@@ -30,6 +30,8 @@ public class ShieldTriggersFlagsDto {
     private boolean crystalMemoryMustDrawCard;
     private boolean solarRayMustSelectCreature;
     private boolean spiralGateMustSelectCreature;
+    private boolean darkReversalMustSelectCreature;
+    private boolean ghostTouchMustSelectCreature;
 
     private boolean shieldTriggerDecisionMade;
     private Map<String, List<CardDto>> eachPlayerBattleZone = new ConcurrentHashMap<>();
