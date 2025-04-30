@@ -124,6 +124,6 @@ public class GameLogicService {
 
                 log.info("🎮 Matched players {} vs {}", player.getUsername(), opponent.getUsername());
             }
-        }, 2000);
+        }, 500);
     }
 }
