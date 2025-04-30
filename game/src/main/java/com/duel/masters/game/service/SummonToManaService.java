@@ -1,5 +1,6 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.exception.AlreadyPlayedManaException;
 import lombok.AllArgsConstructor;
@@ -17,7 +18,7 @@ public class SummonToManaService {
     private final TopicService topicService;
     private final CardsUpdateService cardsUpdateService;
 
-    public void summonCardToManaZone(GameStateDto currentState, GameStateDto incomingState) {
+    public void summonCardToManaZone(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
         if (!currentState.isPlayedMana()) {
             var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
             playCard(ownCards.getHand(), incomingState.getTriggeredGameCardId(), ownCards.getManaZone());
@@ -26,6 +27,6 @@ public class SummonToManaService {
         } else {
             throw new AlreadyPlayedManaException();
         }
-        topicService.sendGameStatesToTopics(currentState);
+        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
     }
 }

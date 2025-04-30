@@ -1,5 +1,6 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,7 @@ public class SummonToBattleZoneService {
     private final TopicService topicService;
     private final CardsUpdateService cardsUpdateService;
 
-    public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingState) {
+    public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
         var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
         var hand = ownCards.getHand();
         var battleZone = ownCards.getBattleZone();
@@ -38,7 +39,7 @@ public class SummonToBattleZoneService {
             log.info("Summoning {}", cardToBeSummoned.getName());
             cardToBeSummoned.setSummoningSickness(true);
             setCardsSummonable(manaZone, hand);
-            topicService.sendGameStatesToTopics(currentState);
+            topicService.sendGameStatesToTopics(currentState, webSocketHandler);
             log.info("Card summoned to battle zone : {}", battleZone);
         }
     }

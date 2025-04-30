@@ -1,5 +1,6 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import lombok.AllArgsConstructor;
@@ -28,7 +29,8 @@ public class AttackCreatureService implements AttackService {
                        GameStateDto incomingState,
                        CardDto attackerCard,
                        CardDto targetCard,
-                       String targetId) {
+                       String targetId,
+                       GameWebSocketHandler websocketHandler) {
 
         var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
         var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
@@ -54,7 +56,8 @@ public class AttackCreatureService implements AttackService {
                     opponentGraveyard,
                     ownBattleZone,
                     ownGraveyard,
-                    currentState
+                    currentState,
+                    websocketHandler
             );
             currentState.setOpponentHasBlocker(false);
         }
@@ -67,7 +70,8 @@ public class AttackCreatureService implements AttackService {
                                List<CardDto> opponentGraveyard,
                                List<CardDto> ownBattleZone,
                                List<CardDto> ownGraveyard,
-                               GameStateDto currentState) {
+                               GameStateDto currentState,
+                               GameWebSocketHandler webSocketHandler) {
 
 
         var attackerPower = attackerCard.getPower();
@@ -85,7 +89,7 @@ public class AttackCreatureService implements AttackService {
                                 changeCardState(targetCard, false, false, false, false);
                                 log.info("{} won", attackerCard.getName());
                                 targetCard.setDestroyed(false);
-                                topicService.sendGameStatesToTopics(currentState);
+                                topicService.sendGameStatesToTopics(currentState,webSocketHandler);
                             }
                             , 700, TimeUnit.MILLISECONDS);
 
@@ -109,7 +113,7 @@ public class AttackCreatureService implements AttackService {
                                 attackerCard.setDestroyed(false);
                                 log.info("Both lost");
 
-                                topicService.sendGameStatesToTopics(currentState);
+                                topicService.sendGameStatesToTopics(currentState,webSocketHandler);
                             },
                             700, TimeUnit.MILLISECONDS
                     );
@@ -129,7 +133,7 @@ public class AttackCreatureService implements AttackService {
                                 log.info("{} lost", attackerCard.getName());
                                 attackerCard.setDestroyed(false);
 
-                                topicService.sendGameStatesToTopics(currentState);
+                                topicService.sendGameStatesToTopics(currentState, webSocketHandler);
                             },
                             700, TimeUnit.MILLISECONDS);
 
@@ -139,7 +143,7 @@ public class AttackCreatureService implements AttackService {
     }
 
     @Override
-    public void attack(GameStateDto currentState, GameStateDto incomingState) {
+    public void attack(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
 
     }
 

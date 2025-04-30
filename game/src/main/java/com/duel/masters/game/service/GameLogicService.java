@@ -30,8 +30,10 @@ public class GameLogicService {
     private final ObjectMapper objectMapper;
 
 
-    public void act(GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
+    public void act(GameStateDto incomingState, GameWebSocketHandler webSocketHandler, WebSocketSession session) {
         if (START.equalsIgnoreCase(incomingState.getAction())) {
+
+            webSocketHandler.getPlayerSessions().putIfAbsent(incomingState.getPlayerDto().getId(), session);
             startGame(incomingState.getPlayerDto(), webSocketHandler);
 
         } else {
@@ -43,12 +45,12 @@ public class GameLogicService {
             }
 
             switch (incomingState.getAction()) {
-                case BLOCK -> actionsService.block(currentState, incomingState);
-                case ATTACK -> actionsService.attack(currentState, incomingState);
-                case END_TURN -> actionsService.endTurn(currentState, incomingState);
-                case SEND_CARD_TO_MANA -> actionsService.summonCardToManaZone(currentState, incomingState);
-                case SUMMON_TO_BATTLE_ZONE -> actionsService.summonToBattleZone(currentState, incomingState);
-                case CAST_SHIELD_TRIGGER -> actionsService.triggerShieldTriggerLogic(currentState, incomingState);
+                case BLOCK -> actionsService.block(currentState, incomingState,webSocketHandler);
+                case ATTACK -> actionsService.attack(currentState, incomingState,webSocketHandler);
+                case END_TURN -> actionsService.endTurn(currentState, incomingState,webSocketHandler);
+                case SEND_CARD_TO_MANA -> actionsService.summonCardToManaZone(currentState, incomingState,webSocketHandler);
+                case SUMMON_TO_BATTLE_ZONE -> actionsService.summonToBattleZone(currentState, incomingState,webSocketHandler);
+                case CAST_SHIELD_TRIGGER -> actionsService.triggerShieldTriggerLogic(currentState, incomingState,webSocketHandler);
             }
         }
     }
@@ -69,8 +71,8 @@ public class GameLogicService {
                             var randomPlayer = ThreadLocalRandom.current().nextInt(1, 3);
                             var isPlayer1Chosen = randomPlayer == 1;
 
-                            var gameStatePlayer = getGameStateDto(gameId, player, opponent, isPlayer1Chosen, PLAYER_1_TOPIC);
-                            var gameStateOpponent = getGameStateDto(gameId, opponent, player, !isPlayer1Chosen, PLAYER_2_TOPIC);
+                            var gameStatePlayer = getGameStateDto(gameId, player, opponent, isPlayer1Chosen);
+                            var gameStateOpponent = getGameStateDto(gameId, opponent, player, !isPlayer1Chosen);
 
                             gameStateStore.saveGameState(gameStatePlayer);
 
@@ -107,6 +109,7 @@ public class GameLogicService {
                 WebSocketSession opponentSession = gameWebSocketHandler.getSessionForPlayer(opponent.getId());
 
                 try {
+
                     String jsonPlayer = objectMapper.writeValueAsString(gameStatePlayer);
                     String jsonOpponent = objectMapper.writeValueAsString(gameStateOpponent);
 
@@ -124,6 +127,6 @@ public class GameLogicService {
 
                 log.info("🎮 Matched players {} vs {}", player.getUsername(), opponent.getUsername());
             }
-        }, 500);
+        }, 200);
     }
 }

@@ -1,5 +1,6 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.BlockerFlagsDto;
 import com.duel.masters.game.dto.CardsDto;
 import com.duel.masters.game.dto.GameStateDto;
@@ -26,7 +27,8 @@ public class AttackShieldService implements AttackService {
                        GameStateDto incomingState,
                        CardDto attackerCard,
                        CardDto targetCard,
-                       String targetId) {
+                       String targetId,
+                       GameWebSocketHandler webSocketHandler) {
 
         var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
         var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
@@ -116,7 +118,7 @@ public class AttackShieldService implements AttackService {
 
 
     @Override
-    public void attack(GameStateDto currentState, GameStateDto incomingState) {
+    public void attack(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
     }
 
 }

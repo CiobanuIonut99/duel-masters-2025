@@ -1,5 +1,6 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ public class TurnService {
     private final TopicService topicService;
     private final CardsUpdateService cardsUpdateService;
 
-    public void endTurn(GameStateDto currentState, GameStateDto incomingState) {
+    public void endTurn(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
         log.info("Current player ends turn");
         var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
         var opponentDeck = opponentCards.getDeck();
@@ -34,6 +35,6 @@ public class TurnService {
         opponentBattleZone.forEach(cardDto -> cardDto.setCanBeAttacked(false));
         setOpponentsCreaturesAttackable(cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone());
 
-        topicService.sendGameStatesToTopics(currentState);
+        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
     }
 }

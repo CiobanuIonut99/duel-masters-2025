@@ -6,7 +6,7 @@ import com.duel.masters.game.dto.player.service.PlayerDto;
 
 public class GameStateUtil {
 
-    public static GameStateDto getGameStateDto(String gameId, PlayerDto player, PlayerDto opponent, boolean isPlayer1Chosen, String playerTopic) {
+    public static GameStateDto getGameStateDto(String gameId, PlayerDto player, PlayerDto opponent, boolean isPlayer1Chosen) {
         return GameStateDto
                 .builder()
                 .gameId(gameId)
@@ -25,11 +25,10 @@ public class GameStateUtil {
                 .playerGraveyard(player.getPlayerGraveyard())
                 .opponentGraveyard(opponent.getPlayerGraveyard())
                 .currentTurnPlayerId(isPlayer1Chosen ? player.getId() : opponent.getId())
-                .playerTopic(playerTopic)
                 .build();
     }
 
-    public static GameStateDto getGameStateDtoPlayer(GameStateDto gameStateDto, String topic) {
+    public static GameStateDto getGameStateDtoPlayer(GameStateDto gameStateDto) {
         return GameStateDto
                 .builder()
                 .gameId(gameStateDto.getGameId())
@@ -50,7 +49,6 @@ public class GameStateUtil {
                 .opponentBattleZone(gameStateDto.getOpponentBattleZone())
                 .playerGraveyard(gameStateDto.getPlayerGraveyard())
                 .opponentGraveyard(gameStateDto.getOpponentGraveyard())
-                .playerTopic(topic)
                 .playedMana(gameStateDto.isPlayedMana())
                 .opponentHasBlocker(gameStateDto.isOpponentHasBlocker())
                 .hasSelectedBlocker(gameStateDto.isHasSelectedBlocker())
@@ -64,7 +62,7 @@ public class GameStateUtil {
 
     }
 
-    public static GameStateDto getGameStateDtoOpponent(GameStateDto gameStateDto, String topic) {
+    public static GameStateDto getGameStateDtoOpponent(GameStateDto gameStateDto) {
         return GameStateDto
                 .builder()
                 .gameId(gameStateDto.getGameId())
@@ -85,7 +83,6 @@ public class GameStateUtil {
                 .opponentBattleZone(gameStateDto.getPlayerBattleZone())
                 .playerGraveyard(gameStateDto.getOpponentGraveyard())
                 .opponentGraveyard(gameStateDto.getPlayerGraveyard())
-                .playerTopic(topic)
                 .playedMana(gameStateDto.isPlayedMana())
                 .opponentHasBlocker(gameStateDto.isOpponentHasBlocker())
                 .hasSelectedBlocker(gameStateDto.isHasSelectedBlocker())

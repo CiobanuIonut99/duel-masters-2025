@@ -1,5 +1,6 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import lombok.AllArgsConstructor;
@@ -19,12 +20,17 @@ public class AttackServiceImplementation implements AttackService {
     private final AttackCreatureService attackCreatureService;
 
     @Override
-    public void attack(GameStateDto currentState, GameStateDto incomingState, CardDto attackerCard, CardDto targetCard, String targetId) {
+    public void attack(GameStateDto currentState,
+                       GameStateDto incomingState,
+                       CardDto attackerCard,
+                       CardDto targetCard,
+                       String targetId,
+                       GameWebSocketHandler webSocketHandler) {
 
     }
 
     @Override
-    public void attack(GameStateDto currentState, GameStateDto incomingState) {
+    public void attack(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
 
         var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
         var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
@@ -52,12 +58,12 @@ public class AttackServiceImplementation implements AttackService {
         }
 
         if (targetCard.isShield()) {
-            attackShieldService.attack(currentState, incomingState, attackerCard, targetCard, targetId);
+            attackShieldService.attack(currentState, incomingState, attackerCard, targetCard, targetId, webSocketHandler);
         } else {
-            attackCreatureService.attack(currentState, incomingState, attackerCard, targetCard, targetId);
+            attackCreatureService.attack(currentState, incomingState, attackerCard, targetCard, targetId, webSocketHandler);
         }
 
-        topicService.sendGameStatesToTopics(currentState);
+        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
 
     }
 }

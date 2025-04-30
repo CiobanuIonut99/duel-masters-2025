@@ -19,8 +19,9 @@ import static com.duel.masters.game.util.ObjectMapperUtil.convertToGameStateDto;
 @Component
 public class GameWebSocketHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final Map<Long, WebSocketSession> playerSessions = new ConcurrentHashMap<>();
     private final GameLogicService gameLogicService;
+
+    private final Map<Long, WebSocketSession> playerSessions = new ConcurrentHashMap<>();
 
     public GameWebSocketHandler(GameLogicService gameLogicService) {
         this.gameLogicService = gameLogicService;
@@ -40,8 +41,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     private void handleAction(WebSocketSession session, GameStateDto incomingState) {
         log.info("⚡ Action received: {}", incomingState);
-        playerSessions.putIfAbsent(incomingState.getPlayerDto().getId(), session);
-        gameLogicService.act(incomingState, this);
+        gameLogicService.act(incomingState, this, session);
     }
 
     @Override
@@ -58,6 +58,10 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
 
     public WebSocketSession getSessionForPlayer(Long playerId) {
         return playerSessions.get(playerId);
+    }
+
+    public synchronized  Map<Long, WebSocketSession> getPlayerSessions() {
+        return playerSessions;
     }
 
 }

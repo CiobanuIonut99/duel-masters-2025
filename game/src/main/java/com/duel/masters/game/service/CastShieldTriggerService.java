@@ -1,5 +1,6 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import com.duel.masters.game.effects.ShieldTriggerRegistry;
@@ -18,7 +19,7 @@ public class CastShieldTriggerService {
     private final CardsUpdateService cardsUpdateService;
     private final AttackShieldService attackShieldService;
 
-    public void triggerShieldTriggerLogic(GameStateDto currentState, GameStateDto incomingState) {
+    public void triggerShieldTriggerLogic(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
 
         if (incomingState.isUsingShieldTrigger()) {
             useShieldTrigger(currentState, incomingState);
@@ -26,7 +27,7 @@ public class CastShieldTriggerService {
             doNotUseShieldTrigger(currentState, incomingState);
         }
         currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
-        topicService.sendGameStatesToTopics(currentState);
+        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
     }
 
     private void useShieldTrigger(GameStateDto currentState, GameStateDto incomingState) {
