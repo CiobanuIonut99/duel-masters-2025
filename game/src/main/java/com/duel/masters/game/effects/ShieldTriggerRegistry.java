@@ -14,6 +14,10 @@ public class ShieldTriggerRegistry {
         shieldTriggerEffects.put("Spiral Gate", new SpiralGateEffect());
         shieldTriggerEffects.put("Dark Reversal", new DarkReversalEffect());
         shieldTriggerEffects.put("Ghost Touch", new GhostTouchEffect());
+        shieldTriggerEffects.put("Terror Pit", new TerrorPitEffect());
+        shieldTriggerEffects.put("Tornado Flame", new TornadoFlameEffect());
+        shieldTriggerEffects.put("Dimension Gate", new DimensionGateEffect());
+        shieldTriggerEffects.put("Natural Snare", new NaturalSnareEffect());
     }
 
     public static ShieldTriggerEffect getShieldTriggerEffect(String name) {

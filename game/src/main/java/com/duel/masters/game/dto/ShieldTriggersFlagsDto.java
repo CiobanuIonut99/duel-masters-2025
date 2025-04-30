@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,6 +31,10 @@ public class ShieldTriggersFlagsDto {
     private boolean spiralGateMustSelectCreature;
     private boolean darkReversalMustSelectCreature;
     private boolean ghostTouchMustSelectCreature;
+    private boolean terrorPitMustSelectCreature;
+    private boolean tornadoFlameMustSelectCreature;
+    private boolean dimensionalGateMustDrawCard;
+    private boolean naturalSnareMustSelectCreature;
 
     private boolean shieldTriggerDecisionMade;
     private Map<String, List<CardDto>> eachPlayerBattleZone = new ConcurrentHashMap<>();
