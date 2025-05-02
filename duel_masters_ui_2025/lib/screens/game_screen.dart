@@ -187,7 +187,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         .map((c) => CardModel.fromJson(c))
         .toList();
 
+    // ✅ Add logs to check what comes back
+    print("🔵 SpiralGate Player BattleZone (${spiralGatePlayerBattleZone.length} cards):");
+    for (var card in spiralGatePlayerBattleZone) {
+      print("    - ${card.name} (ID: ${card.gameCardId})");
+    }
 
+    print("🟠 SpiralGate Opponent BattleZone (${spiralGateOpponentBattleZone.length} cards):");
+    for (var card in spiralGateOpponentBattleZone) {
+      print("    - ${card.name} (ID: ${card.gameCardId})");
+    }
+
+    print("Spiral Gate mustSelectCreature: ${spiralGateMustSelectCreature}");
     if (opponentHasBlocker) {
       Future.microtask(() => _showBlockerSelectionDialog());
     }
@@ -196,9 +207,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       Future.microtask(() => _showShieldTriggerDialog());
     }
 
-    if (spiralGateMustSelectCreature) {
-      Future.microtask(() => _showDualCreatureSelectionOverlay());
-    }
+    // if (spiralGateMustSelectCreature) {
+    //   Future.microtask(() => _showDualCreatureSelectionOverlay());
+    // }
 
     if (brainSerumMustDrawCards) {
       Future.microtask(() => _showDrawFromDeckDialog(1, 2));
@@ -623,6 +634,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ),
             ),
             if (solarRayMustSelectCreature) _showCreatureSelectionOverlay(),
+            if (spiralGateMustSelectCreature) _showDualCreatureSelectionOverlay(),
           ],
         ),
       ),
