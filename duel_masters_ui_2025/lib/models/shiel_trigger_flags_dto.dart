@@ -8,6 +8,7 @@ class ShieldTriggersFlagsDto {
   final bool spiralGateMustSelectCreature;
   final bool darkReversalMustSelectCreature;
   final bool terrorPitMustSelectCreature;
+  final bool tornadoFlameMustSelectCreature;
 
   final Map<String, dynamic> eachPlayerBattleZone;
 
@@ -21,6 +22,7 @@ class ShieldTriggersFlagsDto {
     required this.eachPlayerBattleZone,
     required this.darkReversalMustSelectCreature,
     required this.terrorPitMustSelectCreature,
+    required this.tornadoFlameMustSelectCreature,
   });
 
   factory ShieldTriggersFlagsDto.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class ShieldTriggersFlagsDto {
       eachPlayerBattleZone: json['eachPlayerBattleZone'] ?? {},
       darkReversalMustSelectCreature: json['darkReversalMustSelectCreature'] ?? {},
       terrorPitMustSelectCreature: json['terrorPitMustSelectCreature'] ?? {},
+      tornadoFlameMustSelectCreature: json['tornadoFlameMustSelectCreature'] ?? {},
     );
   }
 }
