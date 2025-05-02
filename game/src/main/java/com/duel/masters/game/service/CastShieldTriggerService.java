@@ -48,7 +48,6 @@ public class CastShieldTriggerService {
 
         shieldTriggerEffect.execute(currentState, incomingState, cardsUpdateService);
 
-
     }
 
     private void doNotUseShieldTrigger(GameStateDto currentState, GameStateDto incomingState) {
