@@ -1,3 +1,5 @@
+import 'package:duel_masters_ui_2025/models/card_model.dart';
+
 class ShieldTriggersFlagsDto {
 
   final bool targetShield;
@@ -11,6 +13,7 @@ class ShieldTriggersFlagsDto {
   final bool tornadoFlameMustSelectCreature;
 
   final Map<String, dynamic> eachPlayerBattleZone;
+  final List<CardModel> opponentUnder4000Creatures;
 
   ShieldTriggersFlagsDto({
     required this.solarRayMustSelectCreature,
@@ -23,6 +26,7 @@ class ShieldTriggersFlagsDto {
     required this.darkReversalMustSelectCreature,
     required this.terrorPitMustSelectCreature,
     required this.tornadoFlameMustSelectCreature,
+    required this.opponentUnder4000Creatures,
   });
 
   factory ShieldTriggersFlagsDto.fromJson(Map<String, dynamic> json) {
@@ -33,10 +37,11 @@ class ShieldTriggersFlagsDto {
       shieldTrigger: json['shieldTrigger'] ?? false,
       brainSerumMustDrawCards: json['brainSerumMustDrawCards'] ?? false,
       crystalMemoryMustDrawCard: json['crystalMemoryMustDrawCard'] ?? false,
+      darkReversalMustSelectCreature: json['darkReversalMustSelectCreature'] ?? false,
+      terrorPitMustSelectCreature: json['terrorPitMustSelectCreature'] ?? false,
+      tornadoFlameMustSelectCreature: json['tornadoFlameMustSelectCreature'] ?? false,
       eachPlayerBattleZone: json['eachPlayerBattleZone'] ?? {},
-      darkReversalMustSelectCreature: json['darkReversalMustSelectCreature'] ?? {},
-      terrorPitMustSelectCreature: json['terrorPitMustSelectCreature'] ?? {},
-      tornadoFlameMustSelectCreature: json['tornadoFlameMustSelectCreature'] ?? {},
-    );
-  }
-}
+      opponentUnder4000Creatures: (json['opponentUnder4000Creatures'] as List<dynamic>? ?? [])
+          .map((c) => CardModel.fromJson(c))
+          .toList(),
+    ); }}

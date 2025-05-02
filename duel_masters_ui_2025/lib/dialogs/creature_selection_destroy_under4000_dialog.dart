@@ -33,7 +33,7 @@ class DestroyCreatureUnder4000SelectionOverlay extends StatelessWidget {
               children: [
                 Text(
                   isMyCreature
-                      ? "Select a creature to destroy"
+                      ? "Select a creature with power under 4000 to destroy"
                       : "Opponent is selecting a creature from your battlezone to destroy",
                   style: kDialogTitleStyle.copyWith(color: Colors.greenAccent),
                 ),
