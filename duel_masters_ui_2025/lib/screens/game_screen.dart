@@ -177,12 +177,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final playerIdStr = currentPlayerId.toString();
     final opponentIdStr = opponentId.toString();
 
-    final spiralGatePlayerBattleZone =
+    spiralGatePlayerBattleZone =
     (eachPlayerBattleZoneJson[playerIdStr] as List? ?? [])
         .map((c) => CardModel.fromJson(c))
         .toList();
 
-    final spiralGatePlayerOpponentZone =
+    spiralGateOpponentBattleZone =
     (eachPlayerBattleZoneJson[opponentIdStr] as List? ?? [])
         .map((c) => CardModel.fromJson(c))
         .toList();
