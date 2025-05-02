@@ -57,13 +57,13 @@ class DualCreatureSelectionOverlay extends StatelessWidget {
         color: Colors.black.withOpacity(0.7),
         child: Center(
           child: StyledDialogContainer(
-            borderColor: Colors.blueAccent,
+            borderColor: Colors.greenAccent,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   "Select a creature to return to hand",
-                  style: kDialogTitleStyle.copyWith(color: Colors.blueAccent),
+                  style: kDialogTitleStyle.copyWith(color: Colors.greenAccent),
                 ),
                 const SizedBox(height: 16),
                 _buildCardRow("Your Creatures", playerCreatures),
@@ -74,7 +74,7 @@ class DualCreatureSelectionOverlay extends StatelessWidget {
                   label: "Confirm Selection",
                   icon: Icons.check_circle,
                   onPressed: selectedCreature != null ? onConfirm : null,
-                  color: Colors.blueAccent,
+                  color: Colors.greenAccent,
                 ),
               ],
             ),
