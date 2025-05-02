@@ -44,6 +44,9 @@ public class GameLogicService {
                 return;
             }
 
+            log.info("⚡ Action received: {}, for player : {}"
+                    , incomingState.getAction(),
+                    incomingState.getPlayerId());
             switch (incomingState.getAction()) {
                 case BLOCK -> actionsService.block(currentState, incomingState,webSocketHandler);
                 case ATTACK -> actionsService.attack(currentState, incomingState,webSocketHandler);

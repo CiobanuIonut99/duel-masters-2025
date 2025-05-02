@@ -40,7 +40,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void handleAction(WebSocketSession session, GameStateDto incomingState) {
-        log.info("⚡ Action received: {}", incomingState);
+        log.info("⚡ Action received: {}", incomingState.getAction());
         gameLogicService.act(incomingState, this, session);
     }
 
