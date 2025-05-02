@@ -621,7 +621,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void _showBlockerSelectionDialog() {
     final isDefendingPlayer = currentTurnPlayerId != currentPlayerId;
     final blockers =
-        playerBattleZone.where((c) => c.specialAbility == 'BLOCKER').toList();
+        playerBattleZone.where((c) => c.specialAbility == 'BLOCKER' &&
+        !c.tapped).toList();
 
     showDialog(
       context: context,
