@@ -9,6 +9,7 @@ import 'package:stomp_dart_client/stomp_handler.dart';
 import '../dialogs/blocker_selection_dialog.dart';
 import '../dialogs/creature_selection_destroy_under4000_dialog.dart';
 import '../dialogs/creature_selection_dialog.dart';
+import '../dialogs/creature_selection_put_in_mana_zone.dart';
 import '../dialogs/graveyard_creature_selection_dialog.dart';
 import '../dialogs/mana_selection_dialog.dart';
 import '../dialogs/select_cards_from_deck_dialog.dart';
@@ -105,6 +106,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool terrorPitMustSelectCreature = false;
   bool tornadoFlameMustSelectCreature = false;
   bool spiralGateMustSelectCreature = false;
+  bool naturalSnareMustSelectCreature = false;
   bool brainSerumMustDrawCards = false;
   bool dimensionGateMustDrawCard = false;
   bool crystalMemoryMustDrawCard = false;
@@ -169,6 +171,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
     dimensionGateMustDrawCard = shieldFlags?.dimensionGateMustDrawCard ?? false;
     crystalMemoryMustDrawCard = shieldFlags?.crystalMemoryMustDrawCard ?? false;
+    naturalSnareMustSelectCreature = shieldFlags?.naturalSnareMustSelectCreature ?? false;
     spiralGateMustSelectCreature =
         shieldFlags?.spiralGateMustSelectCreature ?? false;
     darkReversalMustSelectCreature =
@@ -646,6 +649,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               _showGraveyardCreatureSelectionOverlay(),
             if (spiralGateMustSelectCreature)
               _showDualCreatureSelectionOverlay(),
+            if (naturalSnareMustSelectCreature)
+              _showCreatureSelectionForManaZoneOverlay(),
           ],
         ),
       ),
@@ -684,6 +689,35 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final isMyCreature = currentTurnPlayerId != currentPlayerId;
 
     return CreatureSelectionOverlay(
+      isMyCreature: isMyCreature,
+      shieldTriggerCard: shieldTriggerCard,
+      opponentSelectableCreatures: opponentBattleZone,
+      selectedOpponentCreature: selectedOpponentCreature,
+      onCardSelected: (card) {
+        setState(() {
+          selectedOpponentCreature = card;
+        });
+      },
+      onConfirm: () {
+        if (selectedOpponentCreature == null) return;
+
+        wsHandler.useShieldTriggerCard(
+          gameId: currentGameId,
+          playerId: currentPlayerId,
+          currentTurnPlayerId: currentTurnPlayerId,
+          action: "CAST_SHIELD_TRIGGER",
+          usingShieldTrigger: true,
+          triggeredGameCardId: selectedOpponentCreature!.gameCardId,
+        );
+      },
+    );
+  }
+
+
+  Widget _showCreatureSelectionForManaZoneOverlay() {
+    final isMyCreature = currentTurnPlayerId != currentPlayerId;
+
+    return CreatureSelectionForManaZoneOverlay(
       isMyCreature: isMyCreature,
       shieldTriggerCard: shieldTriggerCard,
       opponentSelectableCreatures: opponentBattleZone,
