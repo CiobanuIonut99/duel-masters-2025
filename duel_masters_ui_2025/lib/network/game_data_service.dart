@@ -5,7 +5,8 @@ import '../models/card_model.dart';
 class GameDataService {
   static Future<Map<String, List<CardModel>>> fetchInitialGameData() async {
     final response = await http.get(
-      Uri.parse('http://localhost:8080/api/games'),
+      Uri.parse('https://8015-213-170-209-87.ngrok-free.app/api/games'),
+      // Uri.parse('http://8015-213-170-209-87.ngrok-free.app/api/games'),
     );
 
     if (response.statusCode == 200) {

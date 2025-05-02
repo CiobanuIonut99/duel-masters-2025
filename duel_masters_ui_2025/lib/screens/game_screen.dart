@@ -114,7 +114,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     super.initState();
 
     wsHandler = GameWebSocketHandler(
-      url: 'ws://localhost:8080/duel-masters-ws',
+      url: 'wss://8015-213-170-209-87.ngrok-free.app/duel-masters-ws',
+      // url: 'ws://localhost:8080/duel-masters-ws',
       currentPlayerId: currentPlayerId,
       onGameStateUpdate: (data) {
         _updateGameState(data);
