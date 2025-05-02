@@ -28,15 +28,16 @@ public class TornadoFlameEffect implements ShieldTriggerEffect {
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
 
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
-            shieldTriggersFlags.setTornadoFlameMustSelectCreature(true);
+            shieldTriggersFlags.setTornadoFlameMustSelectCreature(false);
 
             changeCardState(attackerCard, true, false, true, false);
         } else {
             var opponentUnder4000Creatures = shieldTriggersFlags.getOpponentUnder4000Creatures();
-            opponentUnder4000Creatures = opponentBattleZone
+            opponentUnder4000Creatures.clear();
+            opponentBattleZone
                     .stream()
                     .filter(opponentCard -> opponentCard.getPower() <= 4000)
-                    .toList();
+                    .forEach(opponentUnder4000Creatures::add);
             if (opponentUnder4000Creatures.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
             }
