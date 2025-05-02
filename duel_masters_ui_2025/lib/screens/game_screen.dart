@@ -102,9 +102,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool spiralGateMustSelectCreature = false;
   bool brainSerumMustDrawCards = false;
   bool crystalMemoryMustDrawCard = false;
+  bool darkReversalMustSelectCreature = false;
 
   List<CardModel> opponentSelectableCreatures = [];
   CardModel? selectedOpponentCreature;
+  CardModel? selectCreatureFromGraveyard;
 
   double hoverScale = 1.0;
 
@@ -162,6 +164,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
     crystalMemoryMustDrawCard = shieldFlags?.crystalMemoryMustDrawCard ?? false;
     spiralGateMustSelectCreature = shieldFlags?.spiralGateMustSelectCreature ?? false;
+    darkReversalMustSelectCreature = shieldFlags?.darkReversalMustSelectCreature ?? false;
     shieldTrigger = shieldFlags?.shieldTrigger ?? false;
 
     opponentHasBlocker = responseBody['opponentHasBlocker'];
@@ -621,6 +624,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ),
             ),
             if (solarRayMustSelectCreature) _showCreatureSelectionOverlay(),
+            if (darkReversalMustSelectCreature) _showGraveyardCreatureSelectionOverlay(),
             if (spiralGateMustSelectCreature) _showDualCreatureSelectionOverlay(),
           ],
         ),
@@ -657,6 +661,35 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       },
     );
   }
+
+  Widget _showGraveyardCreatureSelectionOverlay() {
+    final isMyCreature = currentTurnPlayerId != currentPlayerId;
+
+    return CreatureSelectionOverlay(
+      isMyCreature: isMyCreature,
+      shieldTriggerCard: shieldTriggerCard,
+      opponentSelectableCreatures: playerGraveyard,
+      selectedOpponentCreature: selectCreatureFromGraveyard,
+      onCardSelected: (card) {
+        setState(() {
+          selectCreatureFromGraveyard = card;
+        });
+      },
+      onConfirm: () {
+        if (selectCreatureFromGraveyard == null) return;
+
+        wsHandler.useShieldTriggerCard(
+          gameId: currentGameId,
+          playerId: currentPlayerId,
+          currentTurnPlayerId: currentTurnPlayerId,
+          action: "CAST_ANOTHER_EFFECT",  // ← update this action!
+          usingShieldTrigger: true,
+          triggeredGameCardId: selectCreatureFromGraveyard!.gameCardId,
+        );
+      },
+    );
+  }
+
 
   void _showBlockerSelectionDialog() {
     final isDefendingPlayer = currentTurnPlayerId != currentPlayerId;
