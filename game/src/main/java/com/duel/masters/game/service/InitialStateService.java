@@ -51,6 +51,7 @@ public class InitialStateService {
 //        mockService.mockShields(deck, shields, hand, 29L);
         mockService.mockShields(deck, shields, hand, 37L);
         mockService.mockShields(deck, shields, hand, 50L);
+        mockService.mockShields(deck, shields, hand, 62L);
 //        mockService.mockShields(deck, shields, hand, 39L);
 
         log.info("Deck has {} cards", deck.size());

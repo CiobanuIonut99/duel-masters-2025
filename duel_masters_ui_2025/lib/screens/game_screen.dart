@@ -224,10 +224,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final zones = GameStateParser.parse(responseBody);
 
     setState(() {
+
       currentTurnPlayerId = newTurnPlayerId;
       previousTurnPlayerId = newTurnPlayerId;
+
       opponentId = responseBody['opponentId'];
       playedMana = responseBody['playedMana'];
+
       opponentHasBlocker = responseBody['opponentHasBlocker'];
       shieldTrigger = shieldFlags?.shieldTrigger ?? false;
       brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
@@ -250,6 +253,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
       deckSize = playerDeck.length;
       opponentDeckSize = opponentDeck.length;
+
     });
   }
 

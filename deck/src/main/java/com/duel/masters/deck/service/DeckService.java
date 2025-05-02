@@ -105,6 +105,12 @@ public class DeckService {
                 .findFirst()
                 .orElseThrow();
 
+        var darkReversal = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 62)
+                .findFirst()
+                .orElseThrow();
+
 //        var crystalMemory = cardDtoList
 //                .stream()
 //                .filter(cardDto -> cardDto.getId() == 39)
@@ -117,9 +123,10 @@ public class DeckService {
 //        cardsToAdd.add(solarRay);
         cardsToAdd.add(brainSerum);
         cardsToAdd.add(spiralGate);
+        cardsToAdd.add(darkReversal);
 //        cardsToAdd.add(crystalMemory);
 
-        deck.removeIf(c -> c.getId() == 37 || c.getId() == 50);
+        deck.removeIf(c -> c.getId() == 37 || c.getId() == 50 || c.getId() == 62);
         while (deck.size() + cardsToAdd.size() > 40) {
             deck.removeFirst(); // remove extras
         }

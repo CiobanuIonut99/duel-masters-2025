@@ -3,7 +3,7 @@ package com.duel.masters.game.effects;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.service.CardsUpdateService;
 
-import static com.duel.masters.game.util.CardsDtoUtil.playCard;
+import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class DarkReversalEffect implements ShieldTriggerEffect {
 
@@ -12,9 +12,16 @@ public class DarkReversalEffect implements ShieldTriggerEffect {
 
     @Override
     public void execute(GameStateDto currentState, GameStateDto incomingState, CardsUpdateService cardsUpdateService) {
+
         var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
         var ownGraveyard = ownCards.getGraveyard();
         var ownHand = ownCards.getHand();
+
+        var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
+
+        var attackerId = currentState.getAttackerId();
+        var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
+
 
         var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
 
@@ -24,6 +31,10 @@ public class DarkReversalEffect implements ShieldTriggerEffect {
                     .filter(ownCard -> ownCard.getGameCardId().equalsIgnoreCase(incomingState.getTriggeredGameCardId()))
                     .forEach(ownCard ->
                             playCard(ownGraveyard, ownCard.getGameCardId(), ownHand));
+
+            changeCardState(attackerCard, true, false, true, false);
+            shieldTriggersFlags.setDarkReversalMustSelectCreature(false);
+
         } else {
             if (ownGraveyard.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
