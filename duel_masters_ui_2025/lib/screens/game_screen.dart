@@ -673,7 +673,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return CreatureSelectionOverlay(
       isMyCreature: isMyCreature,
       shieldTriggerCard: shieldTriggerCard,
-      opponentSelectableCreatures: opponentSelectableCreatures,
+      opponentSelectableCreatures: opponentBattleZone,
       selectedOpponentCreature: selectedOpponentCreature,
       onCardSelected: (card) {
         setState(() {

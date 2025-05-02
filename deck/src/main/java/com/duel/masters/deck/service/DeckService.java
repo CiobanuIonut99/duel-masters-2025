@@ -117,6 +117,30 @@ public class DeckService {
                 .findFirst()
                 .orElseThrow();
 
+        var terrorPit = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 73)
+                .findFirst()
+                .orElseThrow();
+
+        var tornadoFlame = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 98)
+                .findFirst()
+                .orElseThrow();
+
+        var dimensionGate = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 103)
+                .findFirst()
+                .orElseThrow();
+
+        var naturalSnare = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 109)
+                .findFirst()
+                .orElseThrow();
+
 //        var crystalMemory = cardDtoList
 //                .stream()
 //                .filter(cardDto -> cardDto.getId() == 39)
@@ -127,11 +151,16 @@ public class DeckService {
 // These always get added later
 //        cardsToAdd.add(holyawe);
 //        cardsToAdd.add(solarRay);
-        cardsToAdd.add(brainSerum);
-        cardsToAdd.add(spiralGate);
-        cardsToAdd.add(darkReversal);
-        cardsToAdd.add(ghostTouch);
+//        cardsToAdd.add(brainSerum);
+//        cardsToAdd.add(spiralGate);
+//        cardsToAdd.add(darkReversal);
+//        cardsToAdd.add(ghostTouch);
 //        cardsToAdd.add(crystalMemory);
+        cardsToAdd.add(terrorPit);
+        cardsToAdd.add(tornadoFlame);
+        cardsToAdd.add(dimensionGate);
+        cardsToAdd.add(naturalSnare);
+
 
         deck.removeIf(c -> c.getId() == 37 ||
                 c.getId() == 50 ||

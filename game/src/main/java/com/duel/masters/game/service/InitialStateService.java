@@ -49,11 +49,15 @@ public class InitialStateService {
 
 //        mockService.mockShields(deck, shields, hand, 16L);
 //        mockService.mockShields(deck, shields, hand, 29L);
-        mockService.mockShields(deck, shields, hand, 37L);
-        mockService.mockShields(deck, shields, hand, 50L);
-        mockService.mockShields(deck, shields, hand, 62L);
-        mockService.mockShields(deck, shields, hand, 64L);
+//        mockService.mockShields(deck, shields, hand, 37L);
+//        mockService.mockShields(deck, shields, hand, 50L);
+//        mockService.mockShields(deck, shields, hand, 62L);
+//        mockService.mockShields(deck, shields, hand, 64L);
 //        mockService.mockShields(deck, shields, hand, 39L);
+        mockService.mockShields(deck, shields, hand, 73L);
+        mockService.mockShields(deck, shields, hand, 98L);
+        mockService.mockShields(deck, shields, hand, 103L);
+        mockService.mockShields(deck, shields, hand, 109L);
 
         log.info("Deck has {} cards", deck.size());
         log.info("Shields has {} cards", shields.size());
