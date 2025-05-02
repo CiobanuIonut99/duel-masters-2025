@@ -1,9 +1,8 @@
 package com.duel.masters.game.effects;
 
 import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.dto.card.service.CardDto;
 import com.duel.masters.game.service.CardsUpdateService;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
@@ -30,24 +29,36 @@ public class SpiralGateEffect implements ShieldTriggerEffect {
 
         if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
 
-            AtomicBoolean foundCard = new AtomicBoolean(false);
+            var chosenCard = new CardDto();
 
-            ownBattleZone
+            chosenCard = ownBattleZone
                     .stream()
                     .filter(ownCard -> ownCard.getGameCardId().equalsIgnoreCase(newTriggerGameCardId))
-                    .forEach(ownCard -> {
-                        playCard(ownBattleZone, ownCard.getGameCardId(), ownHand);
-                        foundCard.set(true);
-                    });
+                    .findFirst()
+                    .orElse(null);
 
-            if (!foundCard.get()) {
-                opponentBattleZone
+            if (chosenCard != null) {
+
+                playCard(ownBattleZone, chosenCard.getGameCardId(), ownHand);
+
+
+            } else {
+
+                chosenCard = opponentBattleZone
                         .stream()
                         .filter(opponentCard -> opponentCard.getGameCardId().equalsIgnoreCase(newTriggerGameCardId))
-                        .forEach(opponentCard -> playCard(opponentBattleZone, opponentCard.getGameCardId(), opponentHand));
+                        .findFirst()
+                        .orElseThrow();
+                playCard(opponentBattleZone, chosenCard.getGameCardId(), opponentHand);
+
             }
 
+            chosenCard.setTapped(false);
             changeCardState(attackerCard, true, false, true, false);
+            if (attackerCard.equals(chosenCard)) {
+                attackerCard.setTapped(false);
+            }
+            shieldTriggersFlags.setSpiralGateMustSelectCreature(false);
 
         } else {
             if (ownBattleZone.isEmpty() && opponentBattleZone.isEmpty()) {
@@ -63,5 +74,6 @@ public class SpiralGateEffect implements ShieldTriggerEffect {
             shieldTriggersFlags.setShieldTriggerDecisionMade(true);
             shieldTriggersFlags.setShieldTrigger(false);
         }
+
     }
 }
