@@ -47,10 +47,11 @@ public class InitialStateService {
         var shields = get5Cards(deck);
         var hand = get5Cards(deck);
 
-        mockService.mockShields(deck, shields, hand, 16L);
-        mockService.mockShields(deck, shields, hand, 29L);
+//        mockService.mockShields(deck, shields, hand, 16L);
+//        mockService.mockShields(deck, shields, hand, 29L);
         mockService.mockShields(deck, shields, hand, 37L);
-        mockService.mockShields(deck, shields, hand, 39L);
+        mockService.mockShields(deck, shields, hand, 50L);
+//        mockService.mockShields(deck, shields, hand, 39L);
 
         log.info("Deck has {} cards", deck.size());
         log.info("Shields has {} cards", shields.size());

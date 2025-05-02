@@ -81,17 +81,17 @@ public class DeckService {
         shuffleCards(deck);
 
 
-        var holyawe = cardDtoList
-                .stream()
-                .filter(cardDto -> cardDto.getId() == 16)
-                .findFirst()
-                .orElseThrow();
-
-        var solarRay = cardDtoList
-                .stream()
-                .filter(cardDto -> cardDto.getId() == 29)
-                .findFirst()
-                .orElseThrow();
+//        var holyawe = cardDtoList
+//                .stream()
+//                .filter(cardDto -> cardDto.getId() == 16)
+//                .findFirst()
+//                .orElseThrow();
+//
+//        var solarRay = cardDtoList
+//                .stream()
+//                .filter(cardDto -> cardDto.getId() == 29)
+//                .findFirst()
+//                .orElseThrow();
 
         var brainSerum = cardDtoList
                 .stream()
@@ -99,21 +99,27 @@ public class DeckService {
                 .findFirst()
                 .orElseThrow();
 
-        var crystalMemory = cardDtoList
+        var spiralGate = cardDtoList
                 .stream()
-                .filter(cardDto -> cardDto.getId() == 39)
+                .filter(cardDto -> cardDto.getId() == 50)
                 .findFirst()
                 .orElseThrow();
+
+//        var crystalMemory = cardDtoList
+//                .stream()
+//                .filter(cardDto -> cardDto.getId() == 39)
+//                .findFirst()
+//                .orElseThrow();
         List<CardDto> cardsToAdd = new ArrayList<>();
 
 // These always get added later
-        cardsToAdd.add(holyawe);
-        cardsToAdd.add(solarRay);
+//        cardsToAdd.add(holyawe);
+//        cardsToAdd.add(solarRay);
         cardsToAdd.add(brainSerum);
-        cardsToAdd.add(crystalMemory);
+        cardsToAdd.add(spiralGate);
+//        cardsToAdd.add(crystalMemory);
 
-        deck.removeIf(c -> c.getId() == 16 || c.getId() == 29 || c.getId() == 37
-         || c.getId() == 39);
+        deck.removeIf(c -> c.getId() == 37 || c.getId() == 50);
         while (deck.size() + cardsToAdd.size() > 40) {
             deck.removeFirst(); // remove extras
         }
