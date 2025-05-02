@@ -1,10 +1,12 @@
 class ShieldTriggersFlagsDto {
-  final bool solarRayMustSelectCreature;
-  final bool spiralGateMustSelectCreature;
+
   final bool targetShield;
   final bool shieldTrigger;
   final bool brainSerumMustDrawCards;
   final bool crystalMemoryMustDrawCard;
+  final bool solarRayMustSelectCreature;
+  final bool spiralGateMustSelectCreature;
+
   final Map<String, dynamic> eachPlayerBattleZone;
 
   ShieldTriggersFlagsDto({
