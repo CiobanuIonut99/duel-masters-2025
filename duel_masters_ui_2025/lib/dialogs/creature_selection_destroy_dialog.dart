@@ -33,8 +33,8 @@ class DestroyCreatureSelectionOverlay extends StatelessWidget {
               children: [
                 Text(
                   isMyCreature
-                      ? "Select a creature"
-                      : "Opponent is selecting a creature from your battlezone to tap",
+                      ? "Select a creature to destroy"
+                      : "Opponent is selecting a creature from your battlezone to destroy",
                   style: kDialogTitleStyle.copyWith(color: Colors.greenAccent),
                 ),
                 const SizedBox(height: 8),
