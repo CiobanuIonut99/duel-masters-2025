@@ -38,6 +38,7 @@ public class TornadoFlameEffect implements ShieldTriggerEffect {
                     .stream()
                     .filter(opponentCard -> opponentCard.getPower() <= 4000)
                     .forEach(opponentUnder4000Creatures::add);
+            opponentUnder4000Creatures = shieldTriggersFlags.getOpponentUnder4000Creatures();
             if (opponentUnder4000Creatures.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
             }
