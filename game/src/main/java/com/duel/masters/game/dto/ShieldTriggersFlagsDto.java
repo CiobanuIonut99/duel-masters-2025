@@ -33,7 +33,7 @@ public class ShieldTriggersFlagsDto {
     private boolean ghostTouchMustSelectCreature;
     private boolean terrorPitMustSelectCreature;
     private boolean tornadoFlameMustSelectCreature;
-    private boolean dimensionalGateMustDrawCard;
+    private boolean dimensionGateMustDrawCard;
     private boolean naturalSnareMustSelectCreature;
 
     private boolean shieldTriggerDecisionMade;

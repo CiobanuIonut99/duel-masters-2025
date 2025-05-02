@@ -26,7 +26,7 @@ public class DimensionGateEffect implements ShieldTriggerEffect {
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 
         } else {
-            shieldTriggersFlags.setDimensionalGateMustDrawCard(true);
+            shieldTriggersFlags.setdimensionGateMustDrawCard(true);
             shieldTriggersFlags.setShieldTriggerDecisionMade(true);
             shieldTriggersFlags.setShieldTrigger(false);
         }
