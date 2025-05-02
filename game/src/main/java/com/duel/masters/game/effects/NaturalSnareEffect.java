@@ -25,6 +25,8 @@ public class NaturalSnareEffect implements ShieldTriggerEffect {
                     .filter(opponentCard -> opponentCard.getGameCardId().equalsIgnoreCase(incomingState.getTriggeredGameCardId()))
                     .forEach(opponentCard -> playCard(opponentBattleZone, opponentCard.getGameCardId(), opponentManaZone));
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard()  );
+            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
+
         } else {
             if (opponentBattleZone.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());

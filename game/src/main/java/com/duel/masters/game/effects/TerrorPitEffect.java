@@ -1,6 +1,7 @@
 package com.duel.masters.game.effects;
 
 import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.dto.card.service.CardDto;
 import com.duel.masters.game.service.CardsUpdateService;
 
 import static com.duel.masters.game.util.CardsDtoUtil.*;
@@ -23,24 +24,28 @@ public class TerrorPitEffect implements ShieldTriggerEffect {
         var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
 
         if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
-            opponentBattleZone
+            var chosencard = new CardDto();
+            chosencard = opponentBattleZone
                     .stream()
                     .filter(opponentCard -> opponentCard.getGameCardId().equalsIgnoreCase(incomingState.getTriggeredGameCardId()))
-                    .forEach(opponentCard -> playCard(opponentBattleZone, opponentCard.getGameCardId(), opponentGraveyard));
+                    .findFirst()
+                    .orElseThrow();
+            playCard(opponentBattleZone, chosencard.getGameCardId(), opponentGraveyard);
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
-            currentState.getShieldTriggersFlagsDto().setTerrorPitMustSelectCreature(false);
             changeCardState(attackerCard, true, false, true, false);
+            currentState.getShieldTriggersFlagsDto().setTerrorPitMustSelectCreature(false);
+            chosencard.setTapped(false);
+            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 
         } else {
             if (opponentBattleZone.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTargetId(), opponentCards.getHand());
                 shieldTriggersFlags.setTerrorPitMustSelectCreature(false);
-                changeCardState(attackerCard, true, false, true, false);
             } else {
                 shieldTriggersFlags.setTerrorPitMustSelectCreature(true);
             }
-            shieldTriggersFlags.setShieldTriggerDecisionMade(true);
             shieldTriggersFlags.setShieldTrigger(false);
+            shieldTriggersFlags.setShieldTriggerDecisionMade(true);
         }
     }
 }

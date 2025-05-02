@@ -23,6 +23,7 @@ public class DimensionGateEffect implements ShieldTriggerEffect {
                     .forEach(ownCard ->
                             playCard(ownDeck, ownCard.getGameCardId(), ownCards.getHand()));
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
+            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 
         } else {
             shieldTriggersFlags.setDimensionalGateMustDrawCard(true);

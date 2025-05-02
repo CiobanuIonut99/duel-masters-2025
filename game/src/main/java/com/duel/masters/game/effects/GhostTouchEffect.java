@@ -34,6 +34,7 @@ public class GhostTouchEffect implements ShieldTriggerEffect {
             playCard(opponentHand, chosenCard.getGameCardId(), opponentGraveyard);
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
             changeCardState(attackerCard, true, false, true, false);
+            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 
         } else {
             if (opponentHand.isEmpty()) {

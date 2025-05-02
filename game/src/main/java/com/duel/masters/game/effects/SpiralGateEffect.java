@@ -59,6 +59,7 @@ public class SpiralGateEffect implements ShieldTriggerEffect {
                 attackerCard.setTapped(false);
             }
             shieldTriggersFlags.setSpiralGateMustSelectCreature(false);
+            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 
         } else {
             if (ownBattleZone.isEmpty() && opponentBattleZone.isEmpty()) {
