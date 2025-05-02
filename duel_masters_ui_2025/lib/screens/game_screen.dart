@@ -12,6 +12,7 @@ import '../dialogs/mana_selection_dialog.dart';
 import '../dialogs/select_cards_from_deck_dialog.dart';
 import '../dialogs/shield_trigger_dialog.dart';
 import '../dialogs/styled_dialog_container.dart';
+import '../dialogs/two_rows_selection_creature.dart';
 import '../models/card_model.dart';
 import '../models/shiel_trigger_flags_dto.dart';
 import '../network/game_state_parse.dart';
@@ -30,6 +31,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool opponentHasBlocker = false;
   bool shieldTrigger = false;
   CardModel? selectedBlocker;
+  CardModel? selectedCreature;
 
   ShieldTriggersFlagsDto? shieldFlags;
 
@@ -48,6 +50,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   List<CardModel> opponentManaZone = [];
   List<CardModel> opponentGraveyard = [];
   List<CardModel> opponentBattleZone = [];
+
+  List<CardModel> spiralGatePlayerBattleZone = [];
+  List<CardModel> spiralGateOpponentBattleZone = [];
+
 
   Set<String> glowingManaCardIds = {};
   Set<String> glowAttackableShields = {};
@@ -93,6 +99,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool tapped = false;
 
   bool solarRayMustSelectCreature = false;
+  bool spiralGateMustSelectCreature = false;
   bool brainSerumMustDrawCards = false;
   bool crystalMemoryMustDrawCard = false;
 
@@ -153,18 +160,33 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     solarRayMustSelectCreature =
         shieldFlags?.solarRayMustSelectCreature ?? false;
-
     brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
     crystalMemoryMustDrawCard = shieldFlags?.crystalMemoryMustDrawCard ?? false;
-
+    spiralGateMustSelectCreature = shieldFlags?.spiralGateMustSelectCreature ?? false;
     shieldTrigger = shieldFlags?.shieldTrigger ?? false;
 
     opponentHasBlocker = responseBody['opponentHasBlocker'];
-
     opponentSelectableCreatures =
         (responseBody['opponentSelectableCreatures'] as List? ?? [])
             .map((c) => CardModel.fromJson(c))
             .toList();
+
+    final eachPlayerBattleZoneJson =
+        shieldFlags?.eachPlayerBattleZone ?? {};
+
+    final playerIdStr = currentPlayerId.toString();
+    final opponentIdStr = opponentId.toString();
+
+    final spiralGatePlayerBattleZone =
+    (eachPlayerBattleZoneJson[playerIdStr] as List? ?? [])
+        .map((c) => CardModel.fromJson(c))
+        .toList();
+
+    final spiralGatePlayerOpponentZone =
+    (eachPlayerBattleZoneJson[opponentIdStr] as List? ?? [])
+        .map((c) => CardModel.fromJson(c))
+        .toList();
+
 
     if (opponentHasBlocker) {
       Future.microtask(() => _showBlockerSelectionDialog());
@@ -172,6 +194,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     if (shieldTrigger) {
       Future.microtask(() => _showShieldTriggerDialog());
+    }
+
+    if (spiralGateMustSelectCreature) {
+      Future.microtask(() => _showDualCreatureSelectionOverlay());
     }
 
     if (brainSerumMustDrawCards) {
@@ -232,6 +258,32 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       opponentDeckSize = opponentDeck.length;
     });
   }
+
+  Widget _showDualCreatureSelectionOverlay() {
+    return DualCreatureSelectionOverlay(
+      playerCreatures: spiralGatePlayerBattleZone,
+      opponentCreatures: spiralGateOpponentBattleZone,
+      selectedCreature: selectedCreature,
+      onCardSelected: (card) {
+        setState(() {
+          selectedCreature = card;
+        });
+      },
+      onConfirm: () {
+        if (selectedCreature == null) return;
+
+        wsHandler.useShieldTriggerCard(
+          gameId: currentGameId,
+          playerId: currentPlayerId,
+          currentTurnPlayerId: currentTurnPlayerId,
+          action: "CAST_SHIELD_TRIGGER",
+          usingShieldTrigger: true,
+          triggeredGameCardId: selectedCreature!.gameCardId,
+        );
+      },
+    );
+  }
+
 
   void _showTurnBanner(String text) {
     // final isMyTurn = text == "Your Turn";
@@ -341,19 +393,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       },
     );
   }
-
-  // void _searchForMatch() {
-  //   wsHandler.waitAndSearchForMatch(
-  //     hand: playerHand,
-  //     shields: playerShields,
-  //     deck: playerDeck,
-  //     onSearching: () {
-  //       setState(() {
-  //         hasJoinedMatch = true;
-  //       });
-  //     },
-  //   );
-  // }
 
   void sendToMana(CardModel card) {
     if (!isMyTurn) {
@@ -589,6 +628,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
+
 
   Widget _showCreatureSelectionOverlay() {
     final isMyCreature = currentTurnPlayerId != currentPlayerId;
