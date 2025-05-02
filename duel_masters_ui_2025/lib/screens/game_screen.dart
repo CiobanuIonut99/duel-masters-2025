@@ -116,22 +116,23 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     wsHandler = GameWebSocketHandler(
       url: 'ws://localhost:8080/duel-masters-ws',
       currentPlayerId: currentPlayerId,
-      onMatchFound: (gameId, playerTopic) {
-        setState(() {
-          currentGameId = gameId;
-          myPlayerTopic = playerTopic;
-          hasJoinedMatch = true;
-        });
+      onGameStateUpdate: (data) {
+        _updateGameState(data);
       },
       onConnected: () {
         setState(() {
           isConnected = true;
         });
       },
-      onGameStateUpdate: (data) {
-        _updateGameState(data);
+      onMatchFound: (gameId) {
+        setState(() {
+          currentGameId = gameId;
+          hasJoinedMatch = true;
+        });
       },
     );
+
+
 
     wsHandler.connect();
   }
@@ -340,18 +341,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _searchForMatch() {
-    wsHandler.waitAndSearchForMatch(
-      hand: playerHand,
-      shields: playerShields,
-      deck: playerDeck,
-      onSearching: () {
-        setState(() {
-          hasJoinedMatch = true;
-        });
-      },
-    );
-  }
+  // void _searchForMatch() {
+  //   wsHandler.waitAndSearchForMatch(
+  //     hand: playerHand,
+  //     shields: playerShields,
+  //     deck: playerDeck,
+  //     onSearching: () {
+  //       setState(() {
+  //         hasJoinedMatch = true;
+  //       });
+  //     },
+  //   );
+  // }
 
   void sendToMana(CardModel card) {
     if (!isMyTurn) {
@@ -364,16 +365,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     wsHandler.sendCardToMana(
       gameId: currentGameId,
       playerId: currentPlayerId,
-      playerTopic: myPlayerTopic,
       triggeredGameCardId: card.gameCardId,
-      onAlreadyPlayedMana: () {
-        showSnackBar("You can only send one card to mana per turn.");
-      },
-      onSucces: () {
-        setState(() {
-          glowingManaCardIds.add(card.gameCardId);
-        });
-      },
     );
     Future.delayed(Duration(seconds: 2), () {
       setState(() {
@@ -395,15 +387,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       gameId: currentGameId,
       playerId: currentPlayerId,
       currentTurnPlayerId: currentTurnPlayerId,
-      action: "ATTACK",
       attackerId: attacker.gameCardId,
       targetId: target.gameCardId,
       targetShield: targetShield,
-      onSucces: () {
-        setState(() {
-          _cancelAttackSelection();
-        });
-      },
     );
   }
 
@@ -413,29 +399,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       playerId: currentPlayerId,
       currentTurnPlayerId: currentTurnPlayerId,
       opponentId: opponentId,
-      action: "END_TURN",
-      onSuccess: () {
-        setState(() {
-          playerHand =
-              playerHand.map((card) {
-                return CardModel(
-                  id: card.id,
-                  power: card.power,
-                  gameCardId: card.gameCardId,
-                  name: card.name,
-                  type: card.type,
-                  civilization: card.civilization,
-                  race: card.race,
-                  manaCost: card.manaCost,
-                  manaNumber: card.manaNumber,
-                  ability: card.ability,
-                  specialAbility: card.specialAbility,
-                  tapped: card.tapped,
-                  summonable: true, // or apply your condition here
-                );
-              }).toList();
-        });
-      },
     );
   }
 
@@ -507,7 +470,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   onPressed:
                       isConnected
                           ? () {
-                            _searchForMatch();
                             showSnackBar("🔍 Looking for opponent...");
                           }
                           : null,
@@ -650,12 +612,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           action: "CAST_SHIELD_TRIGGER",
           usingShieldTrigger: true,
           triggeredGameCardId: selectedOpponentCreature!.gameCardId,
-          onSuccess: () {
-            setState(() {
-              shieldTrigger = false;
-              shieldTriggerCard = null;
-            });
-          },
         );
       },
     );
@@ -683,13 +639,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 attackerId: "",
                 targetId: selected.gameCardId,
                 targetShield: false,
-                onSuccess: () {
-                  setState(() {
-                    _cancelAttackSelection();
-                    opponentHasBlocker = false;
-                  });
-                  Navigator.pop(context);
-                },
               );
             },
             onSkip: () {
@@ -698,13 +647,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 playerId: currentPlayerId,
                 currentTurnPlayerId: currentTurnPlayerId,
                 action: "BLOCK",
-                onSuccess: () {
-                  setState(() {
-                    _cancelAttackSelection();
-                    opponentHasBlocker = false;
-                  });
-                  Navigator.pop(context);
-                },
               );
             },
           );
@@ -764,15 +706,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   currentTurnPlayerId: currentTurnPlayerId,
                   action: "CAST_SHIELD_TRIGGER",
                   usingShieldTrigger: true,
-                  onSuccess: () {
-                    setState(() {
-                      shieldTrigger = false;
-                      shieldTriggerCard = null;
-                    });
-                    Navigator.pop(
-                      context,
-                    ); // ✅ Close it here after backend success
-                  },
                 );
               },
               onSkip: () {
@@ -782,13 +715,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   currentTurnPlayerId: currentTurnPlayerId,
                   action: "CAST_SHIELD_TRIGGER",
                   usingShieldTrigger: false,
-                  onSuccess: () {
-                    setState(() {
-                      shieldTrigger = false;
-                      shieldTriggerCard = null;
-                    });
-                    Navigator.pop(context);
-                  },
                 );
               },
             ),
@@ -815,12 +741,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     wsHandler.summonWithMana(
       gameId: currentGameId,
       playerId: currentPlayerId,
-      playerTopic: myPlayerTopic,
       triggeredGameCardId: card.gameCardId,
       selectedManaCardIds: selectedManaIds,
-      onSucces: () {
-        setState(() {});
-      },
     );
   }
 
@@ -926,12 +848,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 cardsChosen: selectedIds,
                 shieldTriggerDecisionMade: true,
                 usingShieldTrigger: true,
-                onSuccess: () {
-                  setState(() {
-                    shieldTrigger = false;
-                    shieldTriggerCard = null;
-                  });
-                },
               );
             },
           ),
