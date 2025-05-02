@@ -3,7 +3,6 @@ package com.duel.masters.game.effects;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.service.CardsUpdateService;
 
-import static com.duel.masters.game.constant.Constant.CREATURE;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class SolarRayEffect implements ShieldTriggerEffect {
@@ -38,23 +37,15 @@ public class SolarRayEffect implements ShieldTriggerEffect {
             opponentCards
                     .getBattleZone()
                     .stream()
-                    .filter(cardDto -> CREATURE.equalsIgnoreCase(cardDto.getType())
+                    .filter(cardDto -> !cardDto.isTapped()
                             &&
-                            !cardDto.isTapped()
-                            &&
-                            !cardDto.getGameCardId().equals(attackerCard.getGameCardId())
-                    )
+                            !cardDto.getGameCardId().equals(attackerCard.getGameCardId()))
                     .forEach(opponentSelectableCreatures::add);
 
             if (opponentSelectableCreatures.isEmpty()) {
-
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
-
                 currentState.getShieldTriggersFlagsDto().setSolarRayMustSelectCreature(false);
-
-
                 changeCardState(attackerCard, true, false, true, false);
-
             } else {
                 currentState.getShieldTriggersFlagsDto().setSolarRayMustSelectCreature(true);
             }

@@ -3,7 +3,7 @@ package com.duel.masters.game.effects;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.service.CardsUpdateService;
 
-import static com.duel.masters.game.util.CardsDtoUtil.playCard;
+import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class TerrorPitEffect implements ShieldTriggerEffect {
 
@@ -17,6 +17,9 @@ public class TerrorPitEffect implements ShieldTriggerEffect {
         var opponentBattleZone = opponentCards.getBattleZone();
         var opponentGraveyard = opponentCards.getGraveyard();
 
+        var attackerId = currentState.getAttackerId();
+        var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
+
         var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
 
         if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
@@ -24,10 +27,15 @@ public class TerrorPitEffect implements ShieldTriggerEffect {
                     .stream()
                     .filter(opponentCard -> opponentCard.getGameCardId().equalsIgnoreCase(incomingState.getTriggeredGameCardId()))
                     .forEach(opponentCard -> playCard(opponentBattleZone, opponentCard.getGameCardId(), opponentGraveyard));
+            playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
+            currentState.getShieldTriggersFlagsDto().setTerrorPitMustSelectCreature(false);
+            changeCardState(attackerCard, true, false, true, false);
+
         } else {
             if (opponentBattleZone.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTargetId(), opponentCards.getHand());
                 shieldTriggersFlags.setTerrorPitMustSelectCreature(false);
+                changeCardState(attackerCard, true, false, true, false);
             } else {
                 shieldTriggersFlags.setTerrorPitMustSelectCreature(true);
             }
