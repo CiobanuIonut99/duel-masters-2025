@@ -29,9 +29,9 @@ public class DarkReversalEffect implements ShieldTriggerEffect {
             ownGraveyard
                     .stream()
                     .filter(ownCard -> ownCard.getGameCardId().equalsIgnoreCase(incomingState.getTriggeredGameCardId()))
-                    .forEach(ownCard ->
-                            playCard(ownGraveyard, ownCard.getGameCardId(), ownHand));
+                    .forEach(ownCard -> playCard(ownGraveyard, ownCard.getGameCardId(), ownHand));
 
+            playCard(ownCards.getShields(), currentState.getTargetId(), ownGraveyard);
             changeCardState(attackerCard, true, false, true, false);
             shieldTriggersFlags.setDarkReversalMustSelectCreature(false);
 

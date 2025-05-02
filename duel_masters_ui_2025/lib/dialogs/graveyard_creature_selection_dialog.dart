@@ -33,14 +33,14 @@ class GraveyardCreatureSelectionOverlay extends StatelessWidget {
               children: [
                 Text(
                   isMyCreature
-                      ? "Select a creature"
-                      : "Opponent is selecting a creature from your battlezone to tap",
+                      ? "Select a creature from your graveyard"
+                      : "Opponent is selecting a creature from his graveyard to return it to his hand",
                   style: kDialogTitleStyle.copyWith(color: Colors.greenAccent),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   isMyCreature
-                      ? "Choose one of the opponent's creatures to continue."
+                      ? "Select a creature from your graveyard to continue."
                       : "Waiting for opponent's move...",
                   style: kDialogSubtitleStyle,
                   textAlign: TextAlign.center,
