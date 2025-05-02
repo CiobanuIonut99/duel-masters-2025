@@ -111,6 +111,12 @@ public class DeckService {
                 .findFirst()
                 .orElseThrow();
 
+        var ghostTouch = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 64)
+                .findFirst()
+                .orElseThrow();
+
 //        var crystalMemory = cardDtoList
 //                .stream()
 //                .filter(cardDto -> cardDto.getId() == 39)
@@ -124,9 +130,14 @@ public class DeckService {
         cardsToAdd.add(brainSerum);
         cardsToAdd.add(spiralGate);
         cardsToAdd.add(darkReversal);
+        cardsToAdd.add(ghostTouch);
 //        cardsToAdd.add(crystalMemory);
 
-        deck.removeIf(c -> c.getId() == 37 || c.getId() == 50 || c.getId() == 62);
+        deck.removeIf(c -> c.getId() == 37 ||
+                c.getId() == 50 ||
+                c.getId() == 62 ||
+                c.getId() == 64
+        );
         while (deck.size() + cardsToAdd.size() > 40) {
             deck.removeFirst(); // remove extras
         }

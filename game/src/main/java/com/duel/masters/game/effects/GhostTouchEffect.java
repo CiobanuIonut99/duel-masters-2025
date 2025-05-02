@@ -5,7 +5,7 @@ import com.duel.masters.game.service.CardsUpdateService;
 
 import java.util.Collections;
 
-import static com.duel.masters.game.util.CardsDtoUtil.playCard;
+import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class GhostTouchEffect implements ShieldTriggerEffect {
 
@@ -22,6 +22,9 @@ public class GhostTouchEffect implements ShieldTriggerEffect {
 
         var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
 
+        var attackerId = currentState.getAttackerId();
+        var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
+
         if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
             Collections.shuffle(opponentHand);
             var chosenCard = opponentHand
@@ -29,12 +32,12 @@ public class GhostTouchEffect implements ShieldTriggerEffect {
                     .findFirst()
                     .orElseThrow();
             playCard(opponentHand, chosenCard.getGameCardId(), opponentGraveyard);
+            playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
+            changeCardState(attackerCard, true, false, true, false);
+
         } else {
             if (opponentHand.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTriggeredGameCardId(), ownCards.getHand());
-                shieldTriggersFlags.setGhostTouchMustSelectCreature(false);
-            } else {
-                shieldTriggersFlags.setGhostTouchMustSelectCreature(true);
             }
             shieldTriggersFlags.setShieldTriggerDecisionMade(true);
             shieldTriggersFlags.setShieldTrigger(false);
