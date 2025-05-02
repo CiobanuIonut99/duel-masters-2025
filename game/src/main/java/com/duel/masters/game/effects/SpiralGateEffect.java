@@ -5,7 +5,7 @@ import com.duel.masters.game.service.CardsUpdateService;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.duel.masters.game.util.CardsDtoUtil.playCard;
+import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class SpiralGateEffect implements ShieldTriggerEffect {
 
@@ -21,6 +21,9 @@ public class SpiralGateEffect implements ShieldTriggerEffect {
         var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
         var opponentBattleZone = opponentCards.getBattleZone();
         var opponentHand = opponentCards.getHand();
+
+        var attackerId = currentState.getAttackerId();
+        var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
 
         var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
         var newTriggerGameCardId = incomingState.getTriggeredGameCardId();
@@ -43,6 +46,8 @@ public class SpiralGateEffect implements ShieldTriggerEffect {
                         .filter(opponentCard -> opponentCard.getGameCardId().equalsIgnoreCase(newTriggerGameCardId))
                         .forEach(opponentCard -> playCard(opponentBattleZone, opponentCard.getGameCardId(), opponentHand));
             }
+
+            changeCardState(attackerCard, true, false, true, false);
 
         } else {
             if (ownBattleZone.isEmpty() && opponentBattleZone.isEmpty()) {
