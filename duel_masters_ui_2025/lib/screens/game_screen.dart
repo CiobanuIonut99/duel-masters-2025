@@ -58,6 +58,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   List<CardModel> spiralGatePlayerBattleZone = [];
   List<CardModel> spiralGateOpponentBattleZone = [];
   List<CardModel> opponentUnder4000Creatures = [];
+  List<CardModel> playerCreatureDeck = [];
 
   Set<String> glowingManaCardIds = {};
   Set<String> glowAttackableShields = {};
@@ -183,6 +184,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     shieldTrigger = shieldFlags?.shieldTrigger ?? false;
 
     opponentUnder4000Creatures = shieldFlags?.opponentUnder4000Creatures ?? [];
+    playerCreatureDeck = shieldFlags?.playerCreatureDeck ?? [];
 
     opponentHasBlocker = responseBody['opponentHasBlocker'];
     opponentSelectableCreatures =
@@ -1043,7 +1045,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       barrierDismissible: false,
       builder:
           (_) => SelectCreatureFromDeckDialog(
-            deck: playerDeck,
+            deck: playerCreatureDeck,
             onConfirm: (selectedIds) {
               wsHandler.sendDrawCardsFromDeck(
                 gameId: currentGameId,
