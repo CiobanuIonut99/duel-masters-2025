@@ -194,10 +194,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       Future.microtask(() => _showShieldTriggerDialog());
     }
 
-    // if (spiralGateMustSelectCreature) {
-    //   Future.microtask(() => _showDualCreatureSelectionOverlay());
-    // }
-
     if (brainSerumMustDrawCards) {
       Future.microtask(() => _showDrawFromDeckDialog(1, 2));
     }
