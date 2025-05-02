@@ -8,6 +8,7 @@ import 'package:stomp_dart_client/stomp_handler.dart';
 
 import '../dialogs/blocker_selection_dialog.dart';
 import '../dialogs/creature_selection_dialog.dart';
+import '../dialogs/graveyard_creature_selection_dialog.dart';
 import '../dialogs/mana_selection_dialog.dart';
 import '../dialogs/select_cards_from_deck_dialog.dart';
 import '../dialogs/shield_trigger_dialog.dart';
@@ -665,7 +666,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   Widget _showGraveyardCreatureSelectionOverlay() {
     final isMyCreature = currentTurnPlayerId != currentPlayerId;
 
-    return CreatureSelectionOverlay(
+    return GraveyardCreatureSelectionOverlay(
       isMyCreature: isMyCreature,
       shieldTriggerCard: shieldTriggerCard,
       opponentSelectableCreatures: playerGraveyard,
@@ -682,7 +683,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           gameId: currentGameId,
           playerId: currentPlayerId,
           currentTurnPlayerId: currentTurnPlayerId,
-          action: "CAST_ANOTHER_EFFECT",  // ← update this action!
+          action: "CAST_SHIELD_TRIGGER",
           usingShieldTrigger: true,
           triggeredGameCardId: selectCreatureFromGraveyard!.gameCardId,
         );
