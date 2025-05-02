@@ -3,7 +3,7 @@ package com.duel.masters.game.effects;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.service.CardsUpdateService;
 
-import static com.duel.masters.game.util.CardsDtoUtil.playCard;
+import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class TornadoFlameEffect implements ShieldTriggerEffect {
 
@@ -17,23 +17,32 @@ public class TornadoFlameEffect implements ShieldTriggerEffect {
         var opponentBattleZone = opponentCards.getBattleZone();
         var opponentGraveyard = opponentCards.getGraveyard();
 
+        var attackerId = currentState.getAttackerId();
+        var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
+
         var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
 
         if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
-            opponentBattleZone
-                    .stream()
-                    .filter(opponentCard -> opponentCard.getPower() <= 4000 && opponentCard.getGameCardId().equalsIgnoreCase(incomingState.getTriggeredGameCardId()))
-                    .forEach(opponentCard -> playCard(opponentBattleZone, opponentCard.getGameCardId(), opponentGraveyard));
+            var selectedCard = getCardDtoFromList(opponentCards.getBattleZone(), incomingState.getTriggeredGameCardId());
+            playCard(opponentBattleZone, selectedCard.getGameCardId(), opponentGraveyard);
+            playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
+
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
+            shieldTriggersFlags.setTornadoFlameMustSelectCreature(true);
+
+            changeCardState(attackerCard, true, false, true, false);
         } else {
-            if (opponentBattleZone.isEmpty()) {
-                playCard(ownCards.getShields(), currentState.getTargetId(), opponentCards.getHand());
-                shieldTriggersFlags.setTornadoFlameMustSelectCreature(false);
-            } else {
-                shieldTriggersFlags.setTornadoFlameMustSelectCreature(true);
+            var opponentUnder4000Creatures = shieldTriggersFlags.getOpponentUnder4000Creatures();
+            opponentUnder4000Creatures = opponentBattleZone
+                    .stream()
+                    .filter(opponentCard -> opponentCard.getPower() <= 4000)
+                    .toList();
+            if (opponentUnder4000Creatures.isEmpty()) {
+                playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
             }
-            shieldTriggersFlags.setShieldTriggerDecisionMade(true);
+            shieldTriggersFlags.setTornadoFlameMustSelectCreature(true);
             shieldTriggersFlags.setShieldTrigger(false);
+            shieldTriggersFlags.setShieldTriggerDecisionMade(true);
         }
     }
 }
