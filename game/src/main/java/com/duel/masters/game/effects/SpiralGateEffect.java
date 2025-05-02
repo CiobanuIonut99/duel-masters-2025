@@ -66,6 +66,7 @@ public class SpiralGateEffect implements ShieldTriggerEffect {
                 shieldTriggersFlags.setSpiralGateMustSelectCreature(false);
             } else {
                 var eachPlayerBattleZone = shieldTriggersFlags.getEachPlayerBattleZone();
+
                 eachPlayerBattleZone.put(currentState.getPlayerId().toString(), ownBattleZone);
                 eachPlayerBattleZone.put(currentState.getOpponentId().toString(), opponentBattleZone);
 
