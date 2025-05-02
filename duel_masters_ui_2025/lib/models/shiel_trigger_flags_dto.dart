@@ -7,6 +7,7 @@ class ShieldTriggersFlagsDto {
   final bool solarRayMustSelectCreature;
   final bool spiralGateMustSelectCreature;
   final bool darkReversalMustSelectCreature;
+  final bool terrorPitMustSelectCreature;
 
   final Map<String, dynamic> eachPlayerBattleZone;
 
@@ -19,6 +20,7 @@ class ShieldTriggersFlagsDto {
     required this.crystalMemoryMustDrawCard,
     required this.eachPlayerBattleZone,
     required this.darkReversalMustSelectCreature,
+    required this.terrorPitMustSelectCreature,
   });
 
   factory ShieldTriggersFlagsDto.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,7 @@ class ShieldTriggersFlagsDto {
       crystalMemoryMustDrawCard: json['crystalMemoryMustDrawCard'] ?? false,
       eachPlayerBattleZone: json['eachPlayerBattleZone'] ?? {},
       darkReversalMustSelectCreature: json['darkReversalMustSelectCreature'] ?? {},
+      terrorPitMustSelectCreature: json['terrorPitMustSelectCreature'] ?? {},
     );
   }
 }

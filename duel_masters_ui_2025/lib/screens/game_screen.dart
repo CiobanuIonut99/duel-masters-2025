@@ -100,6 +100,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool tapped = false;
 
   bool solarRayMustSelectCreature = false;
+  bool terrorPitMustSelectCreature = false;
   bool spiralGateMustSelectCreature = false;
   bool brainSerumMustDrawCards = false;
   bool crystalMemoryMustDrawCard = false;
@@ -166,6 +167,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     crystalMemoryMustDrawCard = shieldFlags?.crystalMemoryMustDrawCard ?? false;
     spiralGateMustSelectCreature = shieldFlags?.spiralGateMustSelectCreature ?? false;
     darkReversalMustSelectCreature = shieldFlags?.darkReversalMustSelectCreature ?? false;
+    terrorPitMustSelectCreature = shieldFlags?.terrorPitMustSelectCreature ?? false;
     shieldTrigger = shieldFlags?.shieldTrigger ?? false;
 
     opponentHasBlocker = responseBody['opponentHasBlocker'];
@@ -625,6 +627,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               ),
             ),
             if (solarRayMustSelectCreature) _showCreatureSelectionOverlay(),
+            if (terrorPitMustSelectCreature) _showDestroyCreatureSelectionOverlay(),
             if (darkReversalMustSelectCreature) _showGraveyardCreatureSelectionOverlay(),
             if (spiralGateMustSelectCreature) _showDualCreatureSelectionOverlay(),
           ],
@@ -636,6 +639,35 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
 
   Widget _showCreatureSelectionOverlay() {
+    final isMyCreature = currentTurnPlayerId != currentPlayerId;
+
+    return CreatureSelectionOverlay(
+      isMyCreature: isMyCreature,
+      shieldTriggerCard: shieldTriggerCard,
+      opponentSelectableCreatures: opponentSelectableCreatures,
+      selectedOpponentCreature: selectedOpponentCreature,
+      onCardSelected: (card) {
+        setState(() {
+          selectedOpponentCreature = card;
+        });
+      },
+      onConfirm: () {
+        if (selectedOpponentCreature == null) return;
+
+        wsHandler.useShieldTriggerCard(
+          gameId: currentGameId,
+          playerId: currentPlayerId,
+          currentTurnPlayerId: currentTurnPlayerId,
+          action: "CAST_SHIELD_TRIGGER",
+          usingShieldTrigger: true,
+          triggeredGameCardId: selectedOpponentCreature!.gameCardId,
+        );
+      },
+    );
+  }
+
+
+  Widget _showDestroyCreatureSelectionOverlay() {
     final isMyCreature = currentTurnPlayerId != currentPlayerId;
 
     return CreatureSelectionOverlay(
