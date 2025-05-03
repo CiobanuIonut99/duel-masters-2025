@@ -83,18 +83,23 @@ class _CardRowState extends State<CardRow> {
                         width: widget.cardWidth,
                         height: widget.cardWidth * 1.4,
                         decoration: BoxDecoration(
-                          boxShadow:
-                              isGlowing
-                                  ? [
-                                    BoxShadow(
-                                      color: Colors.greenAccent.withOpacity(
-                                        0.6,
-                                      ),
-                                      blurRadius: 8,
-                                      spreadRadius: 2,
-                                    ),
-                                  ]
-                                  : [],
+                          boxShadow: [
+                            // Base soft shadow under every card
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 6,
+                              spreadRadius: 2,
+                              offset: Offset(2, 4),
+                            ),
+                            // Extra glow if this card is glowing
+                            if (isGlowing)
+                              BoxShadow(
+                                color: Colors.greenAccent.withOpacity(0.6),
+                                blurRadius: 12,
+                                spreadRadius: 4,
+                              ),
+                          ],
+
 
                           borderRadius:
                               card.tapped

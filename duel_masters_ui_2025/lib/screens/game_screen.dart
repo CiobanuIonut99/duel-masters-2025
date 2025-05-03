@@ -172,7 +172,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
     dimensionGateMustDrawCard = shieldFlags?.dimensionGateMustDrawCard ?? false;
     crystalMemoryMustDrawCard = shieldFlags?.crystalMemoryMustDrawCard ?? false;
-    naturalSnareMustSelectCreature = shieldFlags?.naturalSnareMustSelectCreature ?? false;
+    naturalSnareMustSelectCreature =
+        shieldFlags?.naturalSnareMustSelectCreature ?? false;
     spiralGateMustSelectCreature =
         shieldFlags?.spiralGateMustSelectCreature ?? false;
     darkReversalMustSelectCreature =
@@ -571,73 +572,87 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 child: IntrinsicHeight(
                   child: Padding(
                     padding: EdgeInsets.all(12),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        OpponentField(
-                          hand: opponentHand,
-                          shields: opponentShields,
-                          manaZone: opponentManaZone,
-                          graveyard: opponentGraveyard,
-                          deckSize: opponentDeckSize,
-                          opponentBattleZone: opponentBattleZone,
-                          isSelectingAttackTarget: isSelectingAttackTarget,
-                          selectedAttacker: selectedAttacker,
-                          onTapManaZone:
-                              () => _showCardZoneDialog(
-                                "Opponent Mana",
-                                opponentManaZone,
-                                true,
-                              ),
-                          onTapHandCard:
-                              (card) => _showFullScreenCardPreview(card),
-                          onTapGraveyard:
-                              () => _showCardZoneDialog(
-                                "Opponent Graveyard",
-                                opponentGraveyard,
-                                true,
-                              ),
-                          glowAttackableShields: glowAttackableShields,
-                          glowAttackableCreatures: glowAttackableCreatures,
-                          // ✅
-                          onAttack: (card) => _startAttackSelection(card),
-                          // <- ADD THIS
-                          onConfirmAttack: (targetCard) {
-                            if (selectedAttacker == null) return;
-                            _attackShieldOrCreature(
-                              selectedAttacker!,
-                              targetCard,
-                            );
-                          },
-                        ),
-
-                        SizedBox(height: 16),
-                        SizedBox(height: 16),
-                        PlayerField(
-                          isMyTurn: isMyTurn,
-                          hand: playerHand,
-                          shields: playerShields,
-                          manaZone: playerManaZone,
-                          graveyard: playerGraveyard,
-                          deckSize: deckSize,
-                          onTapHandCard:
-                              (card) => _showFullScreenCardPreview(card),
-                          onTapManaCard:
-                              (card) => _showFullScreenCardPreview(card),
-                          onTapGraveyard:
-                              () => _showCardZoneDialog(
-                                "Graveyard",
-                                playerGraveyard,
-                              ),
-                          onSummonHandCard:
-                              (card) => _showManaSelectionDialog(card),
-                          onSendToManaHandCard: (card) => sendToMana(card),
-                          onAttack: (card) => _startAttackSelection(card),
-                          playedMana: playedMana,
-                          playerBattleZone: playerBattleZone,
-                        ),
-                        SizedBox(height: 16),
-                      ],
+                    child: Transform(
+                      transform:
+                          Matrix4.identity()
+                            // ..setEntry(3, 2, 0.0015)
+                            // ..setEntry(0, 2, 0.0015)
+                            // ..rotateX(-0.15), // slight tilt
+                            // ..rotateX(-0.15), // slight tilt
+                      // alignment: Alignment.center
+                      ,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Transform.scale(
+                            scale: 0.85,
+                            child: OpponentField(
+                              hand: opponentHand,
+                              shields: opponentShields,
+                              manaZone: opponentManaZone,
+                              graveyard: opponentGraveyard,
+                              deckSize: opponentDeckSize,
+                              opponentBattleZone: opponentBattleZone,
+                              isSelectingAttackTarget: isSelectingAttackTarget,
+                              selectedAttacker: selectedAttacker,
+                              onTapManaZone:
+                                  () => _showCardZoneDialog(
+                                    "Opponent Mana",
+                                    opponentManaZone,
+                                    true,
+                                  ),
+                              onTapHandCard:
+                                  (card) => _showFullScreenCardPreview(card),
+                              onTapGraveyard:
+                                  () => _showCardZoneDialog(
+                                    "Opponent Graveyard",
+                                    opponentGraveyard,
+                                    true,
+                                  ),
+                              glowAttackableShields: glowAttackableShields,
+                              glowAttackableCreatures: glowAttackableCreatures,
+                              // ✅
+                              onAttack: (card) => _startAttackSelection(card),
+                              // <- ADD THIS
+                              onConfirmAttack: (targetCard) {
+                                if (selectedAttacker == null) return;
+                                _attackShieldOrCreature(
+                                  selectedAttacker!,
+                                  targetCard,
+                                );
+                              },
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          Transform.scale(
+                            scale: 0.85,
+                            child: PlayerField(
+                              isMyTurn: isMyTurn,
+                              hand: playerHand,
+                              shields: playerShields,
+                              manaZone: playerManaZone,
+                              graveyard: playerGraveyard,
+                              deckSize: deckSize,
+                              onTapHandCard:
+                                  (card) => _showFullScreenCardPreview(card),
+                              onTapManaCard:
+                                  (card) => _showFullScreenCardPreview(card),
+                              onTapGraveyard:
+                                  () => _showCardZoneDialog(
+                                    "Graveyard",
+                                    playerGraveyard,
+                                  ),
+                              onSummonHandCard:
+                                  (card) => _showManaSelectionDialog(card),
+                              onSendToManaHandCard: (card) => sendToMana(card),
+                              onAttack: (card) => _startAttackSelection(card),
+                              playedMana: playedMana,
+                              playerBattleZone: playerBattleZone,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -715,7 +730,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       },
     );
   }
-
 
   Widget _showCreatureSelectionForManaZoneOverlay() {
     final isMyCreature = currentTurnPlayerId != currentPlayerId;
