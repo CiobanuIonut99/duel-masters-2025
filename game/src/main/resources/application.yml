@@ -31,3 +31,8 @@ logging:
     org.springframework.messaging.simp.stomp: DEBUG
     org.springframework.messaging.simp.broker.SimpleBrokerMessageHandler: DEBUG
 
+
+    org:
+      springframework:
+        web:
+          socket=TRACE:
