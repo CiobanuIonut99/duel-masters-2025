@@ -23,7 +23,7 @@ public class BrainSerumEffect implements ShieldTriggerEffect {
         var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
 
         if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
-            for (int i = 0; i < shieldTriggersFlags.getCardsDrawn(); i++) {
+            for (int i = 0; i < incomingState.getShieldTriggersFlagsDto().getCardsDrawn(); i++) {
                 var cardDrawnId = ownDeck.getLast().getGameCardId();
                 playCard(ownDeck, cardDrawnId, ownHand);
             }
