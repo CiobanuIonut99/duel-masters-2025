@@ -125,6 +125,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   late StompClient stompClient;
   late final GameWebSocketHandler wsHandler;
 
+  bool isTurnBannerVisible = false;
+
+
   bool get isMyTurn => currentPlayerId == currentTurnPlayerId;
 
   @override
@@ -308,45 +311,50 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   void _showTurnBanner(String text) {
-    // final isMyTurn = text == "Your Turn";
+    setState(() {
+      isTurnBannerVisible = true;
+    });
 
     final overlay = OverlayEntry(
-      builder:
-          (context) => Positioned.fill(
-            child: Center(
-              child: AnimatedOpacity(
-                opacity: 1,
-                duration: Duration(milliseconds: 500),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isMyTurn ? Colors.greenAccent : Colors.redAccent,
-                      width: 2,
-                    ),
-                  ),
-                  child: Text(
-                    text,
-                    style: TextStyle(
-                      color: isMyTurn ? Colors.greenAccent : Colors.redAccent,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+      builder: (context) => Positioned.fill(
+        child: Center(
+          child: AnimatedOpacity(
+            opacity: 1,
+            duration: Duration(milliseconds: 500),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isMyTurn ? Colors.greenAccent : Colors.redAccent,
+                  width: 2,
+                ),
+              ),
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: isMyTurn ? Colors.greenAccent : Colors.redAccent,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ),
+        ),
+      ),
     );
 
     Overlay.of(context).insert(overlay);
 
     Future.delayed(Duration(seconds: 2), () {
       overlay.remove();
+      setState(() {
+        isTurnBannerVisible = false;
+      });
     });
   }
+
 
   // Connect with backend WS throgh STOMP
   void onStompConnect(StompFrame frame) {
@@ -502,53 +510,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.green.shade900,
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Duel Masters - Match Start"),
-            if (currentTurnPlayerId != null)
-              Text(
-                currentTurnPlayerId == currentPlayerId
-                    ? "Your Turn"
-                    : "Opponent's Turn",
-                style: TextStyle(
-                  color:
-                      currentTurnPlayerId == currentPlayerId
-                          ? Colors.greenAccent
-                          : Colors.redAccent,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed:
-                      isConnected
-                          ? () {
-                            showSnackBar("🔍 Looking for opponent...");
-                          }
-                          : null,
-                  icon: Icon(Icons.person_search),
-                  label: Text("Search Match"),
-                ),
-                SizedBox(width: 12),
-                ElevatedButton.icon(
-                  onPressed: isMyTurn ? endTurn : null,
-                  icon: Icon(Icons.refresh),
-                  label: Text("End Turn"),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
@@ -669,6 +630,54 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               _showDualCreatureSelectionOverlay(),
             if (naturalSnareMustSelectCreature)
               _showCreatureSelectionForManaZoneOverlay(),
+
+            Positioned(
+              top: MediaQuery.of(context).size.height / 2 - 30,
+              left: 16,
+              right: 16,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Left side: Turn label
+                  !isTurnBannerVisible
+                      ? Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      currentTurnPlayerId == currentPlayerId
+                          ? "Your Turn"
+                          : "Opponent's Turn",
+                      style: TextStyle(
+                        color: currentTurnPlayerId == currentPlayerId
+                            ? Colors.greenAccent
+                            : Colors.redAccent,
+                        fontSize: 14, // smaller font size
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  )
+                      : SizedBox(width: 0),
+
+
+
+                  // Right side: End Turn button
+                  ElevatedButton.icon(
+                    onPressed: isMyTurn ? endTurn : null,
+                    icon: Icon(Icons.refresh),
+                    label: Text("End Turn"),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+
+
           ],
         ),
       ),

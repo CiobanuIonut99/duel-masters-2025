@@ -37,6 +37,9 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         log.info("Websocket message received: {}", message.getPayload());
         Map<String, Object> payload = objectMapper.readValue(message.getPayload(), Map.class);
         handleAction(session, convertToGameStateDto(payload));
+        log.info("*".repeat(100));
+        log.info("SESSIONS ACTIVE: {}", playerSessions.size());
+        log.info("*".repeat(100));
     }
 
     private void handleAction(WebSocketSession session, GameStateDto incomingState) {

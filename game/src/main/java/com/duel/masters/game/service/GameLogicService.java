@@ -128,7 +128,7 @@ public class GameLogicService {
                     log.error("❌ Failed to send game state via raw WebSocket: {}", e.getMessage());
                 }
 
-                log.info("🎮 Matched players {} vs {}", player.getUsername(), opponent.getUsername());
+                log.info("🎮 Matched players {} vs {}", player.getId(), opponent.getId());
             }
         }, 200);
     }
