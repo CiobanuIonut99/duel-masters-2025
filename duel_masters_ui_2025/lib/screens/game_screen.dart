@@ -322,10 +322,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             opacity: 1,
             duration: Duration(milliseconds: 500),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isMyTurn ? Colors.greenAccent : Colors.redAccent,
                   width: 2,
@@ -335,11 +335,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 text,
                 style: TextStyle(
                   color: isMyTurn ? Colors.greenAccent : Colors.redAccent,
-                  fontSize: 32,
+                  fontSize: 20, // smaller font
                   fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.none,
                 ),
               ),
             ),
+
           ),
         ),
       ),

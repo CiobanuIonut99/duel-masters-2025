@@ -106,7 +106,7 @@ class PlayerField extends StatelessWidget {
                 Column(
                   children: [
                     Image.asset('assets/cards/0.jpg', width: 70),
-                    Text('Your Deck ($deckSize)'),
+                    Text('$deckSize'),
                   ],
                 ),
               ],
