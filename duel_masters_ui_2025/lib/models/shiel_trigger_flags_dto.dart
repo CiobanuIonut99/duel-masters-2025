@@ -13,6 +13,7 @@ class ShieldTriggersFlagsDto {
   final bool tornadoFlameMustSelectCreature;
   final bool dimensionGateMustDrawCard;
   final bool naturalSnareMustSelectCreature;
+  final int cardsDrawn;
 
   final Map<String, dynamic> eachPlayerBattleZone;
   final List<CardModel> opponentUnder4000Creatures;
@@ -33,6 +34,7 @@ class ShieldTriggersFlagsDto {
     required this.dimensionGateMustDrawCard,
     required this.naturalSnareMustSelectCreature,
     required this.playerCreatureDeck,
+    required this.cardsDrawn,
   });
 
   factory ShieldTriggersFlagsDto.fromJson(Map<String, dynamic> json) {
@@ -49,6 +51,7 @@ class ShieldTriggersFlagsDto {
       dimensionGateMustDrawCard: json['dimensionGateMustDrawCard'] ?? false,
       naturalSnareMustSelectCreature: json['naturalSnareMustSelectCreature'] ?? false,
       eachPlayerBattleZone: json['eachPlayerBattleZone'] ?? {},
+      cardsDrawn: json['cardsDrawn'] ?? 0,
       opponentUnder4000Creatures: (json['opponentUnder4000Creatures'] as List<dynamic>? ?? [])
           .map((c) => CardModel.fromJson(c))
           .toList(),
