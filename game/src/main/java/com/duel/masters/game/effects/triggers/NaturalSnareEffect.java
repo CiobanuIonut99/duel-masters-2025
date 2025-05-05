@@ -1,20 +1,22 @@
-package com.duel.masters.game.effects;
+package com.duel.masters.game.effects.triggers;
 
 import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.effects.ShieldTriggerEffect;
 import com.duel.masters.game.service.CardsUpdateService;
 
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
-public class DimensionGateEffect implements ShieldTriggerEffect {
+public class NaturalSnareEffect implements ShieldTriggerEffect {
 
-//    Search your deck. You may take a creature from your deck, show that creature to your opponent, and put it into your hand. Then shuffle your deck.
+//    Choose one of your opponent.s creatures in the battle zone and put it into his mana zone
 
     @Override
     public void execute(GameStateDto currentState, GameStateDto incomingState, CardsUpdateService cardsUpdateService) {
         var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
-        var ownDeck = ownCards.getDeck();
 
         var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
+        var opponentBattleZone = opponentCards.getBattleZone();
+        var opponentManaZone = opponentCards.getManaZone();
 
         var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
 
@@ -22,30 +24,22 @@ public class DimensionGateEffect implements ShieldTriggerEffect {
         var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
 
         if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
-            var cardsChosenFromDeck = incomingState
-                    .getShieldTriggersFlagsDto()
-                    .getCardsChosen()
+            opponentBattleZone
                     .stream()
-                    .map(idChosenFromDeck -> getCardDtoFromList(ownDeck, idChosenFromDeck))
-                    .toList();
-
-            cardsChosenFromDeck
-                    .forEach(card -> playCard(ownDeck, card.getGameCardId(), ownCards.getHand()));
-
+                    .filter(opponentCard -> opponentCard.getGameCardId().equalsIgnoreCase(incomingState.getTriggeredGameCardId()))
+                    .forEach(opponentCard -> playCard(opponentBattleZone, opponentCard.getGameCardId(), opponentManaZone));
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
-            shieldTriggersFlags.setDimensionGateMustDrawCard(false);
-
+            shieldTriggersFlags.setNaturalSnareMustSelectCreature(false);
             changeCardState(attackerCard, true, false, true, false);
+            if (attackerCard.getGameCardId().equals(incomingState.getTriggeredGameCardId())) {
+                attackerCard.setTapped(false);
+            }
         } else {
-            var playerCreatureDeck = shieldTriggersFlags.getPlayerCreatureDeck();
-            playerCreatureDeck.clear();
-            ownDeck
-                    .stream()
-                    .filter(ownCard -> ownCard.getType().equalsIgnoreCase("CREATURE"))
-                    .forEach(playerCreatureDeck::add);
-
-            shieldTriggersFlags.setDimensionGateMustDrawCard(true);
+            if (opponentBattleZone.isEmpty()) {
+                playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
+            }
+            shieldTriggersFlags.setNaturalSnareMustSelectCreature(true);
             shieldTriggersFlags.setShieldTriggerDecisionMade(true);
             shieldTriggersFlags.setShieldTrigger(false);
         }

@@ -3,7 +3,7 @@ package com.duel.masters.game.service;
 import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
-import com.duel.masters.game.effects.ShieldTriggerRegistry;
+import com.duel.masters.game.effects.triggers.ShieldTriggerRegistry;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

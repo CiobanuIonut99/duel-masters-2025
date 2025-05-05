@@ -1,4 +1,6 @@
-package com.duel.masters.game.effects;
+package com.duel.masters.game.effects.triggers;
+
+import com.duel.masters.game.effects.ShieldTriggerEffect;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

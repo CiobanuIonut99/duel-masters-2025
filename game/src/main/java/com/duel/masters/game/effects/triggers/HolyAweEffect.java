@@ -1,6 +1,7 @@
-package com.duel.masters.game.effects;
+package com.duel.masters.game.effects.triggers;
 
 import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.effects.ShieldTriggerEffect;
 import com.duel.masters.game.service.CardsUpdateService;
 
 import static com.duel.masters.game.util.CardsDtoUtil.playCard;
