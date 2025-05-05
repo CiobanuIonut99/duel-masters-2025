@@ -10,7 +10,8 @@ class HoverCardDetails extends StatefulWidget {
   State<HoverCardDetails> createState() => _HoverCardDetailsState();
 }
 
-class _HoverCardDetailsState extends State<HoverCardDetails> with SingleTickerProviderStateMixin {
+class _HoverCardDetailsState extends State<HoverCardDetails>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
@@ -37,11 +38,11 @@ class _HoverCardDetailsState extends State<HoverCardDetails> with SingleTickerPr
       child: ScaleTransition(
         scale: _scaleAnimation,
         child: Material(
-          elevation: 6,
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.black.withOpacity(0.7),
+          elevation: 10,
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.black.withOpacity(0.85),
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,17 +51,17 @@ class _HoverCardDetailsState extends State<HoverCardDetails> with SingleTickerPr
                   widget.card.name,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 4),
+                SizedBox(height: 8),
                 Row(
                   children: [
                     _iconText(Icons.local_fire_department, '${widget.card.manaCost}', Colors.blueAccent),
-                    SizedBox(width: 12),
+                    SizedBox(width: 16),
                     _iconText(Icons.flash_on, '${widget.card.power}', Colors.redAccent),
-                    SizedBox(width: 12),
+                    SizedBox(width: 16),
                     _iconText(Icons.category, widget.card.type, Colors.amber),
                   ],
                 ),
@@ -75,11 +76,11 @@ class _HoverCardDetailsState extends State<HoverCardDetails> with SingleTickerPr
   Widget _iconText(IconData icon, String text, Color color) {
     return Row(
       children: [
-        Icon(icon, color: color, size: 16),
-        SizedBox(width: 4),
+        Icon(icon, color: color, size: 20),
+        SizedBox(width: 6),
         Text(
           text,
-          style: TextStyle(color: Colors.white, fontSize: 12),
+          style: TextStyle(color: Colors.white, fontSize: 14),
         ),
       ],
     );
