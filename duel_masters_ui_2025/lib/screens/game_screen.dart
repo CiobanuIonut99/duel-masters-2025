@@ -60,6 +60,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   List<CardModel> spiralGateOpponentBattleZone = [];
   List<CardModel> opponentUnder4000Creatures = [];
   List<CardModel> playerCreatureDeck = [];
+  List<CardModel> playerCreatureGraveyard = [];
 
   Set<String> glowingManaCardIds = {};
   Set<String> glowAttackableShields = {};
@@ -190,6 +191,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     opponentUnder4000Creatures = shieldFlags?.opponentUnder4000Creatures ?? [];
     print("opponentUnder4000Creatures is : ${opponentUnder4000Creatures}");
     playerCreatureDeck = shieldFlags?.playerCreatureDeck ?? [];
+    playerCreatureGraveyard = shieldFlags?.playerCreatureGraveyard ?? [];
 
     opponentHasBlocker = responseBody['opponentHasBlocker'];
     opponentSelectableCreatures =
@@ -809,7 +811,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return GraveyardCreatureSelectionOverlay(
       isMyCreature: isMyCreature,
       shieldTriggerCard: shieldTriggerCard,
-      opponentSelectableCreatures: playerGraveyard,
+      opponentSelectableCreatures: playerCreatureGraveyard,
       selectedOpponentCreature: selectCreatureFromGraveyard,
       onCardSelected: (card) {
         setState(() {
