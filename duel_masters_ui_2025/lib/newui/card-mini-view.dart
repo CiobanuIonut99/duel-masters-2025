@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CardMiniView extends StatelessWidget {
-  final String imagePath;
+  final String imagePath; // e.g., 'assets/cards/123.jpg'
   final int power;
   final int cost;
 

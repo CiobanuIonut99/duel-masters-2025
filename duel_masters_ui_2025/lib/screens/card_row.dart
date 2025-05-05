@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../animations/destruction_effect.dart';
 import '../models/card_model.dart';
+import '../newui/card-mini-view.dart';
 import '../newui/class_evolution_effect_widget.dart';
 import '../newui/hover-card-details.dart';
 
@@ -83,6 +84,7 @@ class _CardRowState extends State<CardRow> {
     bool isGlowing =
         widget.glowingManaCardIds.contains(card.gameCardId) ||
         widget.glowAttackableCreatures.contains(card.gameCardId);
+    bool isShieldZone = widget.label == "Your Shields" || widget.label == "Opponent Shields";
 
     final cardWidget = Padding(
       padding: EdgeInsets.symmetric(horizontal: card.tapped ? 16 : 8),
@@ -105,38 +107,43 @@ class _CardRowState extends State<CardRow> {
               Container(
                 decoration: BoxDecoration(
                   boxShadow: [
+                    if (isShieldZone)
+                      BoxShadow(
+                        color: Colors.blueAccent.withOpacity(0.7),
+                        blurRadius: 16,
+                        spreadRadius: 6,
+                      ),
                     BoxShadow(
                       color: Colors.black.withOpacity(0.5),
                       blurRadius: 12,
                       spreadRadius: 4,
                       offset: Offset(4, 8),
                     ),
+                    if (isGlowing)
+                      BoxShadow(
+                        color: Colors.greenAccent.withOpacity(0.6),
+                        blurRadius: 12,
+                        spreadRadius: 4,
+                      ),
                   ],
                 ),
                 child: AnimatedContainer(
                   duration: Duration(milliseconds: 200),
                   width: widget.cardWidth,
                   height: widget.cardWidth * 1.4,
-                  // REMOVE boxShadow from here!
                   child: Transform.rotate(
-                    angle:
-                        (card.tapped ? -math.pi / 2 : 0) +
-                        (widget.rotate180 ? math.pi : 0),
+                    angle: (card.tapped ? -math.pi / 2 : 0) + (widget.rotate180 ? math.pi : 0),
                     child: Transform.scale(
-                      scale:
-                          hoveredCard == card
-                              ? 1.15
-                              : (card.tapped ? 0.85 : 1.0),
+                      scale: hoveredCard == card ? 1.15 : (card.tapped ? 0.85 : 1.0),
                       child: Image.asset(
-                        widget.hideCardFaces
-                            ? 'assets/cards/0.jpg'
-                            : card.imagePath,
+                        widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                 ),
               ),
+
 
               if (hoveredCard == card)
                 Positioned(
