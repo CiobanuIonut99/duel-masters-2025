@@ -34,19 +34,18 @@ public class TerrorPitEffect implements ShieldTriggerEffect {
             playCard(opponentBattleZone, chosencard.getGameCardId(), opponentGraveyard);
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
             changeCardState(attackerCard, true, false, true, false);
-            currentState.getShieldTriggersFlagsDto().setTerrorPitMustSelectCreature(false);
             chosencard.setTapped(false);
+            currentState.getShieldTriggersFlagsDto().setTerrorPitMustSelectCreature(false);
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
-
         } else {
             if (opponentBattleZone.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTargetId(), opponentCards.getHand());
-                shieldTriggersFlags.setTerrorPitMustSelectCreature(false);
+                changeCardState(attackerCard, true, false, true, false);
             } else {
                 shieldTriggersFlags.setTerrorPitMustSelectCreature(true);
+                shieldTriggersFlags.setShieldTrigger(false);
+                shieldTriggersFlags.setShieldTriggerDecisionMade(true);
             }
-            shieldTriggersFlags.setShieldTrigger(false);
-            shieldTriggersFlags.setShieldTriggerDecisionMade(true);
         }
     }
 }

@@ -72,6 +72,10 @@ public class CardsDtoUtil {
         cards.forEach(cardDto -> cardDto.setCanAttack(true));
     }
 
+    public static void setOpponentsCreaturesCanNotAttack(List<CardDto> cards) {
+        cards.forEach(cardDto -> cardDto.setCanAttack(false));
+    }
+
     public static void untapOpponentsCards(List<CardDto> cards) {
         cards.forEach(card -> card.setTapped(false));
     }

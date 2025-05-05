@@ -36,17 +36,22 @@ public class DarkReversalEffect implements ShieldTriggerEffect {
             changeCardState(attackerCard, true, false, true, false);
             shieldTriggersFlags.setDarkReversalMustSelectCreature(false);
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
-
-
         } else {
-            if (ownGraveyard.isEmpty()) {
+            var playerCreatureGraveyard = shieldTriggersFlags.getPlayerCreatureGraveyard();
+            playerCreatureGraveyard.clear();
+            ownGraveyard
+                    .stream()
+                    .filter(ownCard -> ownCard.getType().equalsIgnoreCase("CREATURE"))
+                    .forEach(playerCreatureGraveyard::add);
+            if (playerCreatureGraveyard.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
-                shieldTriggersFlags.setDarkReversalMustSelectCreature(false);
+                changeCardState(attackerCard, true, false, true, false);
             } else {
                 shieldTriggersFlags.setDarkReversalMustSelectCreature(true);
+                shieldTriggersFlags.setShieldTriggerDecisionMade(true);
+                shieldTriggersFlags.setShieldTrigger(false);
             }
-            shieldTriggersFlags.setShieldTriggerDecisionMade(true);
-            shieldTriggersFlags.setShieldTrigger(false);
+
         }
     }
 }

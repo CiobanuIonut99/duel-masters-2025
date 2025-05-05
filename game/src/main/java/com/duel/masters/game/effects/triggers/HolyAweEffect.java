@@ -4,8 +4,7 @@ import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.effects.ShieldTriggerEffect;
 import com.duel.masters.game.service.CardsUpdateService;
 
-import static com.duel.masters.game.util.CardsDtoUtil.playCard;
-import static com.duel.masters.game.util.CardsDtoUtil.tapCards;
+import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class HolyAweEffect implements ShieldTriggerEffect {
 
@@ -18,10 +17,10 @@ public class HolyAweEffect implements ShieldTriggerEffect {
 
         var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
         var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
+        var opponentBattleZone = opponentCards.getBattleZone();
 
-        tapCards(opponentCards.getBattleZone());
+        tapCards(opponentBattleZone);
+        setOpponentsCreaturesCanNotAttack(opponentBattleZone);
         playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
-
     }
-
 }

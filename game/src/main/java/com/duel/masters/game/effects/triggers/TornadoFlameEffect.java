@@ -45,7 +45,6 @@ public class TornadoFlameEffect implements ShieldTriggerEffect {
             if (opponentUnder4000Creatures.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
                 changeCardState(attackerCard, true, false, true, false);
-
             } else {
                 shieldTriggersFlags.setTornadoFlameMustSelectCreature(true);
                 shieldTriggersFlags.setShieldTriggerDecisionMade(true);

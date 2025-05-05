@@ -21,7 +21,9 @@ public class CrystalMemoryEffect implements ShieldTriggerEffect {
         var attackerId = currentState.getAttackerId();
         var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
 
-        if (currentState.getShieldTriggersFlagsDto().isShieldTriggerDecisionMade()) {
+        var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
+
+        if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
 
             var cardsChosenFromDeck = incomingState
                     .getShieldTriggersFlagsDto()
@@ -35,18 +37,17 @@ public class CrystalMemoryEffect implements ShieldTriggerEffect {
 
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
 
-            currentState.getShieldTriggersFlagsDto().setCrystalMemoryMustDrawCard(false);
-            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
+            shieldTriggersFlags.setCrystalMemoryMustDrawCard(false);
+            shieldTriggersFlags.setShieldTriggerDecisionMade(false);
 
             changeCardState(attackerCard, true, false, true, false);
 
             Collections.shuffle(ownCards.getDeck());
 
         } else {
-
-            currentState.getShieldTriggersFlagsDto().setCrystalMemoryMustDrawCard(true);
-            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(true);
-
+            shieldTriggersFlags.setCrystalMemoryMustDrawCard(true);
+            shieldTriggersFlags.setShieldTriggerDecisionMade(true);
+            shieldTriggersFlags.setShieldTrigger(false);
         }
     }
 }

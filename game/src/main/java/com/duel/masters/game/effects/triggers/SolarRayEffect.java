@@ -12,7 +12,6 @@ public class SolarRayEffect implements ShieldTriggerEffect {
 
     @Override
     public void execute(GameStateDto currentState, GameStateDto incomingState, CardsUpdateService cardsUpdateService) {
-
         var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
         var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
 
@@ -30,9 +29,7 @@ public class SolarRayEffect implements ShieldTriggerEffect {
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 
             changeCardState(attackerCard, true, false, true, false);
-
         } else {
-
             var opponentSelectableCreatures = currentState.getOpponentSelectableCreatures();
             opponentSelectableCreatures.clear();
             opponentCards
@@ -42,16 +39,14 @@ public class SolarRayEffect implements ShieldTriggerEffect {
                             &&
                             !cardDto.getGameCardId().equals(attackerCard.getGameCardId()))
                     .forEach(opponentSelectableCreatures::add);
-
             if (opponentSelectableCreatures.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
-                currentState.getShieldTriggersFlagsDto().setSolarRayMustSelectCreature(false);
                 changeCardState(attackerCard, true, false, true, false);
             } else {
                 currentState.getShieldTriggersFlagsDto().setSolarRayMustSelectCreature(true);
+                currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(true);
+                currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
             }
-            currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
-            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(true);
         }
     }
 }

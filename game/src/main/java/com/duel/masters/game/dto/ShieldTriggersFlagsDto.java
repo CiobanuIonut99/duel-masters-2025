@@ -41,6 +41,7 @@ public class ShieldTriggersFlagsDto {
     private List<String> cardsChosen = new CopyOnWriteArrayList<>();
     private List<CardDto> opponentUnder4000Creatures = new CopyOnWriteArrayList<>();
     private List<CardDto> playerCreatureDeck = new CopyOnWriteArrayList<>();
+    private List<CardDto> playerCreatureGraveyard = new CopyOnWriteArrayList<>();
 
     private int cardsDrawn;
 }
