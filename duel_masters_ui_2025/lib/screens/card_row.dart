@@ -117,27 +117,7 @@ class _CardRowState extends State<CardRow> {
                                     : card.tapped
                                     ? 0.85
                                     : 1.0,
-                            child: (widget.label.startsWith("Your"))
-                                ? ColorFiltered(
-                              colorFilter: widget.isMyTurn
-                                  ? const ColorFilter.mode(
-                                Colors.transparent,
-                                BlendMode.multiply,
-                              )
-                                  : const ColorFilter.matrix(<double>[
-                                0.2126, 0.7152, 0.0722, 0, 0,
-                                0.2126, 0.7152, 0.0722, 0, 0,
-                                0.2126, 0.7152, 0.0722, 0, 0,
-                                0, 0, 0, 1, 0,
-                              ]),
-                              child: Image.asset(
-                                widget.hideCardFaces
-                                    ? 'assets/cards/0.jpg'
-                                    : card.imagePath,
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                                : Image.asset(
+                            child: Image.asset(
                               widget.hideCardFaces
                                   ? 'assets/cards/0.jpg'
                                   : card.imagePath,
