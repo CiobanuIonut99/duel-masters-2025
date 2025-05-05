@@ -91,7 +91,7 @@ public class AttackCreatureService implements AttackService {
                                 targetCard.setDestroyed(false);
                                 topicService.sendGameStatesToTopics(currentState,webSocketHandler);
                             }
-                            , 700, TimeUnit.MILLISECONDS);
+                            , 2000, TimeUnit.MILLISECONDS);
 
         }
 
@@ -115,7 +115,7 @@ public class AttackCreatureService implements AttackService {
 
                                 topicService.sendGameStatesToTopics(currentState,webSocketHandler);
                             },
-                            700, TimeUnit.MILLISECONDS
+                            2000, TimeUnit.MILLISECONDS
                     );
 
         }
@@ -135,7 +135,7 @@ public class AttackCreatureService implements AttackService {
 
                                 topicService.sendGameStatesToTopics(currentState, webSocketHandler);
                             },
-                            700, TimeUnit.MILLISECONDS);
+                            2000, TimeUnit.MILLISECONDS);
 
         }
 

@@ -119,19 +119,24 @@ class _CardRowState extends State<CardRow> {
                   height: widget.cardWidth * 1.4,
                   // REMOVE boxShadow from here!
                   child: Transform.rotate(
-                    angle: (card.tapped ? -math.pi / 2 : 0) +
+                    angle:
+                        (card.tapped ? -math.pi / 2 : 0) +
                         (widget.rotate180 ? math.pi : 0),
                     child: Transform.scale(
-                      scale: hoveredCard == card ? 1.15 : (card.tapped ? 0.85 : 1.0),
+                      scale:
+                          hoveredCard == card
+                              ? 1.15
+                              : (card.tapped ? 0.85 : 1.0),
                       child: Image.asset(
-                        widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
+                        widget.hideCardFaces
+                            ? 'assets/cards/0.jpg'
+                            : card.imagePath,
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                 ),
-              )
-              ,
+              ),
 
               if (hoveredCard == card)
                 Positioned(
@@ -249,11 +254,8 @@ class _CardRowState extends State<CardRow> {
     );
 
     return card.destroyed
-        ? EnhancedEvolutionEffect(cardImagePath: card.imagePath)
+        ? UltimateEvolutionEffect(cardImagePath: card.imagePath)
         : cardWidget;
-
-
-
 
     return card.destroyed
         ? CreatureDestructionEffect(child: cardWidget)
