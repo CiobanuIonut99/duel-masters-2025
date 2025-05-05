@@ -128,7 +128,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   bool isTurnBannerVisible = false;
 
-
   bool get isMyTurn => currentPlayerId == currentTurnPlayerId;
 
   @override
@@ -317,35 +316,35 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     });
 
     final overlay = OverlayEntry(
-      builder: (context) => Positioned.fill(
-        child: Center(
-          child: AnimatedOpacity(
-            opacity: 1,
-            duration: Duration(milliseconds: 500),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isMyTurn ? Colors.greenAccent : Colors.redAccent,
-                  width: 2,
-                ),
-              ),
-              child: Text(
-                text,
-                style: TextStyle(
-                  color: isMyTurn ? Colors.greenAccent : Colors.redAccent,
-                  fontSize: 20, // smaller font
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.none,
+      builder:
+          (context) => Positioned.fill(
+            child: Center(
+              child: AnimatedOpacity(
+                opacity: 1,
+                duration: Duration(milliseconds: 500),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isMyTurn ? Colors.greenAccent : Colors.redAccent,
+                      width: 2,
+                    ),
+                  ),
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                      color: isMyTurn ? Colors.greenAccent : Colors.redAccent,
+                      fontSize: 20, // smaller font
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
                 ),
               ),
             ),
-
           ),
-        ),
-      ),
     );
 
     Overlay.of(context).insert(overlay);
@@ -357,7 +356,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       });
     });
   }
-
 
   // Connect with backend WS throgh STOMP
   void onStompConnect(StompFrame frame) {
@@ -535,16 +533,19 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 ),
                 child: IntrinsicHeight(
                   child: Padding(
-                    padding: EdgeInsets.only(top: 8, bottom: 8, left: 12, right: 12),
+                    padding: EdgeInsets.only(
+                      top: 8,
+                      bottom: 8,
+                      left: 12,
+                      right: 12,
+                    ),
                     child: Transform(
-                      transform:
-                          Matrix4.identity()
-                            // ..setEntry(3, 2, 0.0015)
-                            // ..setEntry(0, 2, 0.0015)
-                            // ..rotateX(-0.15), // slight tilt
-                            // ..rotateX(-0.15), // slight tilt
+                      transform: Matrix4.identity(),
+                      // ..setEntry(3, 2, 0.0015)
+                      // ..setEntry(0, 2, 0.0015)
+                      // ..rotateX(-0.15), // slight tilt
+                      // ..rotateX(-0.15), // slight tilt
                       // alignment: Alignment.center
-                      ,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -645,27 +646,29 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   // Left side: Turn label
                   !isTurnBannerVisible
                       ? Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      currentTurnPlayerId == currentPlayerId
-                          ? "Your Turn"
-                          : "Opponent's Turn",
-                      style: TextStyle(
-                        color: currentTurnPlayerId == currentPlayerId
-                            ? Colors.greenAccent
-                            : Colors.redAccent,
-                        fontSize: 14, // smaller font size
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  )
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          currentTurnPlayerId == currentPlayerId
+                              ? "Your Turn"
+                              : "Opponent's Turn",
+                          style: TextStyle(
+                            color:
+                                currentTurnPlayerId == currentPlayerId
+                                    ? Colors.greenAccent
+                                    : Colors.redAccent,
+                            fontSize: 14, // smaller font size
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
                       : SizedBox(width: 0),
-
-
 
                   // Right side: End Turn button
                   ElevatedButton.icon(
@@ -673,15 +676,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     icon: Icon(Icons.refresh),
                     label: Text("End Turn"),
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-
-
-
           ],
         ),
       ),
@@ -1068,37 +1071,39 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showCountCardDialog(){
+  void _showCountCardDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => SelectCardCountDialog(
-        onConfirm: (count) {
-          wsHandler.sendDrawCardsFromDeck(
-            gameId: currentGameId,
-            playerId: currentPlayerId,
-            currentTurnPlayerId: currentTurnPlayerId,
-            action: "CAST_SHIELD_TRIGGER",
-            cardsChosen: ["nonemptylist"],
-            cardsDrawn: count,
-            shieldTriggerDecisionMade: true,
-            usingShieldTrigger: true,
-          );
-        },
-        onCancel: () {
-          // Optional: handle cancel, or do nothing
-        },
-      ),
+      builder:
+          (_) => SelectCardCountDialog(
+            onConfirm: (count) {
+              wsHandler.sendDrawCardsFromDeck(
+                gameId: currentGameId,
+                playerId: currentPlayerId,
+                currentTurnPlayerId: currentTurnPlayerId,
+                action: "CAST_SHIELD_TRIGGER",
+                cardsChosen: ["nonemptylist"],
+                cardsDrawn: count,
+                shieldTriggerDecisionMade: true,
+                usingShieldTrigger: true,
+              );
+            },
+            onCancel: () {
+              // Optional: handle cancel, or do nothing
+            },
+          ),
     );
-
   }
 
   void _showDrawCreatureFromDeckDialog() {
+    final isMyCreature = currentTurnPlayerId != currentPlayerId;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder:
           (_) => SelectCreatureFromDeckDialog(
+            isMyCreature: isMyCreature,
             deck: playerCreatureDeck,
             onConfirm: (selectedIds) {
               wsHandler.sendDrawCardsFromDeck(
@@ -1115,8 +1120,4 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           ),
     );
   }
-
-
-
-
 }

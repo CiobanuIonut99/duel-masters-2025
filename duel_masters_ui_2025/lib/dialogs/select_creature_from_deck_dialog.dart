@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/card_model.dart';
 
 class SelectCreatureFromDeckDialog extends StatefulWidget {
+  final bool isMyCreature;
   final List<CardModel> deck;
   final int maxSelection;
   final int minSelection;
@@ -9,6 +10,7 @@ class SelectCreatureFromDeckDialog extends StatefulWidget {
 
   const SelectCreatureFromDeckDialog({
     super.key,
+    required this.isMyCreature,
     required this.deck,
     this.maxSelection = 2,
     this.minSelection = 1,
@@ -16,8 +18,10 @@ class SelectCreatureFromDeckDialog extends StatefulWidget {
   });
 
   @override
-  State<SelectCreatureFromDeckDialog> createState() => _SelectCardsFromDeckDialogState();
+  State<SelectCreatureFromDeckDialog> createState() =>
+      _SelectCardsFromDeckDialogState();
 }
+
 
 class _SelectCardsFromDeckDialogState extends State<SelectCreatureFromDeckDialog> {
   final Set<String> selectedCardIds = {};
@@ -33,7 +37,11 @@ class _SelectCardsFromDeckDialogState extends State<SelectCreatureFromDeckDialog
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "Select 1 creature and put it in your hand",
+              widget.isMyCreature
+              ?
+              "Select how many cards you want to draw"
+              :
+              "Opponent is choosing how many cards to draw",
               style: TextStyle(color: Colors.white, fontSize: 20),
             ),
             SizedBox(height: 12),
