@@ -22,11 +22,16 @@ public class DimensionGateEffect implements ShieldTriggerEffect {
         var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
 
         if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
-            ownDeck
+            var cardsChosenFromDeck = incomingState
+                    .getShieldTriggersFlagsDto()
+                    .getCardsChosen()
                     .stream()
-                    .filter(ownCard -> ownCard.getGameCardId().equalsIgnoreCase(incomingState.getTriggeredGameCardId()))
-                    .forEach(ownCard ->
-                            playCard(ownDeck, ownCard.getGameCardId(), ownCards.getHand()));
+                    .map(idChosenFromDeck -> getCardDtoFromList(ownDeck, idChosenFromDeck))
+                    .toList();
+
+            cardsChosenFromDeck
+                    .forEach(card -> playCard(ownDeck, card.getGameCardId(), ownCards.getHand()));
+
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
             shieldTriggersFlags.setDimensionGateMustDrawCard(false);
