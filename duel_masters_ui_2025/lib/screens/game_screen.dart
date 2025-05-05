@@ -762,7 +762,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       },
       onConfirm: () {
         if (selectedOpponentCreature == null) return;
-
         wsHandler.useShieldTriggerCard(
           gameId: currentGameId,
           playerId: currentPlayerId,
