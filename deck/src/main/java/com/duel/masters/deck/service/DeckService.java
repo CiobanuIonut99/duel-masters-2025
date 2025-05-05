@@ -151,7 +151,7 @@ public class DeckService {
 // These always get added later
 //        cardsToAdd.add(holyawe);
 //        cardsToAdd.add(solarRay);
-//        cardsToAdd.add(brainSerum);
+        cardsToAdd.add(brainSerum);
 //        cardsToAdd.add(spiralGate);
 //        cardsToAdd.add(darkReversal);
 //        cardsToAdd.add(ghostTouch);

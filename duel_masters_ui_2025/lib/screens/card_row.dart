@@ -5,7 +5,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../animations/destruction_effect.dart';
 import '../models/card_model.dart';
-import '../newui/card-mini-view.dart';
 import '../newui/class_evolution_effect_widget.dart';
 import '../newui/hover-card-details.dart';
 
@@ -84,7 +83,8 @@ class _CardRowState extends State<CardRow> {
     bool isGlowing =
         widget.glowingManaCardIds.contains(card.gameCardId) ||
         widget.glowAttackableCreatures.contains(card.gameCardId);
-    bool isShieldZone = widget.label == "Your Shields" || widget.label == "Opponent Shields";
+    bool isShieldZone =
+        widget.label == "Your Shields" || widget.label == "Opponent Shields";
 
     final cardWidget = Padding(
       padding: EdgeInsets.symmetric(horizontal: card.tapped ? 16 : 8),
@@ -132,18 +132,24 @@ class _CardRowState extends State<CardRow> {
                   width: widget.cardWidth,
                   height: widget.cardWidth * 1.4,
                   child: Transform.rotate(
-                    angle: (card.tapped ? -math.pi / 2 : 0) + (widget.rotate180 ? math.pi : 0),
+                    angle:
+                        (card.tapped ? -math.pi / 2 : 0) +
+                        (widget.rotate180 ? math.pi : 0),
                     child: Transform.scale(
-                      scale: hoveredCard == card ? 1.15 : (card.tapped ? 0.85 : 1.0),
+                      scale:
+                          hoveredCard == card
+                              ? 1.15
+                              : (card.tapped ? 0.85 : 1.0),
                       child: Image.asset(
-                        widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
+                        widget.hideCardFaces
+                            ? 'assets/cards/0.jpg'
+                            : card.imagePath,
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                 ),
               ),
-
 
               if (hoveredCard == card)
                 Positioned(

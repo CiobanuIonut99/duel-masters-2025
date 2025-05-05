@@ -224,9 +224,22 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       Future.microtask(() => _showDrawCreatureFromDeckDialog());
     }
 
+    // if (brainSerumMustDrawCards) {
+    //   Future.microtask(() => _showDrawFromDeckDialog(1, 2));
+    // }
     if (brainSerumMustDrawCards) {
-      Future.microtask(() => _showDrawFromDeckDialog(1, 2));
+      wsHandler.sendDrawCardsFromDeck(
+        gameId: currentGameId,
+        playerId: currentPlayerId,
+        currentTurnPlayerId: currentTurnPlayerId,
+        action: "CAST_SHIELD_TRIGGER",
+        cardsChosen: [],
+        cardsDrawn: 2,
+        shieldTriggerDecisionMade: true,
+        usingShieldTrigger: true,
+      );
     }
+
 
     if (crystalMemoryMustDrawCard) {
       Future.microtask(() => _showDrawFromDeckDialog(1, 1));
@@ -1058,6 +1071,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 currentTurnPlayerId: currentTurnPlayerId,
                 action: "CAST_SHIELD_TRIGGER",
                 cardsChosen: selectedIds,
+                cardsDrawn: selectedIds.length,
                 shieldTriggerDecisionMade: true,
                 usingShieldTrigger: true,
               );
@@ -1080,6 +1094,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 currentTurnPlayerId: currentTurnPlayerId,
                 action: "CAST_SHIELD_TRIGGER",
                 cardsChosen: selectedIds,
+                cardsDrawn: selectedIds.length,
                 shieldTriggerDecisionMade: true,
                 usingShieldTrigger: true,
               );
