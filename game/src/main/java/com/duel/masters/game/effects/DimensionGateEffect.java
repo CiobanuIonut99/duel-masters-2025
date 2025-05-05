@@ -3,7 +3,7 @@ package com.duel.masters.game.effects;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.service.CardsUpdateService;
 
-import static com.duel.masters.game.util.CardsDtoUtil.playCard;
+import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class DimensionGateEffect implements ShieldTriggerEffect {
 
@@ -14,18 +14,32 @@ public class DimensionGateEffect implements ShieldTriggerEffect {
         var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
         var ownDeck = ownCards.getDeck();
 
+        var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
+
         var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
+
+        var attackerId = currentState.getAttackerId();
+        var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
 
         if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
             ownDeck
                     .stream()
-                    .filter(ownCard -> ownCard.getType().equalsIgnoreCase("CREATURE") && ownCard.getGameCardId().equalsIgnoreCase(incomingState.getTriggeredGameCardId()))
+                    .filter(ownCard -> ownCard.getGameCardId().equalsIgnoreCase(incomingState.getTriggeredGameCardId()))
                     .forEach(ownCard ->
                             playCard(ownDeck, ownCard.getGameCardId(), ownCards.getHand()));
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
+            shieldTriggersFlags.setDimensionGateMustDrawCard(false);
 
+            changeCardState(attackerCard, true, false, true, false);
         } else {
+            var playerCreatureDeck = shieldTriggersFlags.getPlayerCreatureDeck();
+            playerCreatureDeck.clear();
+            ownDeck
+                    .stream()
+                    .filter(ownCard -> ownCard.getType().equalsIgnoreCase("CREATURE"))
+                    .forEach(playerCreatureDeck::add);
+
             shieldTriggersFlags.setDimensionGateMustDrawCard(true);
             shieldTriggersFlags.setShieldTriggerDecisionMade(true);
             shieldTriggersFlags.setShieldTrigger(false);

@@ -40,5 +40,5 @@ public class ShieldTriggersFlagsDto {
     private Map<String, List<CardDto>> eachPlayerBattleZone = new ConcurrentHashMap<>();
     private List<String> cardsChosen = new CopyOnWriteArrayList<>();
     private List<CardDto> opponentUnder4000Creatures = new CopyOnWriteArrayList<>();
-
+    private List<CardDto> playerCreatureDeck = new CopyOnWriteArrayList<>();
 }
