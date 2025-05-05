@@ -27,8 +27,8 @@ public class TornadoFlameEffect implements ShieldTriggerEffect {
             playCard(opponentBattleZone, selectedCard.getGameCardId(), opponentGraveyard);
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
 
-            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
             shieldTriggersFlags.setTornadoFlameMustSelectCreature(false);
+            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 
             changeCardState(attackerCard, true, false, true, false);
             if (attackerCard.getGameCardId().equals(incomingState.getTriggeredGameCardId())) {
@@ -45,9 +45,9 @@ public class TornadoFlameEffect implements ShieldTriggerEffect {
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
             } else {
                 shieldTriggersFlags.setTornadoFlameMustSelectCreature(true);
+                shieldTriggersFlags.setShieldTriggerDecisionMade(true);
+                shieldTriggersFlags.setShieldTrigger(false);
             }
-            shieldTriggersFlags.setShieldTrigger(false);
-            shieldTriggersFlags.setShieldTriggerDecisionMade(true);
         }
     }
 }
