@@ -1,9 +1,11 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+
 import '../animations/destruction_effect.dart';
 import '../models/card_model.dart';
-import '../newui/card-mini-view.dart';
+import '../newui/class_evolution_effect_widget.dart';
 import '../newui/hover-card-details.dart';
 
 class CardRow extends StatefulWidget {
@@ -51,10 +53,8 @@ class _CardRowState extends State<CardRow> {
 
   @override
   Widget build(BuildContext context) {
-
     // Special: graveyard shows only tombstone + count
-    if (widget.label == "Graveyard" ||
-        widget.label == "Opponent Graveyard") {
+    if (widget.label == "Graveyard" || widget.label == "Opponent Graveyard") {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -80,12 +80,11 @@ class _CardRowState extends State<CardRow> {
   }
 
   Widget _buildCardWidget(CardModel card) {
-    bool isGlowing = widget.glowingManaCardIds.contains(card.gameCardId) ||
+    bool isGlowing =
+        widget.glowingManaCardIds.contains(card.gameCardId) ||
         widget.glowAttackableCreatures.contains(card.gameCardId);
 
-
     final cardWidget = Padding(
-
       padding: EdgeInsets.symmetric(horizontal: card.tapped ? 16 : 8),
       child: MouseRegion(
         onEnter: (_) => setState(() => hoveredCard = card),
@@ -102,46 +101,38 @@ class _CardRowState extends State<CardRow> {
             clipBehavior: Clip.none,
             alignment: Alignment.center,
             children: [
-              AnimatedContainer(
-                duration: Duration(milliseconds: 200),
-                width: widget.cardWidth,
-                height: widget.cardWidth * 1.4,
+              // Outer container only for the shadow
+              Container(
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 6,
-                      spreadRadius: 2,
-                      offset: Offset(2, 4),
+                      color: Colors.black.withOpacity(0.5),
+                      blurRadius: 12,
+                      spreadRadius: 4,
+                      offset: Offset(4, 8),
                     ),
-                    if (isGlowing)
-                      BoxShadow(
-                        color: Colors.greenAccent.withOpacity(0.6),
-                        blurRadius: 12,
-                        spreadRadius: 4,
-                      ),
                   ],
-                  borderRadius: card.tapped ? BorderRadius.circular(8) : BorderRadius.zero,
                 ),
-                child: Transform.rotate(
-                  angle: (card.tapped ? -math.pi / 2 : 0) +
-                      (widget.rotate180 ? math.pi : 0),
-                  child: Transform.scale(
-                    scale: hoveredCard == card ? 1.15 : (card.tapped ? 0.85 : 1.0),
-
-                    // child: CardMiniView(
-                    //   imagePath: widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
-                    //   power: card.power,
-                    //   cost: card.manaCost,
-                    // ),
-
-                    child: Image.asset(
-                      widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
-                      fit: BoxFit.cover,
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 200),
+                  width: widget.cardWidth,
+                  height: widget.cardWidth * 1.4,
+                  // REMOVE boxShadow from here!
+                  child: Transform.rotate(
+                    angle: (card.tapped ? -math.pi / 2 : 0) +
+                        (widget.rotate180 ? math.pi : 0),
+                    child: Transform.scale(
+                      scale: hoveredCard == card ? 1.15 : (card.tapped ? 0.85 : 1.0),
+                      child: Image.asset(
+                        widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              )
+              ,
+
               if (hoveredCard == card)
                 Positioned(
                   top: -80, // adjust position as needed
@@ -189,7 +180,11 @@ class _CardRowState extends State<CardRow> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(LucideIcons.swords, color: Colors.red, size: 30),
+                        icon: Icon(
+                          LucideIcons.swords,
+                          color: Colors.red,
+                          size: 30,
+                        ),
                         onPressed: () => widget.onAttack?.call(card),
                         splashRadius: 24,
                         tooltip: 'Choose target',
@@ -213,7 +208,11 @@ class _CardRowState extends State<CardRow> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(LucideIcons.cross, color: Colors.red, size: 30),
+                        icon: Icon(
+                          LucideIcons.cross,
+                          color: Colors.red,
+                          size: 30,
+                        ),
                         onPressed: () => widget.onConfirmAttack?.call(card),
                         splashRadius: 24,
                         tooltip: 'Attack',
@@ -248,6 +247,13 @@ class _CardRowState extends State<CardRow> {
         ),
       ),
     );
+
+    return card.destroyed
+        ? EnhancedEvolutionEffect(cardImagePath: card.imagePath)
+        : cardWidget;
+
+
+
 
     return card.destroyed
         ? CreatureDestructionEffect(child: cardWidget)
