@@ -103,7 +103,6 @@ class GameZone extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Either scrollable or fixed row
         scrollable
             ? SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -113,16 +112,18 @@ class GameZone extends StatelessWidget {
 
         const SizedBox(height: 4),
 
-        // Zone Label Text
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
+        // Show label only if not Graveyard
+        if (label != "Graveyard" && label != "Opponent Graveyard")
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
           ),
-        ),
       ],
     );
+
   }
 }

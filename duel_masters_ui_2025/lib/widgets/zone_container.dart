@@ -12,23 +12,6 @@ class ZoneContainer extends StatelessWidget {
     required this.label,
     this.borderColor = Colors.white24,
   });
-  //
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Container(
-  //     margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-  //     padding: const EdgeInsets.all(8),
-  //     decoration: BoxDecoration(
-  //       color: Colors.black.withOpacity(0.15),
-  //       borderRadius: BorderRadius.circular(12),
-  //       border: Border.all(
-  //         color: borderColor,
-  //         width: 2,
-  //       ),
-  //     ),
-  //     child: child,  // <-- don't add extra label here
-  //   );
-  // }
   @override
   Widget build(BuildContext context) {
     return Padding(

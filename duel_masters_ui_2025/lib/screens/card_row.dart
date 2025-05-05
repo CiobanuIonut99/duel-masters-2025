@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../animations/destruction_effect.dart';
 import '../models/card_model.dart';
+import '../newui/card-mini-view.dart';
 
 class CardRow extends StatefulWidget {
   final List<CardModel> cards;
@@ -11,11 +12,11 @@ class CardRow extends StatefulWidget {
   final bool rotate180;
   final bool allowManaAction;
   final String label;
-  final Function(CardModel)? onTap; // Enlarge
-  final Function(CardModel)? onSummon; // Sword
-  final Function(CardModel)? onAttack; // Sword
-  final Function(CardModel)? onSendToMana; // Bolt
-  final Function(CardModel)? onConfirmAttack; // Bolt
+  final Function(CardModel)? onTap;
+  final Function(CardModel)? onSummon;
+  final Function(CardModel)? onAttack;
+  final Function(CardModel)? onSendToMana;
+  final Function(CardModel)? onConfirmAttack;
   final Set<String> glowingManaCardIds;
   final Set<String> glowAttackableCreatures;
   final bool playedMana;
@@ -49,28 +50,24 @@ class _CardRowState extends State<CardRow> {
 
   @override
   Widget build(BuildContext context) {
-    // Special stacked layout for graveyard
-    if (widget.label == "Graveyard" || widget.label == "Opponent Graveyard") {
-      if (widget.cards.isEmpty) return SizedBox();
 
-      CardModel topCard = widget.cards.last;
-
-      return SizedBox(
-        width: widget.cardWidth,
-        height: widget.cardWidth * 1.4,
-        child: Stack(
-          alignment: Alignment.center,
-          children: widget.cards.asMap().entries.map((entry) {
-            int index = entry.key;
-            CardModel card = entry.value;
-            double offset = index * 0.5; // slight offset between cards
-
-            return Positioned(
-              top: offset,
-              child: _buildCardWidget(card, isTopCard: card == topCard),
-            );
-          }).toList(),
-        ),
+    // Special: graveyard shows only tombstone + count
+    if (widget.label == "Graveyard" ||
+        widget.label == "Opponent Graveyard") {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            'assets/icons/tombstone.png',
+            width: widget.cardWidth,
+            height: widget.cardWidth * 1.4,
+          ),
+          SizedBox(height: 4),
+          Text(
+            '${widget.cards.length} cards',
+            style: TextStyle(color: Colors.white, fontSize: 12),
+          ),
+        ],
       );
     }
 
@@ -81,7 +78,7 @@ class _CardRowState extends State<CardRow> {
     );
   }
 
-  Widget _buildCardWidget(CardModel card, {bool isTopCard = true}) {
+  Widget _buildCardWidget(CardModel card) {
     bool isGlowing = widget.glowingManaCardIds.contains(card.gameCardId) ||
         widget.glowAttackableCreatures.contains(card.gameCardId);
 
@@ -94,7 +91,7 @@ class _CardRowState extends State<CardRow> {
           onTap: () {
             if (isGlowing) {
               widget.onConfirmAttack?.call(card);
-            } else if (!widget.hideCardFaces && isTopCard) {
+            } else if (!widget.hideCardFaces) {
               widget.onTap?.call(card);
             }
           },
@@ -127,6 +124,13 @@ class _CardRowState extends State<CardRow> {
                       (widget.rotate180 ? math.pi : 0),
                   child: Transform.scale(
                     scale: hoveredCard == card ? 1.15 : (card.tapped ? 0.85 : 1.0),
+
+                    // child: CardMiniView(
+                    //   imagePath: widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
+                    //   power: card.power,
+                    //   cost: card.manaCost,
+                    // ),
+
                     child: Image.asset(
                       widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
                       fit: BoxFit.cover,
@@ -136,7 +140,6 @@ class _CardRowState extends State<CardRow> {
               ),
 
               if (hoveredCard == card &&
-                  isTopCard &&
                   widget.label == "Your Hand" &&
                   widget.isMyTurn)
                 Positioned(
@@ -160,7 +163,6 @@ class _CardRowState extends State<CardRow> {
                 ),
 
               if (hoveredCard == card &&
-                  isTopCard &&
                   widget.label == "Your Battle Zone" &&
                   !card.tapped &&
                   card.canAttack &&
@@ -188,7 +190,7 @@ class _CardRowState extends State<CardRow> {
                   ),
                 ),
 
-              if (hoveredCard == card && isGlowing && isTopCard)
+              if (hoveredCard == card && isGlowing)
                 Positioned(
                   bottom: -10,
                   child: Column(
