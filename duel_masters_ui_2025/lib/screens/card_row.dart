@@ -4,6 +4,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../animations/destruction_effect.dart';
 import '../models/card_model.dart';
 import '../newui/card-mini-view.dart';
+import '../newui/hover-card-details.dart';
 
 class CardRow extends StatefulWidget {
   final List<CardModel> cards;
@@ -82,7 +83,9 @@ class _CardRowState extends State<CardRow> {
     bool isGlowing = widget.glowingManaCardIds.contains(card.gameCardId) ||
         widget.glowAttackableCreatures.contains(card.gameCardId);
 
+
     final cardWidget = Padding(
+
       padding: EdgeInsets.symmetric(horizontal: card.tapped ? 16 : 8),
       child: MouseRegion(
         onEnter: (_) => setState(() => hoveredCard = card),
@@ -96,6 +99,7 @@ class _CardRowState extends State<CardRow> {
             }
           },
           child: Stack(
+            clipBehavior: Clip.none,
             alignment: Alignment.center,
             children: [
               AnimatedContainer(
@@ -138,7 +142,11 @@ class _CardRowState extends State<CardRow> {
                   ),
                 ),
               ),
-
+              if (hoveredCard == card)
+                Positioned(
+                  top: -80, // adjust position as needed
+                  child: HoverCardDetails(card: card),
+                ),
               if (hoveredCard == card &&
                   widget.label == "Your Hand" &&
                   widget.isMyTurn)
