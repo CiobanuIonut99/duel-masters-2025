@@ -1,8 +1,6 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-
 import '../animations/destruction_effect.dart';
 import '../models/card_model.dart';
 
@@ -51,200 +49,199 @@ class _CardRowState extends State<CardRow> {
 
   @override
   Widget build(BuildContext context) {
+    // Special stacked layout for graveyard
+    if (widget.label == "Graveyard" || widget.label == "Opponent Graveyard") {
+      if (widget.cards.isEmpty) return SizedBox();
+
+      CardModel topCard = widget.cards.last;
+
+      return SizedBox(
+        width: widget.cardWidth,
+        height: widget.cardWidth * 1.4,
+        child: Stack(
+          alignment: Alignment.center,
+          children: widget.cards.asMap().entries.map((entry) {
+            int index = entry.key;
+            CardModel card = entry.value;
+            double offset = index * 0.5; // slight offset between cards
+
+            return Positioned(
+              top: offset,
+              child: _buildCardWidget(card, isTopCard: card == topCard),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    // Default horizontal layout for other zones
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children:
-          widget.cards.map((card) {
-            bool isGlowing =
-                widget.glowingManaCardIds.contains(card.gameCardId) ||
-                widget.glowAttackableCreatures.contains(card.gameCardId);
+      children: widget.cards.map((card) => _buildCardWidget(card)).toList(),
+    );
+  }
 
-            final cardWidget =  Padding(
-              padding: EdgeInsets.symmetric(horizontal: card.tapped ? 16 : 8),
-              child: MouseRegion(
-                onEnter: (_) => setState(() => hoveredCard = card),
-                onExit: (_) => setState(() => hoveredCard = null),
-                child: GestureDetector(
-                  onTap: () {
-                    if (isGlowing) {
-                      widget.onConfirmAttack?.call(
-                        card,
-                      ); // Prioritize attack if glowing
-                    } else if (!widget.hideCardFaces) {
-                      widget.onTap?.call(card); // Else enlarge
-                    }
-                  },
+  Widget _buildCardWidget(CardModel card, {bool isTopCard = true}) {
+    bool isGlowing = widget.glowingManaCardIds.contains(card.gameCardId) ||
+        widget.glowAttackableCreatures.contains(card.gameCardId);
 
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      AnimatedContainer(
-                        duration: Duration(milliseconds: 200),
-                        width: widget.cardWidth,
-                        height: widget.cardWidth * 1.4,
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            // Base soft shadow under every card
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
-                              blurRadius: 6,
-                              spreadRadius: 2,
-                              offset: Offset(2, 4),
-                            ),
-                            // Extra glow if this card is glowing
-                            if (isGlowing)
-                              BoxShadow(
-                                color: Colors.greenAccent.withOpacity(0.6),
-                                blurRadius: 12,
-                                spreadRadius: 4,
-                              ),
-                          ],
-
-
-                          borderRadius:
-                              card.tapped
-                                  ? BorderRadius.circular(8)
-                                  : BorderRadius.zero,
-                        ),
-                        child: Transform.rotate(
-                          angle:
-                              (card.tapped ? -math.pi / 2 : 0) +
-                              (widget.rotate180 ? math.pi : 0),
-                          child: Transform.scale(
-                            scale:
-                                hoveredCard == card
-                                    ? 1.15
-                                    : card.tapped
-                                    ? 0.85
-                                    : 1.0,
-                            child: Image.asset(
-                              widget.hideCardFaces
-                                  ? 'assets/cards/0.jpg'
-                                  : card.imagePath,
-                              fit: BoxFit.cover,
-                            ),
-
-
-                          ),
-                        ),
+    final cardWidget = Padding(
+      padding: EdgeInsets.symmetric(horizontal: card.tapped ? 16 : 8),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => hoveredCard = card),
+        onExit: (_) => setState(() => hoveredCard = null),
+        child: GestureDetector(
+          onTap: () {
+            if (isGlowing) {
+              widget.onConfirmAttack?.call(card);
+            } else if (!widget.hideCardFaces && isTopCard) {
+              widget.onTap?.call(card);
+            }
+          },
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              AnimatedContainer(
+                duration: Duration(milliseconds: 200),
+                width: widget.cardWidth,
+                height: widget.cardWidth * 1.4,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 6,
+                      spreadRadius: 2,
+                      offset: Offset(2, 4),
+                    ),
+                    if (isGlowing)
+                      BoxShadow(
+                        color: Colors.greenAccent.withOpacity(0.6),
+                        blurRadius: 12,
+                        spreadRadius: 4,
                       ),
-
-                      if (hoveredCard == card && widget.label == "Your Hand" && widget.isMyTurn)
-                        Positioned(
-                          bottom: -10,
-                          child: Row(
-                            children: [
-                              if (card.summonable)
-                                _actionButton(
-                                  icon: LucideIcons.flame,
-                                  color: Colors.redAccent,
-                                  onPressed: () => widget.onSummon?.call(card),
-                                ),
-                              if (!widget.playedMana)
-                                _actionButton(
-                                  icon: Icons.bolt,
-                                  color: Colors.blueAccent,
-                                  onPressed:
-                                      () => widget.onSendToMana?.call(card),
-                                ),
-                            ],
-                          ),
-                        ),
-
-                      if (hoveredCard == card &&
-                          widget.label == "Your Battle Zone" &&
-                          !card.tapped &&
-                          card.canAttack && widget.isMyTurn)
-                        Positioned(
-                          bottom: -10,
-                          child: Column(
-                            children: [
-                              Text(
-                                "Attack",  // 👈 your message
-                                style: TextStyle(
-                                  color: Colors.redAccent,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  shadows: [
-                                    Shadow(blurRadius: 4, color: Colors.black),
-                                  ],
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  LucideIcons.swords,
-                                  color: Colors.red,
-                                  size: 30,
-                                ),
-                                onPressed: () => widget.onAttack?.call(card),
-                                splashRadius: 24,
-                                tooltip: 'Choose target',
-                              ),
-                            ],
-                          ),
-                        ),
-
-                      if (hoveredCard == card && isGlowing)
-                        Positioned(
-                          bottom: -10,
-                          child: Column(
-                            children: [
-                              Text(
-                                "Attack",  // 👈 your message
-                                style: TextStyle(
-                                  color: Colors.redAccent,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  shadows: [
-                                    Shadow(blurRadius: 4, color: Colors.black),
-                                  ],
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  LucideIcons.cross,
-                                  color: Colors.red,
-                                  size: 30,
-                                ),
-                                onPressed: () => widget.onConfirmAttack?.call(card),
-                                splashRadius: 24,
-                                tooltip: 'Attack',
-                              ),
-                            ],
-                          ),
-                        ),
-                      if (card.summoningSickness)
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          child: Transform.rotate(
-                            angle: -0.8,
-                            child: Container(
-                              color: Colors.deepPurple,
-                              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              child: Text(
-                                "SICK",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                    ],
+                  ],
+                  borderRadius: card.tapped ? BorderRadius.circular(8) : BorderRadius.zero,
+                ),
+                child: Transform.rotate(
+                  angle: (card.tapped ? -math.pi / 2 : 0) +
+                      (widget.rotate180 ? math.pi : 0),
+                  child: Transform.scale(
+                    scale: hoveredCard == card ? 1.15 : (card.tapped ? 0.85 : 1.0),
+                    child: Image.asset(
+                      widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
-            );
-            return card.destroyed
-                ? CreatureDestructionEffect(child: cardWidget)
-                : cardWidget;
-          }).toList(),
+
+              if (hoveredCard == card &&
+                  isTopCard &&
+                  widget.label == "Your Hand" &&
+                  widget.isMyTurn)
+                Positioned(
+                  bottom: -10,
+                  child: Row(
+                    children: [
+                      if (card.summonable)
+                        _actionButton(
+                          icon: LucideIcons.flame,
+                          color: Colors.redAccent,
+                          onPressed: () => widget.onSummon?.call(card),
+                        ),
+                      if (!widget.playedMana)
+                        _actionButton(
+                          icon: Icons.bolt,
+                          color: Colors.blueAccent,
+                          onPressed: () => widget.onSendToMana?.call(card),
+                        ),
+                    ],
+                  ),
+                ),
+
+              if (hoveredCard == card &&
+                  isTopCard &&
+                  widget.label == "Your Battle Zone" &&
+                  !card.tapped &&
+                  card.canAttack &&
+                  widget.isMyTurn)
+                Positioned(
+                  bottom: -10,
+                  child: Column(
+                    children: [
+                      Text(
+                        "Attack",
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          shadows: [Shadow(blurRadius: 4, color: Colors.black)],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(LucideIcons.swords, color: Colors.red, size: 30),
+                        onPressed: () => widget.onAttack?.call(card),
+                        splashRadius: 24,
+                        tooltip: 'Choose target',
+                      ),
+                    ],
+                  ),
+                ),
+
+              if (hoveredCard == card && isGlowing && isTopCard)
+                Positioned(
+                  bottom: -10,
+                  child: Column(
+                    children: [
+                      Text(
+                        "Attack",
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          shadows: [Shadow(blurRadius: 4, color: Colors.black)],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(LucideIcons.cross, color: Colors.red, size: 30),
+                        onPressed: () => widget.onConfirmAttack?.call(card),
+                        splashRadius: 24,
+                        tooltip: 'Attack',
+                      ),
+                    ],
+                  ),
+                ),
+
+              if (card.summoningSickness)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  child: Transform.rotate(
+                    angle: -0.8,
+                    child: Container(
+                      color: Colors.deepPurple,
+                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      child: Text(
+                        "SICK",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
+
+    return card.destroyed
+        ? CreatureDestructionEffect(child: cardWidget)
+        : cardWidget;
   }
 
   Widget _actionButton({

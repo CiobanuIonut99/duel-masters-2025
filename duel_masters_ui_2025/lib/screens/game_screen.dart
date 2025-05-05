@@ -534,7 +534,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 ),
                 child: IntrinsicHeight(
                   child: Padding(
-                    padding: EdgeInsets.all(12),
+                    padding: EdgeInsets.only(top: 8, bottom: 8, left: 12, right: 12),
                     child: Transform(
                       transform:
                           Matrix4.identity()
@@ -545,7 +545,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                       // alignment: Alignment.center
                       ,
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Transform.scale(
                             scale: 0.85,
@@ -586,6 +586,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                               },
                             ),
                           ),
+                          Spacer(),
                           SizedBox(height: 16),
                           Transform.scale(
                             scale: 0.85,
