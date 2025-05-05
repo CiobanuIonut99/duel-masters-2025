@@ -12,6 +12,7 @@ import '../dialogs/creature_selection_dialog.dart';
 import '../dialogs/creature_selection_put_in_mana_zone.dart';
 import '../dialogs/graveyard_creature_selection_dialog.dart';
 import '../dialogs/mana_selection_dialog.dart';
+import '../dialogs/select_card_count_dialog.dart';
 import '../dialogs/select_cards_from_deck_dialog.dart';
 import '../dialogs/select_creature_from_deck_dialog.dart';
 import '../dialogs/shield_trigger_dialog.dart';
@@ -224,22 +225,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       Future.microtask(() => _showDrawCreatureFromDeckDialog());
     }
 
-    // if (brainSerumMustDrawCards) {
-    //   Future.microtask(() => _showDrawFromDeckDialog(1, 2));
-    // }
     if (brainSerumMustDrawCards) {
-      wsHandler.sendDrawCardsFromDeck(
-        gameId: currentGameId,
-        playerId: currentPlayerId,
-        currentTurnPlayerId: currentTurnPlayerId,
-        action: "CAST_SHIELD_TRIGGER",
-        cardsChosen: ["id"],
-        cardsDrawn: 2,
-        shieldTriggerDecisionMade: true,
-        usingShieldTrigger: true,
-      );
+      Future.microtask(() => _showCountCardDialog());
     }
-
 
     if (crystalMemoryMustDrawCard) {
       Future.microtask(() => _showDrawFromDeckDialog(1, 1));
@@ -1080,6 +1068,31 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
+  void _showCountCardDialog(){
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => SelectCardCountDialog(
+        onConfirm: (count) {
+          wsHandler.sendDrawCardsFromDeck(
+            gameId: currentGameId,
+            playerId: currentPlayerId,
+            currentTurnPlayerId: currentTurnPlayerId,
+            action: "CAST_SHIELD_TRIGGER",
+            cardsChosen: ["nonemptylist"],
+            cardsDrawn: count,
+            shieldTriggerDecisionMade: true,
+            usingShieldTrigger: true,
+          );
+        },
+        onCancel: () {
+          // Optional: handle cancel, or do nothing
+        },
+      ),
+    );
+
+  }
+
   void _showDrawCreatureFromDeckDialog() {
     showDialog(
       context: context,
@@ -1102,4 +1115,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           ),
     );
   }
+
+
+
+
 }
