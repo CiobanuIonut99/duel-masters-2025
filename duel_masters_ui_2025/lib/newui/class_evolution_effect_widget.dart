@@ -1,4 +1,3 @@
-// 🚀 Ultimate Premium Card Evolution Effect
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -30,7 +29,7 @@ class _UltimateEvolutionEffectState extends State<UltimateEvolutionEffect>
     );
 
     _colorAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _controller, curve: Curves.linear),
     );
   }
 
@@ -38,6 +37,10 @@ class _UltimateEvolutionEffectState extends State<UltimateEvolutionEffect>
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Color _getRingColor() {
+    return Color.lerp(Colors.amber, Colors.cyan, (_controller.value))!;
   }
 
   @override
@@ -58,34 +61,34 @@ class _UltimateEvolutionEffectState extends State<UltimateEvolutionEffect>
             alignment: Alignment.center,
             clipBehavior: Clip.none,
             children: [
-              // Phase 1: pulsing background glow
+              // Pulsing background glow (smaller)
               Container(
-                width: 180,
-                height: 240,
+                width: 140,
+                height: 180,
                 decoration: BoxDecoration(
                   shape: BoxShape.rectangle,
                   gradient: colorGradient,
                 ),
               ),
 
-              // Phase 2: rotating rune ring
+              // Rotating rune ring with dynamic color
               Transform.rotate(
                 angle: _controller.value * 2 * pi,
                 child: Container(
-                  width: 200,
-                  height: 260,
+                  width: 160,
+                  height: 200,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Colors.amber.withOpacity(0.6),
+                      color: _getRingColor().withOpacity(0.6),
                       width: 2,
                     ),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Center(
                     child: Text(
                       "✦ ✧ ✦",
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 20,
                         color: Colors.amberAccent.withOpacity(0.7),
                       ),
                     ),
@@ -93,17 +96,17 @@ class _UltimateEvolutionEffectState extends State<UltimateEvolutionEffect>
                 ),
               ),
 
-              // Phase 3: main card with glowing shadow + slight rotation
+              // Main card with glowing shadow + slight rotation
               Transform(
                 transform: Matrix4.identity()
                   ..scale(1 + 0.05 * sin(_controller.value * pi * 2))
                   ..rotateZ(0.02 * sin(_controller.value * pi * 2)),
                 alignment: Alignment.center,
                 child: Container(
-                  width: 120,
-                  height: 180,
+                  width: 100,
+                  height: 150,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                     image: DecorationImage(
                       image: AssetImage(widget.cardImagePath),
                       fit: BoxFit.cover,
@@ -115,41 +118,46 @@ class _UltimateEvolutionEffectState extends State<UltimateEvolutionEffect>
                             Colors.purpleAccent,
                             _colorAnimation.value)!
                             .withOpacity(_glowAnimation.value),
-                        blurRadius: 40,
-                        spreadRadius: 14,
+                        blurRadius: 30,
+                        spreadRadius: 10,
                       ),
                     ],
                   ),
                 ),
               ),
 
-              // Phase 4: sparkles
+              // Sparkles (fade in/out, smaller orbit)
               ...List.generate(12, (index) {
                 final angle = (2 * pi / 12) * index;
-                final offsetX = 100 * cos(angle + _controller.value * 2 * pi);
-                final offsetY = 100 * sin(angle + _controller.value * 2 * pi);
+                final offsetX = 80 * cos(angle + _controller.value * 2 * pi);
+                final offsetY = 80 * sin(angle + _controller.value * 2 * pi);
+                final sparkleOpacity =
+                    0.5 + 0.5 * sin(_controller.value * 2 * pi + index);
                 return Positioned(
                   left: offsetX,
                   top: offsetY,
-                  child: Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
-                      shape: BoxShape.circle,
+                  child: Opacity(
+                    opacity: sparkleOpacity,
+                    child: Container(
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
                 );
               }),
 
-              // Floating shimmer
+              // Floating shimmer (smaller)
               Positioned(
-                top: -40,
+                top: -30,
                 child: Opacity(
                   opacity: _glowAnimation.value,
                   child: Icon(
                     Icons.auto_awesome,
-                    size: 40,
+                    size: 30,
                     color: Colors.amberAccent,
                   ),
                 ),
