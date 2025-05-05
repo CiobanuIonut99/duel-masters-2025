@@ -522,7 +522,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           children: [
             Positioned.fill(
               child: Image.asset(
-                'assets/backgrounds/forest_board.png',
+                'assets/backgrounds/ice_board.png',
+                // 'assets/backgrounds/forest_board.png',
                 fit: BoxFit.cover,
               ),
             ),
