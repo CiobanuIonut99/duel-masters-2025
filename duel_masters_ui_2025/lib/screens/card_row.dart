@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -127,28 +125,26 @@ class _CardRowState extends State<CardRow> {
                       ),
                   ],
                 ),
-                child: AnimatedContainer(
-                  duration: Duration(milliseconds: 200),
-                  width: widget.cardWidth,
-                  height: widget.cardWidth * 1.4,
-                  child: Transform.rotate(
-                    angle:
-                        (card.tapped ? -math.pi / 2 : 0) +
-                        (widget.rotate180 ? math.pi : 0),
-                    child: Transform.scale(
-                      scale:
-                          hoveredCard == card
-                              ? 1.15
-                              : (card.tapped ? 0.85 : 1.0),
-                      child: Image.asset(
-                        widget.hideCardFaces
-                            ? 'assets/cards/0.jpg'
-                            : card.imagePath,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
+                child:
+                    isShieldZone
+                        ? SizedBox(
+                          width: widget.cardWidth,
+                          height: widget.cardWidth * 1.4,
+                          child: Transform(
+                            alignment: Alignment.center,
+                            transform:
+                                Matrix4.identity()
+                                  ..setEntry(3, 2, 0.001)
+                                  ..rotateX(-0.4),
+                            child: Image.asset(
+                              widget.hideCardFaces
+                                  ? 'assets/cards/0.jpg'
+                                  : card.imagePath,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        )
+                        : Transform.scale(),
               ),
 
               if (hoveredCard == card)

@@ -540,12 +540,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                       right: 12,
                     ),
                     child: Transform(
-                      transform: Matrix4.identity(),
-                      // ..setEntry(3, 2, 0.0015)
+                      transform: Matrix4.identity()
+                      ..setEntry(3, 2, 0.0015)
                       // ..setEntry(0, 2, 0.0015)
+                      ..rotateX(-0.15), // slight tilt
                       // ..rotateX(-0.15), // slight tilt
-                      // ..rotateX(-0.15), // slight tilt
-                      // alignment: Alignment.center
+                      alignment: Alignment.center,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
