@@ -14,34 +14,30 @@ public class BrainSerumEffect implements ShieldTriggerEffect {
 
         var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
         var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
+        var ownDeck = ownCards.getDeck();
+        var ownHand = ownCards.getHand();
 
         var attackerId = currentState.getAttackerId();
         var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
 
-        if (currentState.getShieldTriggersFlagsDto().isShieldTriggerDecisionMade()) {
+        var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
 
-            var cardsChosenFromDeck = incomingState
-                    .getShieldTriggersFlagsDto()
-                    .getCardsChosen()
-                    .stream()
-                    .map(idChosenFromDeck -> getCardDtoFromList(ownCards.getDeck(), idChosenFromDeck))
-                    .toList();
-
-            cardsChosenFromDeck
-                    .forEach(card -> playCard(ownCards.getDeck(), card.getGameCardId(), ownCards.getHand()));
+        if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
+            for (int i = 0; i < shieldTriggersFlags.getCardsDrawn(); i++) {
+                var cardDrawnId = ownDeck.getLast().getGameCardId();
+                playCard(ownDeck, cardDrawnId, ownHand);
+            }
 
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
 
-            currentState.getShieldTriggersFlagsDto().setBrainSerumMustDrawCards(false);
-            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
+            shieldTriggersFlags.setBrainSerumMustDrawCards(false);
+            shieldTriggersFlags.setShieldTriggerDecisionMade(false);
 
             changeCardState(attackerCard, true, false, true, false);
-
         } else {
-
-            currentState.getShieldTriggersFlagsDto().setBrainSerumMustDrawCards(true);
-            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(true);
-
+            shieldTriggersFlags.setBrainSerumMustDrawCards(true);
+            shieldTriggersFlags.setShieldTriggerDecisionMade(true);
+            shieldTriggersFlags.setShieldTrigger(false);
         }
     }
 }
