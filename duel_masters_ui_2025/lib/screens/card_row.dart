@@ -124,27 +124,24 @@ class _CardRowState extends State<CardRow> {
                         spreadRadius: 4,
                       ),
                   ],
+                ),child: isShieldZone
+                  ? SizedBox(
+                width: widget.cardWidth,
+                height: widget.cardWidth * 1.4,
+                child: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.identity()
+                    ..setEntry(3, 2, 0.001)
+                    ..rotateX(-0.4),
+                  child: Image.asset(
+                    widget.hideCardFaces ? 'assets/cards/0.jpg' : card.imagePath,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                child:
-                    isShieldZone
-                        ? SizedBox(
-                          width: widget.cardWidth,
-                          height: widget.cardWidth * 1.4,
-                          child: Transform(
-                            alignment: Alignment.center,
-                            transform:
-                                Matrix4.identity()
-                                  ..setEntry(3, 2, 0.001)
-                                  ..rotateX(-0.4),
-                            child: Image.asset(
-                              widget.hideCardFaces
-                                  ? 'assets/cards/0.jpg'
-                                  : card.imagePath,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        )
-                        : Transform.scale(),
+              )
+                  : Transform.scale(
+              ),
+
               ),
 
               if (hoveredCard == card)
