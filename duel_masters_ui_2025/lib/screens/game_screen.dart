@@ -233,7 +233,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         playerId: currentPlayerId,
         currentTurnPlayerId: currentTurnPlayerId,
         action: "CAST_SHIELD_TRIGGER",
-        cardsChosen: [],
+        cardsChosen: [""],
         cardsDrawn: 2,
         shieldTriggerDecisionMade: true,
         usingShieldTrigger: true,
