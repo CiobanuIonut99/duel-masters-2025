@@ -1,3 +1,5 @@
+import '../models/card_model.dart';
+
 class GameStateParser {
   static List<CardModel>? _parseOptionalCardList(dynamic data) {
     if (data == null) return null;
@@ -44,4 +46,34 @@ class GameStateParser {
           : null,
     );
   }
+}
+class GameZones {
+  final List<CardModel>? playerHand;
+  final List<CardModel>? playerDeck;
+  final List<CardModel>? playerShields;
+  final List<CardModel>? playerManaZone;
+  final List<CardModel>? playerBattleZone;
+  final List<CardModel>? playerGraveyard;
+
+  final List<CardModel>? opponentHand;
+  final List<CardModel>? opponentDeck;
+  final List<CardModel>? opponentShields;
+  final List<CardModel>? opponentManaZone;
+  final List<CardModel>? opponentBattleZone;
+  final List<CardModel>? opponentGraveyard;
+
+  GameZones({
+    this.playerHand,
+    this.playerDeck,
+    this.playerShields,
+    this.playerManaZone,
+    this.playerBattleZone,
+    this.playerGraveyard,
+    this.opponentHand,
+    this.opponentDeck,
+    this.opponentShields,
+    this.opponentManaZone,
+    this.opponentBattleZone,
+    this.opponentGraveyard,
+  });
 }
