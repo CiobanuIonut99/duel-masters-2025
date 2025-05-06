@@ -38,16 +38,16 @@ public class TurnService {
         cureOpponentsCreaturesSickness(opponentBattleZone);
         opponentBattleZone.forEach(cardDto -> cardDto.setCanBeAttacked(false));
         setOpponentsCreaturesAttackable(cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone());
-        var card = ownBattleZone
+
+        ownBattleZone
                 .stream()
                 .filter(ownCard -> ownCard.getId().equals(2L))
-                .findFirst()
-                .orElseThrow();
-        if (ownBattleZone.contains(card)) {
-            var creatureEffect = CreatureRegistry
-                    .getCreatureEffect(card.getName());
-            creatureEffect.execute(currentState, incomingState, cardsUpdateService);
-        }
+                .forEach(ownCard -> {
+                    var creatureEffect = CreatureRegistry
+                            .getCreatureEffect(ownCard.getName());
+                    creatureEffect.execute(currentState, incomingState, cardsUpdateService);
+                });
+
         topicService.sendGameStatesToTopics(currentState, webSocketHandler);
     }
 }
