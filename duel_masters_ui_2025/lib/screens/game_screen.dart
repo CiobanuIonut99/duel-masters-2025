@@ -170,56 +170,47 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void _updateGameState(Map<String, dynamic> responseBody) {
     final newTurnPlayerId = responseBody['currentTurnPlayerId'];
-    final shieldTriggerFlagsJson = responseBody['shieldTriggersFlagsDto'] ?? {};
+    final shieldTriggerFlagsJson = responseBody['shieldTriggersFlagsDto'];
 
-    shieldFlags = ShieldTriggersFlagsDto.fromJson(shieldTriggerFlagsJson);
+    if (shieldTriggerFlagsJson != null) {
+      shieldFlags = ShieldTriggersFlagsDto.fromJson(shieldTriggerFlagsJson);
 
-    solarRayMustSelectCreature =
-        shieldFlags?.solarRayMustSelectCreature ?? false;
-    brainSerumMustDrawCards =
-        shieldFlags?.brainSerumMustDrawCards ?? false;
-    dimensionGateMustDrawCard =
-        shieldFlags?.dimensionGateMustDrawCard ?? false;
-    crystalMemoryMustDrawCard =
-        shieldFlags?.crystalMemoryMustDrawCard ?? false;
-    naturalSnareMustSelectCreature =
-        shieldFlags?.naturalSnareMustSelectCreature ?? false;
-    spiralGateMustSelectCreature =
-        shieldFlags?.spiralGateMustSelectCreature ?? false;
-    darkReversalMustSelectCreature =
-        shieldFlags?.darkReversalMustSelectCreature ?? false;
-    terrorPitMustSelectCreature =
-        shieldFlags?.terrorPitMustSelectCreature ?? false;
-    tornadoFlameMustSelectCreature =
-        shieldFlags?.tornadoFlameMustSelectCreature ?? false;
-    shieldTrigger = shieldFlags?.shieldTrigger ?? false;
-    opponentUnder4000Creatures =
-        shieldFlags?.opponentUnder4000Creatures ?? [];
-    playerCreatureDeck =
-        shieldFlags?.playerCreatureDeck ?? [];
-    playerCreatureGraveyard =
-        shieldFlags?.playerCreatureGraveyard ?? [];
+      solarRayMustSelectCreature = shieldFlags?.solarRayMustSelectCreature ?? false;
+      brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
+      dimensionGateMustDrawCard = shieldFlags?.dimensionGateMustDrawCard ?? false;
+      crystalMemoryMustDrawCard = shieldFlags?.crystalMemoryMustDrawCard ?? false;
+      naturalSnareMustSelectCreature = shieldFlags?.naturalSnareMustSelectCreature ?? false;
+      spiralGateMustSelectCreature = shieldFlags?.spiralGateMustSelectCreature ?? false;
+      darkReversalMustSelectCreature = shieldFlags?.darkReversalMustSelectCreature ?? false;
+      terrorPitMustSelectCreature = shieldFlags?.terrorPitMustSelectCreature ?? false;
+      tornadoFlameMustSelectCreature = shieldFlags?.tornadoFlameMustSelectCreature ?? false;
+      shieldTrigger = shieldFlags?.shieldTrigger ?? false;
+      opponentUnder4000Creatures = shieldFlags?.opponentUnder4000Creatures ?? [];
+      playerCreatureDeck = shieldFlags?.playerCreatureDeck ?? [];
+      playerCreatureGraveyard = shieldFlags?.playerCreatureGraveyard ?? [];
+    }
 
-    opponentHasBlocker = responseBody['opponentHasBlocker'];
-    opponentSelectableCreatures =
-        (responseBody['opponentSelectableCreatures'] as List? ?? [])
-            .map((c) => CardModel.fromJson(c))
-            .toList();
+    if (responseBody.containsKey('opponentHasBlocker')) {
+      opponentHasBlocker = responseBody['opponentHasBlocker'];
+    }
+
+    if (responseBody.containsKey('opponentSelectableCreatures')) {
+      opponentSelectableCreatures = (responseBody['opponentSelectableCreatures'] as List? ?? [])
+          .map((c) => CardModel.fromJson(c))
+          .toList();
+    }
 
     final eachPlayerBattleZoneJson = shieldFlags?.eachPlayerBattleZone ?? {};
-
     final playerIdStr = currentPlayerId.toString();
     final opponentIdStr = opponentId.toString();
 
-    spiralGatePlayerBattleZone =
-        (eachPlayerBattleZoneJson[playerIdStr] as List? ?? [])
-            .map((c) => CardModel.fromJson(c))
-            .toList();
+    spiralGatePlayerBattleZone = (eachPlayerBattleZoneJson[playerIdStr] as List? ?? [])
+        .map((c) => CardModel.fromJson(c))
+        .toList();
 
-    spiralGateOpponentBattleZone =
-        (eachPlayerBattleZoneJson[opponentIdStr] as List? ?? [])
-            .map((c) => CardModel.fromJson(c))
-            .toList();
+    spiralGateOpponentBattleZone = (eachPlayerBattleZoneJson[opponentIdStr] as List? ?? [])
+        .map((c) => CardModel.fromJson(c))
+        .toList();
 
     if (opponentHasBlocker) {
       Future.microtask(() => _showBlockerSelectionDialog());
@@ -242,14 +233,14 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
 
     if (!shieldTrigger && Navigator.canPop(context)) {
-      Navigator.of(context).pop(); //dismiss for opponent
+      Navigator.of(context).pop();
     }
 
     if (!opponentHasBlocker && Navigator.canPop(context)) {
-      Navigator.of(context).pop(); //dismiss for opponent
+      Navigator.of(context).pop();
     }
-    if (previousTurnPlayerId != null &&
-        previousTurnPlayerId != newTurnPlayerId) {
+
+    if (previousTurnPlayerId != null && previousTurnPlayerId != newTurnPlayerId) {
       final isMyTurn = newTurnPlayerId == currentPlayerId;
 
       setState(() {
@@ -259,16 +250,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       _showTurnBanner(isMyTurn ? "Your Turn" : "Opponent's Turn");
     }
 
-    if (responseBody['shieldTriggerCard'] != null) {
+    if (responseBody.containsKey('shieldTriggerCard')) {
       shieldTriggerCard = CardModel.fromJson(responseBody['shieldTriggerCard']);
       shieldTrigger = true;
     }
 
-    if (shieldFlags!.lastSelectedCreatureFromDeck != null) {
+    if (shieldFlags?.lastSelectedCreatureFromDeck != null) {
       if (!hasDismissedChosenCard &&
           (lastSelectedCreatureFromDeck == null ||
-              lastSelectedCreatureFromDeck!.gameCardId !=
-                  shieldFlags!.lastSelectedCreatureFromDeck!.gameCardId)) {
+              lastSelectedCreatureFromDeck!.gameCardId != shieldFlags!.lastSelectedCreatureFromDeck!.gameCardId)) {
         setState(() {
           lastSelectedCreatureFromDeck = shieldFlags!.lastSelectedCreatureFromDeck;
         });
@@ -280,36 +270,41 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       });
     }
 
-
-    final zones = GameStateParser.parse(responseBody);
-
     setState(() {
-      currentTurnPlayerId = newTurnPlayerId;
-      previousTurnPlayerId = newTurnPlayerId;
+      if (responseBody.containsKey('currentTurnPlayerId')) {
+        currentTurnPlayerId = newTurnPlayerId;
+        previousTurnPlayerId = newTurnPlayerId;
+      }
 
-      opponentId = responseBody['opponentId'];
-      playedMana = responseBody['playedMana'];
+      if (responseBody.containsKey('opponentId')) {
+        opponentId = responseBody['opponentId'];
+      }
 
-      opponentHasBlocker = responseBody['opponentHasBlocker'];
+      if (responseBody.containsKey('playedMana')) {
+        playedMana = responseBody['playedMana'];
+      }
 
-      playerHand = zones.playerHand;
-      playerDeck = zones.playerDeck;
-      playerShields = zones.playerShields;
-      playerManaZone = zones.playerManaZone;
-      playerBattleZone = zones.playerBattleZone;
-      playerGraveyard = zones.playerGraveyard;
+      final zones = GameStateParser.parse(responseBody);
 
-      opponentHand = zones.opponentHand;
-      opponentDeck = zones.opponentDeck;
-      opponentShields = zones.opponentShields;
-      opponentManaZone = zones.opponentManaZone;
-      opponentBattleZone = zones.opponentBattleZone;
-      opponentGraveyard = zones.opponentGraveyard;
+      if (zones.playerHand.isNotEmpty) playerHand = zones.playerHand;
+      if (zones.playerDeck.isNotEmpty) playerDeck = zones.playerDeck;
+      if (zones.playerShields.isNotEmpty) playerShields = zones.playerShields;
+      if (zones.playerManaZone.isNotEmpty) playerManaZone = zones.playerManaZone;
+      if (zones.playerBattleZone.isNotEmpty) playerBattleZone = zones.playerBattleZone;
+      if (zones.playerGraveyard.isNotEmpty) playerGraveyard = zones.playerGraveyard;
+
+      if (zones.opponentHand.isNotEmpty) opponentHand = zones.opponentHand;
+      if (zones.opponentDeck.isNotEmpty) opponentDeck = zones.opponentDeck;
+      if (zones.opponentShields.isNotEmpty) opponentShields = zones.opponentShields;
+      if (zones.opponentManaZone.isNotEmpty) opponentManaZone = zones.opponentManaZone;
+      if (zones.opponentBattleZone.isNotEmpty) opponentBattleZone = zones.opponentBattleZone;
+      if (zones.opponentGraveyard.isNotEmpty) opponentGraveyard = zones.opponentGraveyard;
 
       deckSize = playerDeck.length;
       opponentDeckSize = opponentDeck.length;
     });
   }
+
 
   Widget _showDualCreatureSelectionOverlay() {
     return DualCreatureSelectionOverlay(
