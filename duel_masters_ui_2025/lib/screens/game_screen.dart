@@ -286,19 +286,20 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
       final zones = GameStateParser.parse(responseBody);
 
-      if (zones.playerHand.isNotEmpty) playerHand = zones.playerHand;
-      if (zones.playerDeck.isNotEmpty) playerDeck = zones.playerDeck;
-      if (zones.playerShields.isNotEmpty) playerShields = zones.playerShields;
-      if (zones.playerManaZone.isNotEmpty) playerManaZone = zones.playerManaZone;
-      if (zones.playerBattleZone.isNotEmpty) playerBattleZone = zones.playerBattleZone;
-      if (zones.playerGraveyard.isNotEmpty) playerGraveyard = zones.playerGraveyard;
+      if (zones.playerHand != null) playerHand = zones.playerHand!;
+      if (zones.playerDeck != null) playerDeck = zones.playerDeck!;
+      if (zones.playerShields != null) playerShields = zones.playerShields!;
+      if (zones.playerManaZone != null) playerManaZone = zones.playerManaZone!;
+      if (zones.playerBattleZone != null) playerBattleZone = zones.playerBattleZone!;
+      if (zones.playerGraveyard != null) playerGraveyard = zones.playerGraveyard!;
 
-      if (zones.opponentHand.isNotEmpty) opponentHand = zones.opponentHand;
-      if (zones.opponentDeck.isNotEmpty) opponentDeck = zones.opponentDeck;
-      if (zones.opponentShields.isNotEmpty) opponentShields = zones.opponentShields;
-      if (zones.opponentManaZone.isNotEmpty) opponentManaZone = zones.opponentManaZone;
-      if (zones.opponentBattleZone.isNotEmpty) opponentBattleZone = zones.opponentBattleZone;
-      if (zones.opponentGraveyard.isNotEmpty) opponentGraveyard = zones.opponentGraveyard;
+      if (zones.opponentHand != null) opponentHand = zones.opponentHand!;
+      if (zones.opponentDeck != null) opponentDeck = zones.opponentDeck!;
+      if (zones.opponentShields != null) opponentShields = zones.opponentShields!;
+      if (zones.opponentManaZone != null) opponentManaZone = zones.opponentManaZone!;
+      if (zones.opponentBattleZone != null) opponentBattleZone = zones.opponentBattleZone!;
+      if (zones.opponentGraveyard != null) opponentGraveyard = zones.opponentGraveyard!;
+
 
       deckSize = playerDeck.length;
       opponentDeckSize = opponentDeck.length;
@@ -416,20 +417,20 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
                 setState(() {
                   // Your zones
-                  playerHand = zones.playerHand;
-                  playerDeck = zones.playerDeck;
-                  playerShields = zones.playerShields;
-                  playerManaZone = zones.playerManaZone;
-                  playerGraveyard = zones.playerGraveyard;
-                  playerBattleZone = zones.playerBattleZone;
+                  playerHand = zones.playerHand ?? [];
+                  playerDeck = zones.playerDeck ?? [];
+                  playerShields = zones.playerShields ?? [];
+                  playerManaZone = zones.playerManaZone ?? [];
+                  playerGraveyard = zones.playerGraveyard ?? [];
+                  playerBattleZone = zones.playerBattleZone ?? [];
 
-                  // Opponent zones
-                  opponentHand = zones.opponentHand;
-                  opponentDeck = zones.opponentDeck;
-                  opponentShields = zones.opponentShields;
-                  opponentManaZone = zones.opponentManaZone;
-                  opponentGraveyard = zones.opponentGraveyard;
-                  opponentBattleZone = zones.opponentBattleZone;
+                  opponentHand = zones.opponentHand ?? [];
+                  opponentDeck = zones.opponentDeck ?? [];
+                  opponentShields = zones.opponentShields ?? [];
+                  opponentManaZone = zones.opponentManaZone ?? [];
+                  opponentGraveyard = zones.opponentGraveyard ?? [];
+                  opponentBattleZone = zones.opponentBattleZone ?? [];
+
 
                   deckSize = playerDeck.length;
                   opponentDeckSize = opponentDeck.length;
