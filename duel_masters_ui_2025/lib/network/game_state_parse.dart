@@ -1,56 +1,47 @@
-import '../models/card_model.dart';
-
 class GameStateParser {
-  static List<CardModel> _parseCardList(List? data) {
-    return (data ?? []).map((c) => CardModel.fromJson(c)).toList();
+  static List<CardModel>? _parseOptionalCardList(dynamic data) {
+    if (data == null) return null;
+    return (data as List).map((c) => CardModel.fromJson(c)).toList();
   }
 
   static GameZones parse(Map<String, dynamic> responseBody) {
     return GameZones(
-      playerHand: _parseCardList(responseBody['playerHand']),
-      playerDeck: _parseCardList(responseBody['playerDeck']),
-      playerShields: _parseCardList(responseBody['playerShields']),
-      playerManaZone: _parseCardList(responseBody['playerManaZone']),
-      playerBattleZone: _parseCardList(responseBody['playerBattleZone']),
-      playerGraveyard: _parseCardList(responseBody['playerGraveyard']),
-
-      opponentHand: _parseCardList(responseBody['opponentHand']),
-      opponentDeck: _parseCardList(responseBody['opponentDeck']),
-      opponentShields: _parseCardList(responseBody['opponentShields']),
-      opponentManaZone: _parseCardList(responseBody['opponentManaZone']),
-      opponentBattleZone: _parseCardList(responseBody['opponentBattleZone']),
-      opponentGraveyard: _parseCardList(responseBody['opponentGraveyard']),
+      playerHand: responseBody.containsKey('playerHand')
+          ? _parseOptionalCardList(responseBody['playerHand'])
+          : null,
+      playerDeck: responseBody.containsKey('playerDeck')
+          ? _parseOptionalCardList(responseBody['playerDeck'])
+          : null,
+      playerShields: responseBody.containsKey('playerShields')
+          ? _parseOptionalCardList(responseBody['playerShields'])
+          : null,
+      playerManaZone: responseBody.containsKey('playerManaZone')
+          ? _parseOptionalCardList(responseBody['playerManaZone'])
+          : null,
+      playerBattleZone: responseBody.containsKey('playerBattleZone')
+          ? _parseOptionalCardList(responseBody['playerBattleZone'])
+          : null,
+      playerGraveyard: responseBody.containsKey('playerGraveyard')
+          ? _parseOptionalCardList(responseBody['playerGraveyard'])
+          : null,
+      opponentHand: responseBody.containsKey('opponentHand')
+          ? _parseOptionalCardList(responseBody['opponentHand'])
+          : null,
+      opponentDeck: responseBody.containsKey('opponentDeck')
+          ? _parseOptionalCardList(responseBody['opponentDeck'])
+          : null,
+      opponentShields: responseBody.containsKey('opponentShields')
+          ? _parseOptionalCardList(responseBody['opponentShields'])
+          : null,
+      opponentManaZone: responseBody.containsKey('opponentManaZone')
+          ? _parseOptionalCardList(responseBody['opponentManaZone'])
+          : null,
+      opponentBattleZone: responseBody.containsKey('opponentBattleZone')
+          ? _parseOptionalCardList(responseBody['opponentBattleZone'])
+          : null,
+      opponentGraveyard: responseBody.containsKey('opponentGraveyard')
+          ? _parseOptionalCardList(responseBody['opponentGraveyard'])
+          : null,
     );
   }
-}
-
-class GameZones {
-  final List<CardModel> playerHand;
-  final List<CardModel> playerDeck;
-  final List<CardModel> playerShields;
-  final List<CardModel> playerManaZone;
-  final List<CardModel> playerBattleZone;
-  final List<CardModel> playerGraveyard;
-
-  final List<CardModel> opponentHand;
-  final List<CardModel> opponentDeck;
-  final List<CardModel> opponentShields;
-  final List<CardModel> opponentManaZone;
-  final List<CardModel> opponentBattleZone;
-  final List<CardModel> opponentGraveyard;
-
-  GameZones({
-    required this.playerHand,
-    required this.playerDeck,
-    required this.playerShields,
-    required this.playerManaZone,
-    required this.playerBattleZone,
-    required this.playerGraveyard,
-    required this.opponentHand,
-    required this.opponentDeck,
-    required this.opponentShields,
-    required this.opponentManaZone,
-    required this.opponentBattleZone,
-    required this.opponentGraveyard,
-  });
 }
