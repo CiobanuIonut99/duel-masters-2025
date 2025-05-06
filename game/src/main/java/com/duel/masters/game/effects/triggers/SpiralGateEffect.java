@@ -68,6 +68,5 @@ public class SpiralGateEffect implements Effect {
                 shieldTriggersFlags.setShieldTrigger(false);
             }
         }
-
     }
 }

@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.getCreatureEffect;
+import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.getCreatureEffectNames;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 import static com.duel.masters.game.util.ValidatorUtil.canSummon;
 
@@ -32,9 +34,16 @@ public class SummonToBattleZoneService {
                 selectedManaCards,
                 cardToBeSummoned);
 
+
+        var creatureEffectNames = getCreatureEffectNames();
+
         if (canCardBeSummoned) {
             tapCards(selectedManaCards);
             playCard(hand, cardToBeSummoned.getGameCardId(), battleZone);
+            if (creatureEffectNames.contains(cardToBeSummoned.getName())) {
+                var creatureImmediateEffect = getCreatureEffect(cardToBeSummoned.getName());
+                creatureImmediateEffect.execute(currentState, incomingState, cardsUpdateService);
+            }
             log.info("Summoning {}", cardToBeSummoned.getName());
             cardToBeSummoned.setSummoningSickness(true);
             setCardsSummonable(manaZone, hand);
@@ -42,5 +51,4 @@ public class SummonToBattleZoneService {
             log.info("Card summoned to battle zone : {}", battleZone);
         }
     }
-
 }
