@@ -1184,6 +1184,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     onPressed: () {
                       setState(() {
                         hasDismissedChosenCard = true;
+                        lastSelectedCreatureFromDeck = null;
                       });
                     },
                     child: Text(
