@@ -172,9 +172,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final shieldTriggerFlagsJson = responseBody['shieldTriggersFlagsDto'] ?? {};
 
     shieldFlags = ShieldTriggersFlagsDto.fromJson(shieldTriggerFlagsJson);
-    if (lastSelectedCreatureFromDeck != null && Navigator.canPop(context)) {
-      Navigator.of(context).pop();  // Dismiss the "waiting" dialog on opponent side
+
+    if (shieldFlags!.lastSelectedCreatureFromDeck != null) {
       print("✅ Received lastSelectedCreatureFromDeck from BE: ${shieldFlags!.lastSelectedCreatureFromDeck!.name} (ID: ${shieldFlags!.lastSelectedCreatureFromDeck!.gameCardId})");
+
+      if (Navigator.canPop(context)) {
+        Navigator.of(context).pop();  // Dismiss the "waiting" dialog on opponent side
+      }
 
       setState(() {
         lastSelectedCreatureFromDeck = shieldFlags!.lastSelectedCreatureFromDeck;
@@ -182,6 +186,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     } else {
       print("⚠️ No lastSelectedCreatureFromDeck received in this update.");
     }
+
 
 
     solarRayMustSelectCreature =
@@ -664,7 +669,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             if (naturalSnareMustSelectCreature)
               _showCreatureSelectionForManaZoneOverlay(),
 
-            if (lastSelectedCreatureFromDeck != null && !isMyTurn)
+            if (lastSelectedCreatureFromDeck != null && currentTurnPlayerId != currentPlayerId)
+
               Positioned(
                 top: MediaQuery.of(context).size.height * 0.3,
                 left: MediaQuery.of(context).size.width * 0.5 - 50,
