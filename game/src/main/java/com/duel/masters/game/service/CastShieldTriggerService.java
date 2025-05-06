@@ -18,6 +18,7 @@ public class CastShieldTriggerService {
     private final TopicService topicService;
     private final CardsUpdateService cardsUpdateService;
     private final AttackShieldService attackShieldService;
+    private final GameStateStore gameStateStore;
 
     public void triggerShieldTriggerLogic(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
 
@@ -28,6 +29,8 @@ public class CastShieldTriggerService {
         }
         currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
         topicService.sendGameStatesToTopics(currentState, webSocketHandler);
+        currentState.getShieldTriggersFlagsDto().setLastSelectedCreatureFromDeck(null);
+        gameStateStore.saveGameState(currentState);
     }
 
     private void useShieldTrigger(GameStateDto currentState, GameStateDto incomingState) {

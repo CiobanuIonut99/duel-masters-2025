@@ -16,7 +16,7 @@ public class TurnService {
 
     private final TopicService topicService;
     private final CardsUpdateService cardsUpdateService;
-    private final GameStateStore gameStateStore;
+
 
     public void endTurn(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
         log.info("Current player ends turn");
@@ -50,7 +50,5 @@ public class TurnService {
                 });
 
         topicService.sendGameStatesToTopics(currentState, webSocketHandler);
-        currentState.getShieldTriggersFlagsDto().setLastSelectedCreatureFromDeck(null);
-        gameStateStore.saveGameState(currentState);
     }
 }
