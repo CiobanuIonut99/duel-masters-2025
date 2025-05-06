@@ -34,7 +34,6 @@ public class SummonToBattleZoneService {
 
         if (canCardBeSummoned) {
             tapCards(selectedManaCards);
-
             playCard(hand, cardToBeSummoned.getGameCardId(), battleZone);
             log.info("Summoning {}", cardToBeSummoned.getName());
             cardToBeSummoned.setSummoningSickness(true);
