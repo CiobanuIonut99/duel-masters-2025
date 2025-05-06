@@ -90,6 +90,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   CardModel? hoveredCard;
   CardModel? shieldTriggerCard;
 
+  CardModel? lastSelectedCreatureFromDeck;
+
   bool isConnected = false;
 
   late AnimationController shieldMoveController;
@@ -543,10 +545,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                       right: 12,
                     ),
                     child: Transform(
-                      transform: Matrix4.identity()
-                      ..setEntry(3, 2, 0.0015)
-                      // ..setEntry(0, 2, 0.0015)
-                      ..rotateX(-0.15), // slight tilt
+                      transform:
+                          Matrix4.identity()
+                            ..setEntry(3, 2, 0.0015)
+                            // ..setEntry(0, 2, 0.0015)
+                            ..rotateX(-0.15), // slight tilt
                       // ..rotateX(-0.15), // slight tilt
                       alignment: Alignment.center,
                       child: Column(
@@ -638,6 +641,26 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               _showDualCreatureSelectionOverlay(),
             if (naturalSnareMustSelectCreature)
               _showCreatureSelectionForManaZoneOverlay(),
+
+            if (lastSelectedCreatureFromDeck != null && !isMyTurn)
+              Positioned(
+                top: MediaQuery.of(context).size.height * 0.3,
+                left: MediaQuery.of(context).size.width * 0.5 - 50,
+                child: Column(
+                  children: [
+                    Text(
+                      "Opponent chose this creature:",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    const SizedBox(height: 8),
+                    Image.asset(
+                      lastSelectedCreatureFromDeck!.imagePath,
+                      width: 100,
+                    ),
+                  ],
+                ),
+              ),
+
 
             Positioned(
               top: MediaQuery.of(context).size.height / 2 - 30,
@@ -1118,6 +1141,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 shieldTriggerDecisionMade: true,
                 usingShieldTrigger: true,
               );
+
             },
           ),
     );

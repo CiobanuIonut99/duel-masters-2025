@@ -36,6 +36,8 @@ public class ShieldTriggersFlagsDto {
     private boolean dimensionGateMustDrawCard;
     private boolean naturalSnareMustSelectCreature;
 
+    private CardDto lastSelectedCreatureFromDeck;
+
     private boolean shieldTriggerDecisionMade;
     private Map<String, List<CardDto>> eachPlayerBattleZone = new ConcurrentHashMap<>();
     private List<String> cardsChosen = new CopyOnWriteArrayList<>();

@@ -30,6 +30,7 @@ public class DimensionGateEffect implements ShieldTriggerEffect {
                     .map(idChosenFromDeck -> getCardDtoFromList(ownDeck, idChosenFromDeck))
                     .toList();
 
+            shieldTriggersFlags.setLastSelectedCreatureFromDeck(getCardDtoFromList(ownDeck, cardsChosenFromDeck.getFirst().getGameCardId()));
             cardsChosenFromDeck
                     .forEach(card -> playCard(ownDeck, card.getGameCardId(), ownCards.getHand()));
 
