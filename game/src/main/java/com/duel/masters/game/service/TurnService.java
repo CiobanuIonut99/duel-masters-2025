@@ -42,14 +42,17 @@ public class TurnService {
         }
         setOpponentsCreaturesAttackable(cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone());
 
-        ownBattleZone
-                .stream()
-                .filter(ownCard -> ownCard.getId().equals(2L))
-                .forEach(ownCard -> {
-                    var creatureEffect = CreatureRegistry
-                            .getCreatureEffect(ownCard.getName());
-                    creatureEffect.execute(currentState, incomingState, cardsUpdateService);
-                });
+        if (ownBattleZone != null) {
+            ownBattleZone
+                    .stream()
+                    .filter(ownCard -> ownCard.getId().equals(2L))
+                    .forEach(ownCard -> {
+                        var creatureEffect = CreatureRegistry
+                                .getCreatureEffect(ownCard.getName());
+                        creatureEffect.execute(currentState, incomingState, cardsUpdateService);
+                    });
+        }
+
 
         topicService.sendGameStatesToTopics(currentState, webSocketHandler);
     }

@@ -94,24 +94,30 @@ public class GameStateUtil {
     public static GameStateDto getGameStateDtoPlayerSummonToManaZone(GameStateDto gameStateDto) {
         return GameStateDto
                 .builder()
-                .playerId(gameStateDto.getOpponentId())
-                .opponentId(gameStateDto.getPlayerId())
+                .playerId(gameStateDto.getPlayerId())
+                .opponentId(gameStateDto.getOpponentId())
                 .playedMana(gameStateDto.isPlayedMana())
                 .currentTurnPlayerId(gameStateDto.getCurrentTurnPlayerId())
+
                 .playerHand(gameStateDto.getPlayerHand())
                 .playerManaZone(gameStateDto.getPlayerManaZone())
+
+
                 .build();
     }
 
     public static GameStateDto getGameStateDtoOpponentSummonToManaZone(GameStateDto gameStateDto) {
         return GameStateDto
                 .builder()
+                .playerId(gameStateDto.getOpponentId())
+                .opponentId(gameStateDto.getPlayerId())
                 .playedMana(gameStateDto.isPlayedMana())
-                .playerId(gameStateDto.getPlayerId())
-                .opponentId(gameStateDto.getOpponentId())
                 .currentTurnPlayerId(gameStateDto.getCurrentTurnPlayerId())
+
                 .opponentHand(gameStateDto.getPlayerHand())
                 .opponentManaZone(gameStateDto.getPlayerManaZone())
+
+
                 .build();
     }
 

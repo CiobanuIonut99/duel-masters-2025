@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static com.duel.masters.game.service.CardsUpdateService.isPlayer;
 import static com.duel.masters.game.util.CardsDtoUtil.playCard;
 import static com.duel.masters.game.util.CardsDtoUtil.setCardsSummonable;
 import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoOpponentSummonToManaZone;
@@ -21,19 +22,19 @@ public class SummonToManaService {
     private final CardsUpdateService cardsUpdateService;
 
     public void summonCardToManaZone(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
+
         if (!currentState.isPlayedMana()) {
+
             var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
             playCard(ownCards.getHand(), incomingState.getTriggeredGameCardId(), ownCards.getManaZone());
             setCardsSummonable(ownCards.getManaZone(), ownCards.getHand());
-            currentState.setPlayerManaZone(ownCards.getManaZone());
-            currentState.setPlayerHand(ownCards.getHand());
+
             currentState.setPlayedMana(true);
         } else {
             throw new AlreadyPlayedManaException();
         }
         var gameStatePlayer = getGameStateDtoPlayerSummonToManaZone(currentState);
         var gameStateOpponent = getGameStateDtoOpponentSummonToManaZone(currentState);
-//        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
         topicService.sendGameStatesToTopics(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
     }
 }

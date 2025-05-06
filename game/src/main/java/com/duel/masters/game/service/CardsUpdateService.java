@@ -11,7 +11,7 @@ import static com.duel.masters.game.util.CardsDtoUtil.getCardsDto;
 @Slf4j
 public class CardsUpdateService {
 
-    public boolean isPlayer(GameStateDto currentState, GameStateDto incomingState) {
+    public static boolean isPlayer(GameStateDto currentState, GameStateDto incomingState) {
         return currentState.getPlayerId().equals(incomingState.getPlayerId());
     }
 

@@ -20,7 +20,7 @@ public class TopicService {
     private final ObjectMapper objectMapper;
 
     public void sendGameStatesToTopics(GameStateDto currentState, GameWebSocketHandler webSocketHandler) {
-//        gameStateStore.saveGameState(currentState);
+        gameStateStore.saveGameState(currentState);
 
         var gameStatePlayer = getGameStateDtoPlayer(currentState);
         var gameStateOpponent = getGameStateDtoOpponent(currentState);
@@ -49,6 +49,10 @@ public class TopicService {
     }
 
     public void sendGameStatesToTopics(GameStateDto currentState, GameWebSocketHandler webSocketHandler, GameStateDto gameStatePlayer, GameStateDto gameStateOpponent) {
+
+        gameStateStore.saveGameState(currentState);
+
+
         WebSocketSession playerSession = webSocketHandler.getSessionForPlayer(currentState.getPlayerId());
         WebSocketSession opponentSession = webSocketHandler.getSessionForPlayer(currentState.getOpponentId());
 
