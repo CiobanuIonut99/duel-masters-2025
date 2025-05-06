@@ -172,6 +172,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final shieldTriggerFlagsJson = responseBody['shieldTriggersFlagsDto'] ?? {};
 
     shieldFlags = ShieldTriggersFlagsDto.fromJson(shieldTriggerFlagsJson);
+    if (shieldFlags?.lastSelectedCreatureFromDeck != null) {
+      setState(() {
+        lastSelectedCreatureFromDeck = shieldFlags!.lastSelectedCreatureFromDeck;
+      });
+    }
 
     solarRayMustSelectCreature =
         shieldFlags?.solarRayMustSelectCreature ?? false;
@@ -249,6 +254,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       final isMyTurn = newTurnPlayerId == currentPlayerId;
       _showTurnBanner(isMyTurn ? "Your Turn" : "Opponent's Turn");
     }
+
+    if (previousTurnPlayerId != null && previousTurnPlayerId != newTurnPlayerId) {
+      final isMyTurn = newTurnPlayerId == currentPlayerId;
+
+      setState(() {
+        lastSelectedCreatureFromDeck = null;  // ← clear when turn changes
+      });
+
+      _showTurnBanner(isMyTurn ? "Your Turn" : "Opponent's Turn");
+    }
+
 
     if (responseBody['shieldTriggerCard'] != null) {
       shieldTriggerCard = CardModel.fromJson(responseBody['shieldTriggerCard']);
