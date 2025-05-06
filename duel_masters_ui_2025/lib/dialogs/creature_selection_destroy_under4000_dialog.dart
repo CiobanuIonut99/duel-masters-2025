@@ -41,7 +41,7 @@ class DestroyCreatureUnder4000SelectionOverlay extends StatelessWidget {
                 Text(
                   isMyCreature
                       ? "Choose one of the opponent's creatures to continue."
-                      : "Waiting for opponent's move...",
+                      : "Opponent must choose one of your creatures to destroy",
                   style: kDialogSubtitleStyle,
                   textAlign: TextAlign.center,
                 ),
