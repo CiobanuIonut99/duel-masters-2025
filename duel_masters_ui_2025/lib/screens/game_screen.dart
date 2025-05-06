@@ -69,9 +69,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   int deckSize = 0;
   int opponentDeckSize = 0;
 
-  final currentPlayerId = DateTime
-      .now()
-      .millisecondsSinceEpoch % 1000000;
+  final currentPlayerId = DateTime.now().millisecondsSinceEpoch % 1000000;
   int? previousTurnPlayerId;
 
   int opponentId = 0;
@@ -95,6 +93,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   CardModel? lastSelectedCreatureFromDeck;
 
   bool isConnected = false;
+  bool hasDismissedChosenCard = false;
 
   late AnimationController shieldMoveController;
   late Animation<Offset> shieldOffsetAnimation;
@@ -175,32 +174,14 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     shieldFlags = ShieldTriggersFlagsDto.fromJson(shieldTriggerFlagsJson);
 
-    if (shieldFlags!.lastSelectedCreatureFromDeck != null) {
-      print(
-        "✅ Received lastSelectedCreatureFromDeck from BE: ${shieldFlags!
-            .lastSelectedCreatureFromDeck!.name} (ID: ${shieldFlags!
-            .lastSelectedCreatureFromDeck!.gameCardId})",
-      );
-
-      if (Navigator.canPop(context)) {
-        Navigator.of(
-          context,
-        ).pop(); // Dismiss the "waiting" dialog on opponent side
-      }
-
-      setState(() {
-        lastSelectedCreatureFromDeck =
-            shieldFlags!.lastSelectedCreatureFromDeck;
-      });
-    } else {
-      print("⚠️ No lastSelectedCreatureFromDeck received in this update.");
-    }
-
     solarRayMustSelectCreature =
         shieldFlags?.solarRayMustSelectCreature ?? false;
-    brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
-    dimensionGateMustDrawCard = shieldFlags?.dimensionGateMustDrawCard ?? false;
-    crystalMemoryMustDrawCard = shieldFlags?.crystalMemoryMustDrawCard ?? false;
+    brainSerumMustDrawCards =
+        shieldFlags?.brainSerumMustDrawCards ?? false;
+    dimensionGateMustDrawCard =
+        shieldFlags?.dimensionGateMustDrawCard ?? false;
+    crystalMemoryMustDrawCard =
+        shieldFlags?.crystalMemoryMustDrawCard ?? false;
     naturalSnareMustSelectCreature =
         shieldFlags?.naturalSnareMustSelectCreature ?? false;
     spiralGateMustSelectCreature =
@@ -212,11 +193,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     tornadoFlameMustSelectCreature =
         shieldFlags?.tornadoFlameMustSelectCreature ?? false;
     shieldTrigger = shieldFlags?.shieldTrigger ?? false;
-
-    opponentUnder4000Creatures = shieldFlags?.opponentUnder4000Creatures ?? [];
-    print("opponentUnder4000Creatures is : ${opponentUnder4000Creatures}");
-    playerCreatureDeck = shieldFlags?.playerCreatureDeck ?? [];
-    playerCreatureGraveyard = shieldFlags?.playerCreatureGraveyard ?? [];
+    opponentUnder4000Creatures =
+        shieldFlags?.opponentUnder4000Creatures ?? [];
+    playerCreatureDeck =
+        shieldFlags?.playerCreatureDeck ?? [];
+    playerCreatureGraveyard =
+        shieldFlags?.playerCreatureGraveyard ?? [];
 
     opponentHasBlocker = responseBody['opponentHasBlocker'];
     opponentSelectableCreatures =
@@ -266,19 +248,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     if (!opponentHasBlocker && Navigator.canPop(context)) {
       Navigator.of(context).pop(); //dismiss for opponent
     }
-
-    if (previousTurnPlayerId != null &&
-        previousTurnPlayerId != newTurnPlayerId) {
-      final isMyTurn = newTurnPlayerId == currentPlayerId;
-      _showTurnBanner(isMyTurn ? "Your Turn" : "Opponent's Turn");
-    }
-
     if (previousTurnPlayerId != null &&
         previousTurnPlayerId != newTurnPlayerId) {
       final isMyTurn = newTurnPlayerId == currentPlayerId;
 
       setState(() {
-        lastSelectedCreatureFromDeck = null; // ← clear when turn changes
+        lastSelectedCreatureFromDeck = null;
       });
 
       _showTurnBanner(isMyTurn ? "Your Turn" : "Opponent's Turn");
@@ -287,6 +262,18 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     if (responseBody['shieldTriggerCard'] != null) {
       shieldTriggerCard = CardModel.fromJson(responseBody['shieldTriggerCard']);
       shieldTrigger = true;
+    }
+
+    if (shieldFlags!.lastSelectedCreatureFromDeck != null) {
+      if (Navigator.canPop(context)) {
+        Navigator.of(context).pop();
+      }
+      if (!hasDismissedChosenCard) {
+        setState(() {
+          lastSelectedCreatureFromDeck =
+              shieldFlags!.lastSelectedCreatureFromDeck;
+        });
+      }
     }
 
     final zones = GameStateParser.parse(responseBody);
@@ -299,10 +286,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       playedMana = responseBody['playedMana'];
 
       opponentHasBlocker = responseBody['opponentHasBlocker'];
-      // shieldTrigger = shieldFlags?.shieldTrigger ?? false;
-      // brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
-      // crystalMemoryMustDrawCard =
-      //     shieldFlags?.crystalMemoryMustDrawCard ?? false;
 
       playerHand = zones.playerHand;
       playerDeck = zones.playerDeck;
@@ -355,8 +338,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     final overlay = OverlayEntry(
       builder:
-          (context) =>
-          Positioned.fill(
+          (context) => Positioned.fill(
             child: Center(
               child: AnimatedOpacity(
                 opacity: 1,
@@ -421,8 +403,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
                 final responseBody = jsonDecode(frame.body!);
                 print(
-                  "📩 Received game payload size: ${frame.body?.length ??
-                      0} bytes",
+                  "📩 Received game payload size: ${frame.body?.length ?? 0} bytes",
                 );
 
                 currentGameId = responseBody['gameId'];
@@ -570,10 +551,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             SingleChildScrollView(
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: MediaQuery
-                      .of(context)
-                      .size
-                      .height,
+                  minHeight: MediaQuery.of(context).size.height,
                 ),
                 child: IntrinsicHeight(
                   child: Padding(
@@ -585,10 +563,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     ),
                     child: Transform(
                       transform:
-                      Matrix4.identity()
-                        ..setEntry(3, 2, 0.0015)
-                      // ..setEntry(0, 2, 0.0015)
-                        ..rotateX(-0.15), // slight tilt
+                          Matrix4.identity()
+                            ..setEntry(3, 2, 0.0015)
+                            // ..setEntry(0, 2, 0.0015)
+                            ..rotateX(-0.15), // slight tilt
                       // ..rotateX(-0.15), // slight tilt
                       alignment: Alignment.center,
                       child: Column(
@@ -606,8 +584,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                               isSelectingAttackTarget: isSelectingAttackTarget,
                               selectedAttacker: selectedAttacker,
                               onTapManaZone:
-                                  () =>
-                                  _showCardZoneDialog(
+                                  () => _showCardZoneDialog(
                                     "Opponent Mana",
                                     opponentManaZone,
                                     true,
@@ -615,8 +592,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                               onTapHandCard:
                                   (card) => _showFullScreenCardPreview(card),
                               onTapGraveyard:
-                                  () =>
-                                  _showCardZoneDialog(
+                                  () => _showCardZoneDialog(
                                     "Opponent Graveyard",
                                     opponentGraveyard,
                                     true,
@@ -651,8 +627,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                               onTapManaCard:
                                   (card) => _showFullScreenCardPreview(card),
                               onTapGraveyard:
-                                  () =>
-                                  _showCardZoneDialog(
+                                  () => _showCardZoneDialog(
                                     "Graveyard",
                                     playerGraveyard,
                                   ),
@@ -835,9 +810,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void _showBlockerSelectionDialog() {
     final isDefendingPlayer = currentTurnPlayerId != currentPlayerId;
     final blockers =
-    playerBattleZone
-        .where((c) => c.specialAbility == 'BLOCKER' && !c.tapped)
-        .toList();
+        playerBattleZone
+            .where((c) => c.specialAbility == 'BLOCKER' && !c.tapped)
+            .toList();
 
     showDialog(
       context: context,
@@ -913,8 +888,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         context: context,
         barrierDismissible: false,
         builder:
-            (_) =>
-            ShieldTriggerDialog(
+            (_) => ShieldTriggerDialog(
               shieldTriggerCard: shieldTriggerCard!,
               isMyShieldTrigger: currentTurnPlayerId != currentPlayerId,
               onUseTrigger: () {
@@ -944,8 +918,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     showDialog(
       context: context,
       builder:
-          (_) =>
-          ManaSelectionDialog(
+          (_) => ManaSelectionDialog(
             cardToSummon: cardToSummon,
             manaCards: playerManaZone,
             onConfirm: (selectedIds) {
@@ -969,8 +942,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     showDialog(
       context: context,
       builder:
-          (_) =>
-          Dialog(
+          (_) => Dialog(
             backgroundColor: Colors.transparent,
             child: Center(
               child: GestureDetector(
@@ -982,16 +954,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   card.imagePath,
                   fit: BoxFit.contain,
                   height:
-                  MediaQuery
-                      .of(context)
-                      .size
-                      .height *
+                      MediaQuery.of(context).size.height *
                       0.8, // 80% of screen height
                   width:
-                  MediaQuery
-                      .of(context)
-                      .size
-                      .width *
+                      MediaQuery.of(context).size.width *
                       0.8, // 80% of screen width
                 ),
               ),
@@ -1000,15 +966,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showCardZoneDialog(String label,
-      List<CardModel> cards, [
-        bool rotate180 = false,
-      ]) {
+  void _showCardZoneDialog(
+    String label,
+    List<CardModel> cards, [
+    bool rotate180 = false,
+  ]) {
     showDialog(
       context: context,
       builder:
-          (_) =>
-          Dialog(
+          (_) => Dialog(
             backgroundColor: Colors.black87,
             insetPadding: EdgeInsets.all(20),
             child: Padding(
@@ -1030,23 +996,23 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children:
-                      cards.map((card) {
-                        return GestureDetector(
-                          onTap: () => _showFullScreenCardPreview(card),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0,
-                            ),
-                            child: Transform.rotate(
-                              angle: rotate180 ? 3.14 : 0,
-                              child: Image.asset(
-                                card.imagePath,
-                                width: 130,
+                          cards.map((card) {
+                            return GestureDetector(
+                              onTap: () => _showFullScreenCardPreview(card),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0,
+                                ),
+                                child: Transform.rotate(
+                                  angle: rotate180 ? 3.14 : 0,
+                                  child: Image.asset(
+                                    card.imagePath,
+                                    width: 130,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                            );
+                          }).toList(),
                     ),
                   ),
                 ],
@@ -1061,8 +1027,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       context: context,
       barrierDismissible: false,
       builder:
-          (_) =>
-          SelectCardsFromDeckDialog(
+          (_) => SelectCardsFromDeckDialog(
             deck: playerDeck,
             minSelection: minSelection,
             maxSelection: maxSelection,
@@ -1087,8 +1052,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       context: context,
       barrierDismissible: false,
       builder:
-          (_) =>
-          SelectCardCountDialog(
+          (_) => SelectCardCountDialog(
             onConfirm: (count) {
               wsHandler.sendDrawCardsFromDeck(
                 gameId: currentGameId,
@@ -1114,8 +1078,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       context: context,
       barrierDismissible: false,
       builder:
-          (_) =>
-          SelectCreatureFromDeckDialog(
+          (_) => SelectCreatureFromDeckDialog(
             isMyCreature: isMyCreature,
             deck: playerCreatureDeck,
             onConfirm: (selectedIds) {
@@ -1135,73 +1098,60 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   Positioned _showChosenCard() {
-   return  Positioned(
-     top: MediaQuery.of(context).size.height * 0.25,
-     left: MediaQuery.of(context).size.width * 0.5 - 100,
-     child: Container(
-       width: 200,
-       padding: EdgeInsets.all(12),
-       decoration: BoxDecoration(
-         color: Colors.black.withOpacity(0.6),
-         borderRadius: BorderRadius.circular(16),
-         border: Border.all(color: Colors.white70, width: 2),
-         boxShadow: [
-           BoxShadow(
-             color: Colors.black45,
-             blurRadius: 10,
-             offset: Offset(0, 4),
-           ),
-         ],
-       ),
-       child: Column(
-         mainAxisSize: MainAxisSize.min,
-         children: [
-           Text(
-             "Chosen Creature",
-             style: TextStyle(
-               color: Colors.white,
-               fontSize: 16,
-               fontWeight: FontWeight.bold,
-             ),
-           ),
-           SizedBox(height: 8),
-           Image.asset(
-             lastSelectedCreatureFromDeck!.imagePath,
-             width: 120,
-           ),
-           SizedBox(height: 8),
-           Text(
-             lastSelectedCreatureFromDeck!.name,
-             style: TextStyle(
-               color: Colors.white70,
-               fontSize: 14,
-             ),
-           ),
-           SizedBox(height: 8),
-           TextButton(
-             onPressed: () {
-               setState(() {
-                 lastSelectedCreatureFromDeck = null;
-               });
-             },
-             child: Text(
-               "Dismiss",
-               style: TextStyle(color: Colors.redAccent),
-             ),
-           ),
-         ],
-       ),
-     ),
-   );
-
+    return Positioned(
+      top: MediaQuery.of(context).size.height * 0.25,
+      left: MediaQuery.of(context).size.width * 0.5 - 100,
+      child: Container(
+        width: 200,
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white70, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black45,
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Chosen Creature",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8),
+            Image.asset(lastSelectedCreatureFromDeck!.imagePath, width: 120),
+            SizedBox(height: 8),
+            Text(
+              lastSelectedCreatureFromDeck!.name,
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            SizedBox(height: 8),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  lastSelectedCreatureFromDeck = null;
+                });
+              },
+              child: Text("Dismiss", style: TextStyle(color: Colors.redAccent)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Positioned _showTurnLabel() {
     return Positioned(
-      top: MediaQuery
-          .of(context)
-          .size
-          .height / 2 - 30,
+      top: MediaQuery.of(context).size.height / 2 - 30,
       left: 16,
       right: 16,
       child: Row(
@@ -1210,28 +1160,25 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           // Left side: Turn label
           !isTurnBannerVisible
               ? Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 4,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.6),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              currentTurnPlayerId == currentPlayerId
-                  ? "Your Turn"
-                  : "Opponent's Turn",
-              style: TextStyle(
-                color:
-                currentTurnPlayerId == currentPlayerId
-                    ? Colors.greenAccent
-                    : Colors.redAccent,
-                fontSize: 14, // smaller font size
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          )
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  currentTurnPlayerId == currentPlayerId
+                      ? "Your Turn"
+                      : "Opponent's Turn",
+                  style: TextStyle(
+                    color:
+                        currentTurnPlayerId == currentPlayerId
+                            ? Colors.greenAccent
+                            : Colors.redAccent,
+                    fontSize: 14, // smaller font size
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
               : SizedBox(width: 0),
 
           // Right side: End Turn button
@@ -1240,15 +1187,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             icon: Icon(Icons.refresh),
             label: Text("End Turn"),
             style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
         ],
       ),
     );
   }
-
 }
