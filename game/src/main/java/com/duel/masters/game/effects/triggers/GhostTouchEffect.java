@@ -1,14 +1,14 @@
 package com.duel.masters.game.effects.triggers;
 
 import com.duel.masters.game.dto.GameStateDto;
-import com.duel.masters.game.effects.ShieldTriggerEffect;
+import com.duel.masters.game.effects.Effect;
 import com.duel.masters.game.service.CardsUpdateService;
 
 import java.util.Collections;
 
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
-public class GhostTouchEffect implements ShieldTriggerEffect {
+public class GhostTouchEffect implements Effect {
 
 //    Your opponent discards a card at random from his hand
 // NEED TEST!

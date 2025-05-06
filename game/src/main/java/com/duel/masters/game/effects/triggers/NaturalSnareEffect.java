@@ -1,12 +1,12 @@
 package com.duel.masters.game.effects.triggers;
 
 import com.duel.masters.game.dto.GameStateDto;
-import com.duel.masters.game.effects.ShieldTriggerEffect;
+import com.duel.masters.game.effects.Effect;
 import com.duel.masters.game.service.CardsUpdateService;
 
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
-public class NaturalSnareEffect implements ShieldTriggerEffect {
+public class NaturalSnareEffect implements Effect {
 
 //    Choose one of your opponent.s creatures in the battle zone and put it into his mana zone
 

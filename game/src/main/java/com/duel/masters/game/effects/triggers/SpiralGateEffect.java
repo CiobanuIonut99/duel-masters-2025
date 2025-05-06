@@ -2,12 +2,12 @@ package com.duel.masters.game.effects.triggers;
 
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
-import com.duel.masters.game.effects.ShieldTriggerEffect;
+import com.duel.masters.game.effects.Effect;
 import com.duel.masters.game.service.CardsUpdateService;
 
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
-public class SpiralGateEffect implements ShieldTriggerEffect {
+public class SpiralGateEffect implements Effect {
 
 //    Choose 1 creature in the battle zone and return it to its owners hand
 // NEED TEST!

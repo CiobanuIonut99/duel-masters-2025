@@ -1,12 +1,12 @@
 package com.duel.masters.game.effects.triggers;
 
 import com.duel.masters.game.dto.GameStateDto;
-import com.duel.masters.game.effects.ShieldTriggerEffect;
+import com.duel.masters.game.effects.Effect;
 import com.duel.masters.game.service.CardsUpdateService;
 
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
-public class SolarRayEffect implements ShieldTriggerEffect {
+public class SolarRayEffect implements Effect {
 
 //    Choose 1 of your opponents creatures in the battlezone and tap it
 

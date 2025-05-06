@@ -2,6 +2,7 @@ package com.duel.masters.game.service;
 
 import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.effects.summoning.CreatureRegistry;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,9 @@ public class TurnService {
         var opponentManaZone = opponentCards.getManaZone();
         var opponentBattleZone = opponentCards.getBattleZone();
 
+        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
+        var ownBattleZone = ownCards.getBattleZone();
+
         currentState.setPlayedMana(false);
         currentState.setCurrentTurnPlayerId(incomingState.getOpponentId());
         drawCard(opponentDeck, opponentHand);
@@ -34,7 +38,16 @@ public class TurnService {
         cureOpponentsCreaturesSickness(opponentBattleZone);
         opponentBattleZone.forEach(cardDto -> cardDto.setCanBeAttacked(false));
         setOpponentsCreaturesAttackable(cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone());
-
+        var card = ownBattleZone
+                .stream()
+                .filter(ownCard -> ownCard.getId().equals(2L))
+                .findFirst()
+                .orElseThrow();
+        if (ownBattleZone.contains(card)) {
+            var creatureEffect = CreatureRegistry
+                    .getCreatureEffect(card.getName());
+            creatureEffect.execute(currentState, incomingState, cardsUpdateService);
+        }
         topicService.sendGameStatesToTopics(currentState, webSocketHandler);
     }
 }
