@@ -265,16 +265,21 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
 
     if (shieldFlags!.lastSelectedCreatureFromDeck != null) {
-      if (Navigator.canPop(context)) {
-        Navigator.of(context).pop();
-      }
-      if (!hasDismissedChosenCard) {
+      if (!hasDismissedChosenCard &&
+          (lastSelectedCreatureFromDeck == null ||
+              lastSelectedCreatureFromDeck!.gameCardId !=
+                  shieldFlags!.lastSelectedCreatureFromDeck!.gameCardId)) {
         setState(() {
-          lastSelectedCreatureFromDeck =
-              shieldFlags!.lastSelectedCreatureFromDeck;
+          lastSelectedCreatureFromDeck = shieldFlags!.lastSelectedCreatureFromDeck;
         });
       }
+    } else {
+      setState(() {
+        lastSelectedCreatureFromDeck = null;
+        hasDismissedChosenCard = false;
+      });
     }
+
 
     final zones = GameStateParser.parse(responseBody);
 
@@ -659,8 +664,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             if (naturalSnareMustSelectCreature)
               _showCreatureSelectionForManaZoneOverlay(),
             if (lastSelectedCreatureFromDeck != null &&
-                currentTurnPlayerId == currentPlayerId)
+                currentTurnPlayerId == currentPlayerId &&
+                !hasDismissedChosenCard)
               _showChosenCard(),
+
             _showTurnLabel(),
           ],
         ),
@@ -1101,57 +1108,98 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     return Positioned(
       top: MediaQuery.of(context).size.height * 0.25,
       left: MediaQuery.of(context).size.width * 0.5 - 100,
-      child: Container(
-        width: 200,
-        padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.6),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white70, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black45,
-              blurRadius: 10,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Chosen Creature",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+      child: AnimatedOpacity(
+        opacity: 1,
+        duration: Duration(milliseconds: 500),
+        child: Container(
+          width: 220,
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white70, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blueAccent.withOpacity(0.6),
+                blurRadius: 20,
+                spreadRadius: 4,
               ),
-            ),
-            SizedBox(height: 8),
-            Image.asset(lastSelectedCreatureFromDeck!.imagePath, width: 120),
-            SizedBox(height: 8),
-            Text(
-              lastSelectedCreatureFromDeck!.name,
-              style: TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-            SizedBox(height: 8),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  hasDismissedChosenCard = true;
-                });
-              },
-              child: Text(
-                "Dismiss",
-                style: TextStyle(color: Colors.redAccent),
+            ],
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // ⭐ Sparkle particles
+              Positioned(
+                top: -10,
+                left: -10,
+                child: Icon(Icons.auto_awesome, color: Colors.blueAccent, size: 24),
               ),
-            ),
-
-          ],
+              Positioned(
+                top: -10,
+                right: -10,
+                child: Icon(Icons.auto_awesome, color: Colors.purpleAccent, size: 20),
+              ),
+              Positioned(
+                bottom: -10,
+                left: 0,
+                child: Icon(Icons.auto_awesome, color: Colors.cyanAccent, size: 18),
+              ),
+              // Main content
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Chosen Creature",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 800),
+                    curve: Curves.easeInOut,
+                    padding: EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blueAccent.withOpacity(0.8),
+                          blurRadius: 20,
+                          spreadRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: Image.asset(lastSelectedCreatureFromDeck!.imagePath, width: 120),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    lastSelectedCreatureFromDeck!.name,
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                  SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        hasDismissedChosenCard = true;
+                      });
+                    },
+                    child: Text(
+                      "Dismiss",
+                      style: TextStyle(color: Colors.redAccent),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
 
   Positioned _showTurnLabel() {
     return Positioned(
