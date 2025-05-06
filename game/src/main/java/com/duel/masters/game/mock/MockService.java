@@ -53,4 +53,19 @@ public class MockService {
         }
 
     }
+
+    public void mockHand(List<CardDto> deck,
+                         List<CardDto> hand,
+                         Long futureHandId) {
+
+        var cardDto = deck
+                .stream()
+                .filter(card -> card.getId().equals(futureHandId))
+                .findFirst()
+                .orElseThrow();
+
+        hand.add(cardDto);
+        deck.remove(cardDto);
+
+    }
 }

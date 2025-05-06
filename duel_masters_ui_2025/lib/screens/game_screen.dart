@@ -172,11 +172,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final shieldTriggerFlagsJson = responseBody['shieldTriggersFlagsDto'] ?? {};
 
     shieldFlags = ShieldTriggersFlagsDto.fromJson(shieldTriggerFlagsJson);
-    if (shieldFlags?.lastSelectedCreatureFromDeck != null) {
+    if (lastSelectedCreatureFromDeck != null && Navigator.canPop(context)) {
+      Navigator.of(context).pop();  // Dismiss the "waiting" dialog on opponent side
+      print("✅ Received lastSelectedCreatureFromDeck from BE: ${shieldFlags!.lastSelectedCreatureFromDeck!.name} (ID: ${shieldFlags!.lastSelectedCreatureFromDeck!.gameCardId})");
+
       setState(() {
         lastSelectedCreatureFromDeck = shieldFlags!.lastSelectedCreatureFromDeck;
       });
+    } else {
+      print("⚠️ No lastSelectedCreatureFromDeck received in this update.");
     }
+
 
     solarRayMustSelectCreature =
         shieldFlags?.solarRayMustSelectCreature ?? false;

@@ -55,7 +55,10 @@ class ShieldTriggersFlagsDto {
       dimensionGateMustDrawCard: json['dimensionGateMustDrawCard'] ?? false,
       naturalSnareMustSelectCreature: json['naturalSnareMustSelectCreature'] ?? false,
       eachPlayerBattleZone: json['eachPlayerBattleZone'] ?? {},
-      lastSelectedCreatureFromDeck: json['lastSelectedCreatureFromDeck'],
+      lastSelectedCreatureFromDeck: json['lastSelectedCreatureFromDeck'] != null
+          ? CardModel.fromJson(json['lastSelectedCreatureFromDeck'])
+          : null,
+
       cardsDrawn: json['cardsDrawn'] ?? 0,
       opponentUnder4000Creatures: (json['opponentUnder4000Creatures'] as List<dynamic>? ?? [])
           .map((c) => CardModel.fromJson(c))

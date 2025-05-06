@@ -141,6 +141,12 @@ public class DeckService {
                 .findFirst()
                 .orElseThrow();
 
+        var urth = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 2)
+                .findFirst()
+                .orElseThrow();
+
 //        var crystalMemory = cardDtoList
 //                .stream()
 //                .filter(cardDto -> cardDto.getId() == 39)
@@ -160,11 +166,13 @@ public class DeckService {
         cardsToAdd.add(tornadoFlame);
         cardsToAdd.add(dimensionGate);
         cardsToAdd.add(naturalSnare);
+        cardsToAdd.add(urth);
 
 
         deck.removeIf(c -> c.getId() == 37 ||
                 c.getId() == 50 ||
                 c.getId() == 62 ||
+                c.getId() == 2 ||
                 c.getId() == 64
         );
         while (deck.size() + cardsToAdd.size() > 40) {

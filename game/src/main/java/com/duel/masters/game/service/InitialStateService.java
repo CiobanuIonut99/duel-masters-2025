@@ -69,6 +69,9 @@ public class InitialStateService {
                 }
         );
 
+
+        mockService.mockHand(deck,hand,2L);
+
         return InitialStateDto.builder()
                 .deck(deck)
                 .shields(shields)
