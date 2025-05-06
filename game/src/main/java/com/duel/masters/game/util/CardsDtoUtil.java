@@ -65,10 +65,16 @@ public class CardsDtoUtil {
     }
 
     public static void setOpponentsCreaturesAttackable(List<CardDto> cards) {
+        if (cards == null || cards.isEmpty()) {
+            return;
+        }
         cards.stream().filter(CardDto::isTapped).forEach(cardDto -> cardDto.setCanBeAttacked(true));
     }
 
     public static void setOpponentsCreaturesCanAttack(List<CardDto> cards) {
+        if (cards == null || cards.isEmpty()) {
+            return;
+        }
         cards.forEach(cardDto -> cardDto.setCanAttack(true));
     }
 
@@ -77,6 +83,9 @@ public class CardsDtoUtil {
     }
 
     public static void untapOpponentsCards(List<CardDto> cards) {
+        if (cards == null || cards.isEmpty()) {
+            return;
+        }
         cards.forEach(card -> card.setTapped(false));
     }
 
@@ -85,6 +94,9 @@ public class CardsDtoUtil {
     }
 
     public static void cureOpponentsCreaturesSickness(List<CardDto> cards) {
+        if (cards == null || cards.isEmpty()) {
+            return;
+        }
         cards
                 .stream()
                 .filter(CardDto::isSummoningSickness)
@@ -92,10 +104,14 @@ public class CardsDtoUtil {
     }
 
     public static void setCardsSummonable(List<CardDto> manaZone, List<CardDto> hand) {
-        if (!manaZone.isEmpty()) {
-            for (CardDto cardDto : hand) {
-                cardDto.setSummonable(isSummonable(manaZone, cardDto));
-            }
+        if (manaZone == null || manaZone.isEmpty()) {
+            return;
+        }
+        if (hand == null || hand.isEmpty()) {
+            return;
+        }
+        for (CardDto cardDto : hand) {
+            cardDto.setSummonable(isSummonable(manaZone, cardDto));
         }
     }
 

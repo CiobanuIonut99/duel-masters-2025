@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Data
 @Builder
@@ -50,35 +49,20 @@ public class GameStateDto {
 
     private String action;
 
-    @Builder.Default
-    private BlockerFlagsDto blockerFlagsDto = new BlockerFlagsDto();
-    @Builder.Default
-    private ShieldTriggersFlagsDto shieldTriggersFlagsDto = new ShieldTriggersFlagsDto();
-    @Builder.Default
-    private List<CardDto> opponentSelectableCreatures = new CopyOnWriteArrayList<>();
-    @Builder.Default
-    private List<CardDto> playerBattleZone = new CopyOnWriteArrayList<>();
-    @Builder.Default
-    private List<CardDto> playerHand = new CopyOnWriteArrayList<>();
-    @Builder.Default
-    private List<CardDto> playerShields = new CopyOnWriteArrayList<>();
-    @Builder.Default
-    private List<CardDto> playerManaZone = new CopyOnWriteArrayList<>();
-    @Builder.Default
-    private List<CardDto> playerGraveyard = new CopyOnWriteArrayList<>();
-    @Builder.Default
-    private List<CardDto> playerDeck = new CopyOnWriteArrayList<>();
-    @Builder.Default
+    private BlockerFlagsDto blockerFlagsDto;
+    private ShieldTriggersFlagsDto shieldTriggersFlagsDto;
+    private List<CardDto> opponentSelectableCreatures;
+    private List<CardDto> playerBattleZone;
+    private List<CardDto> playerHand;
+    private List<CardDto> playerShields;
+    private List<CardDto> playerManaZone;
+    private List<CardDto> playerGraveyard;
+    private List<CardDto> playerDeck;
 
-    private List<CardDto> opponentHand = new CopyOnWriteArrayList<>();
-    @Builder.Default
-    private List<CardDto> opponentShields = new CopyOnWriteArrayList<>();
-    @Builder.Default
-    private List<CardDto> opponentBattleZone = new CopyOnWriteArrayList<>();
-    @Builder.Default
-    private List<CardDto> opponentManaZone = new CopyOnWriteArrayList<>();
-    @Builder.Default
-    private List<CardDto> opponentGraveyard = new CopyOnWriteArrayList<>();
-    @Builder.Default
-    private List<CardDto> opponentDeck = new CopyOnWriteArrayList<>();
+    private List<CardDto> opponentHand;
+    private List<CardDto> opponentShields;
+    private List<CardDto> opponentBattleZone;
+    private List<CardDto> opponentManaZone;
+    private List<CardDto> opponentGraveyard;
+    private List<CardDto> opponentDeck;
 }

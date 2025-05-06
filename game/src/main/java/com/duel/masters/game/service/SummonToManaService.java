@@ -25,6 +25,8 @@ public class SummonToManaService {
             var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
             playCard(ownCards.getHand(), incomingState.getTriggeredGameCardId(), ownCards.getManaZone());
             setCardsSummonable(ownCards.getManaZone(), ownCards.getHand());
+            currentState.setPlayerManaZone(ownCards.getManaZone());
+            currentState.setPlayerHand(ownCards.getHand());
             currentState.setPlayedMana(true);
         } else {
             throw new AlreadyPlayedManaException();
