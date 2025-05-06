@@ -20,12 +20,35 @@ public class TopicService {
     private final ObjectMapper objectMapper;
 
     public void sendGameStatesToTopics(GameStateDto currentState, GameWebSocketHandler webSocketHandler) {
-        gameStateStore.saveGameState(currentState);
+//        gameStateStore.saveGameState(currentState);
 
         var gameStatePlayer = getGameStateDtoPlayer(currentState);
         var gameStateOpponent = getGameStateDtoOpponent(currentState);
 
 
+        WebSocketSession playerSession = webSocketHandler.getSessionForPlayer(currentState.getPlayerId());
+        WebSocketSession opponentSession = webSocketHandler.getSessionForPlayer(currentState.getOpponentId());
+
+        try {
+
+            String jsonPlayer = objectMapper.writeValueAsString(gameStatePlayer);
+            String jsonOpponent = objectMapper.writeValueAsString(gameStateOpponent);
+
+            if (playerSession != null && playerSession.isOpen()) {
+                playerSession.sendMessage(new TextMessage(jsonPlayer));
+            }
+            if (opponentSession != null && opponentSession.isOpen()) {
+                opponentSession.sendMessage(new TextMessage(jsonOpponent));
+            }
+
+            log.info("✅ Sent GameStateDto to both players.");
+        } catch (Exception e) {
+            log.error("❌ Failed to send game state via raw WebSocket: {}", e.getMessage());
+        }
+
+    }
+
+    public void sendGameStatesToTopics(GameStateDto currentState, GameWebSocketHandler webSocketHandler, GameStateDto gameStatePlayer, GameStateDto gameStateOpponent) {
         WebSocketSession playerSession = webSocketHandler.getSessionForPlayer(currentState.getPlayerId());
         WebSocketSession opponentSession = webSocketHandler.getSessionForPlayer(currentState.getOpponentId());
 

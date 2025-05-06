@@ -1,7 +1,6 @@
 package com.duel.masters.game.util;
 
 import com.duel.masters.game.dto.GameStateDto;
-import com.duel.masters.game.dto.ShieldTriggersFlagsDto;
 import com.duel.masters.game.dto.player.service.PlayerDto;
 
 public class GameStateUtil {
@@ -58,8 +57,6 @@ public class GameStateUtil {
                 .blockerFlagsDto(gameStateDto.getBlockerFlagsDto())
                 .opponentSelectableCreatures(gameStateDto.getOpponentSelectableCreatures())
                 .build();
-
-
     }
 
     public static GameStateDto getGameStateDtoOpponent(GameStateDto gameStateDto) {
@@ -91,6 +88,22 @@ public class GameStateUtil {
                 .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
                 .blockerFlagsDto(gameStateDto.getBlockerFlagsDto())
                 .opponentSelectableCreatures(gameStateDto.getOpponentSelectableCreatures())
+                .build();
+    }
+
+    public static GameStateDto getGameStateDtoPlayerSummonToManaZone(GameStateDto gameStateDto) {
+        return GameStateDto
+                .builder()
+                .playerHand(gameStateDto.getPlayerHand())
+                .playerManaZone(gameStateDto.getPlayerManaZone())
+                .build();
+    }
+
+    public static GameStateDto getGameStateDtoOpponentSummonToManaZone(GameStateDto gameStateDto) {
+        return GameStateDto
+                .builder()
+                .opponentHand(gameStateDto.getOpponentHand())
+                .opponentManaZone(gameStateDto.getOpponentManaZone())
                 .build();
     }
 

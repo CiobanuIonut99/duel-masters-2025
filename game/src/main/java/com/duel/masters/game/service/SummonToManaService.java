@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import static com.duel.masters.game.util.CardsDtoUtil.playCard;
 import static com.duel.masters.game.util.CardsDtoUtil.setCardsSummonable;
+import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoOpponentSummonToManaZone;
+import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoPlayerSummonToManaZone;
 
 @Slf4j
 @Service
@@ -27,6 +29,9 @@ public class SummonToManaService {
         } else {
             throw new AlreadyPlayedManaException();
         }
-        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
+        var gameStatePlayer = getGameStateDtoPlayerSummonToManaZone(currentState);
+        var gameStateOpponent = getGameStateDtoOpponentSummonToManaZone(currentState);
+//        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
+        topicService.sendGameStatesToTopics(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
     }
 }
