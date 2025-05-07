@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import static com.duel.masters.game.util.CardsDtoUtil.getCardDtoFromList;
+import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoOpponentAttack;
+import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoPlayerAttack;
 
 @Slf4j
 @Service
@@ -72,7 +74,12 @@ public class AttackServiceImplementation implements AttackService {
             attackCreatureService.attack(currentState, incomingState, attackerCard, targetCard, targetId, webSocketHandler);
         }
 
-        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
+
+//        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
+        var gameStatePlayer = getGameStateDtoPlayerAttack(currentState);
+        var gameStateOpponent = getGameStateDtoOpponentAttack(currentState);
+
+        topicService.sendGameStatesToTopics(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
 
     }
 }

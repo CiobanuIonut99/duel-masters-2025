@@ -28,7 +28,7 @@ public class TornadoFlameEffect implements Effect {
             playCard(opponentBattleZone, selectedCard.getGameCardId(), opponentGraveyard);
             playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getGraveyard());
 
-            shieldTriggersFlags.setTornadoFlameMustSelectCreature(false);
+            currentState.getShieldTriggersFlagsDto().setTornadoFlameMustSelectCreature(false);
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 
             changeCardState(attackerCard, true, false, true, false);

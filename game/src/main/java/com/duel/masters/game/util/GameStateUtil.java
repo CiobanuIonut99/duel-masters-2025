@@ -103,6 +103,8 @@ public class GameStateUtil {
                 .opponentHand(gameStateDto.getOpponentHand())
                 .opponentManaZone(gameStateDto.getOpponentManaZone())
 
+                .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
+                .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
                 .build();
     }
 
@@ -118,6 +120,8 @@ public class GameStateUtil {
                 .playerHand(gameStateDto.getOpponentHand())
                 .playerManaZone(gameStateDto.getOpponentManaZone())
 
+                .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
+                .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
                 .build();
     }
 
@@ -135,6 +139,8 @@ public class GameStateUtil {
                 .playerBattleZone(gameStateDto.getPlayerBattleZone())
                 .opponentBattleZone(gameStateDto.getOpponentBattleZone())
 
+                .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
+                .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
                 .build();
     }
 
@@ -151,6 +157,8 @@ public class GameStateUtil {
                 .playerBattleZone(gameStateDto.getOpponentBattleZone())
                 .opponentBattleZone(gameStateDto.getPlayerBattleZone())
 
+                .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
+                .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
                 .build();
     }
 
@@ -170,6 +178,8 @@ public class GameStateUtil {
                 .playerManaZone(gameStateDto.getPlayerManaZone())
                 .opponentManaZone(gameStateDto.getOpponentManaZone())
 
+                .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
+                .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
                 .build();
     }
 
@@ -178,6 +188,46 @@ public class GameStateUtil {
                 .builder()
 
                 .playedMana(gameStateDto.isPlayedMana())
+
+                .playerHand(gameStateDto.getOpponentHand())
+                .opponentHand(gameStateDto.getPlayerHand())
+
+                .playerBattleZone(gameStateDto.getOpponentBattleZone())
+                .opponentBattleZone(gameStateDto.getPlayerBattleZone())
+
+                .playerManaZone(gameStateDto.getOpponentManaZone())
+                .opponentManaZone(gameStateDto.getPlayerManaZone())
+
+                .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
+                .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
+                .build();
+    }
+
+    public static GameStateDto getGameStateDtoPlayerAttack(GameStateDto gameStateDto) {
+        return GameStateDto
+                .builder()
+
+                .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
+                .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
+
+                .playerHand(gameStateDto.getPlayerHand())
+                .opponentHand(gameStateDto.getOpponentHand())
+
+                .playerBattleZone(gameStateDto.getPlayerBattleZone())
+                .opponentBattleZone(gameStateDto.getOpponentBattleZone())
+
+                .playerManaZone(gameStateDto.getPlayerManaZone())
+                .opponentManaZone(gameStateDto.getOpponentManaZone())
+
+                .build();
+    }
+
+    public static GameStateDto getGameStateDtoOpponentAttack(GameStateDto gameStateDto) {
+        return GameStateDto
+                .builder()
+
+                .shieldTriggersFlagsDto(gameStateDto.getShieldTriggersFlagsDto())
+                .shieldTriggerCard(gameStateDto.getShieldTriggerCard())
 
                 .playerHand(gameStateDto.getOpponentHand())
                 .opponentHand(gameStateDto.getPlayerHand())
