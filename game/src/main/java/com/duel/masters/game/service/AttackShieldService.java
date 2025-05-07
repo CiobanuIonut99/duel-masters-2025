@@ -38,7 +38,9 @@ public class AttackShieldService implements AttackService {
 
         var blockerFlagsDto = currentState.getBlockerFlagsDto();
 
-        if (battleZoneHasAtLeastOneBlocker(opponentBattleZone) &&
+        if (opponentBattleZone != null &&
+                battleZoneHasAtLeastOneBlocker(opponentBattleZone) &&
+                blockerFlagsDto != null &&
                 !blockerFlagsDto.isBlockerDecisionMade()) {
 
             currentState.setOpponentHasBlocker(true);
@@ -48,12 +50,10 @@ public class AttackShieldService implements AttackService {
 
 
             if (SHIELD_TRIGGER.equalsIgnoreCase(targetCard.getSpecialAbility())) {
-                if (blockerFlagsDto.isBlockerDecisionMade()) {
-                    currentState.setShieldTriggerCard(targetCard);
-                } else {
-                    currentState.setShieldTriggerCard(targetCard);
+                if (blockerFlagsDto == null) {
+                    currentState.setBlockerFlagsDto(new BlockerFlagsDto());
                 }
-
+                currentState.setShieldTriggerCard(targetCard);
                 currentState.getShieldTriggersFlagsDto().setShieldTrigger(true);
                 currentState.setOpponentHasBlocker(false);
 

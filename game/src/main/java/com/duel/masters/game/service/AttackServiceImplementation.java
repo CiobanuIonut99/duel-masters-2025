@@ -2,6 +2,7 @@ package com.duel.masters.game.service;
 
 import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.dto.ShieldTriggersFlagsDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,9 +48,17 @@ public class AttackServiceImplementation implements AttackService {
                 :
                 getCardDtoFromList(opponentCards.getBattleZone(), targetId);
 
-        currentState
-                .getShieldTriggersFlagsDto()
-                .setTargetShield(incomingState.getShieldTriggersFlagsDto().isTargetShield());
+
+        if (currentState.getShieldTriggersFlagsDto() != null) {
+            currentState
+                    .getShieldTriggersFlagsDto()
+                    .setTargetShield(incomingState.getShieldTriggersFlagsDto().isTargetShield());
+        } else {
+            currentState.setShieldTriggersFlagsDto(new ShieldTriggersFlagsDto());
+            currentState.getShieldTriggersFlagsDto().setTargetShield(
+                    incomingState.getShieldTriggersFlagsDto().isTargetShield()
+            );
+        }
         currentState.setAttackerId(attackerId);
         currentState.setTargetId(targetId);
 

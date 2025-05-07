@@ -40,8 +40,12 @@ public class CastShieldTriggerService {
         var trigerredShield = new CardDto();
 
         if (incomingState.getTriggeredGameCardId() == null &&
+                incomingState.getShieldTriggersFlagsDto() != null &&
+                incomingState.getShieldTriggersFlagsDto().getCardsChosen() != null &&
                 incomingState.getShieldTriggersFlagsDto().getCardsChosen().isEmpty()) {
+
             trigerredShield = getCardDtoFromList(ownCards.getShields(), triggeredShieldId);
+
         } else {
             trigerredShield = currentState.getShieldTriggerCard();
         }

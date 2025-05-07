@@ -1,6 +1,7 @@
 package com.duel.masters.game.service;
 
 import com.duel.masters.game.config.unity.GameWebSocketHandler;
+import com.duel.masters.game.dto.CardsDto;
 import com.duel.masters.game.dto.GameStateDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,33 +43,37 @@ public class SummonToBattleZoneService {
         var creatureEffectNames = getCreatureEffectNames();
 
         if (canCardBeSummoned) {
+
             tapCards(selectedManaCards);
             if (ownCards.getBattleZone() == null) {
                 ownCards.setBattleZone(new ArrayList<>());
             }
+
             playCard(hand, cardToBeSummoned.getGameCardId(), ownCards.getBattleZone());
-            if (isPlayer(currentState, incomingState)) {
-                currentState.setPlayerBattleZone(ownCards.getBattleZone());
-            } else {
-                currentState.setOpponentBattleZone(ownCards.getBattleZone());
-            }
+            updateBattleZoneDependingOnPlayerOrOpponent(currentState, incomingState, ownCards);
 
             if (creatureEffectNames.contains(cardToBeSummoned.getName())) {
                 var creatureImmediateEffect = getCreatureEffect(cardToBeSummoned.getName());
                 creatureImmediateEffect.execute(currentState, incomingState, cardsUpdateService);
             }
-            log.info("Summoning {}", cardToBeSummoned.getName());
+
             cardToBeSummoned.setSummoningSickness(true);
             setCardsSummonable(manaZone, hand);
-
 
             var gameStatePlayer = getGameStateDtoPlayerSummonBattleZone(currentState);
             var gameStateOpponent = getGameStateDtoOpponentSummonBattleZone(currentState);
 
             topicService.sendGameStatesToTopics(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
-
             log.info("Card summoned to battle zone : {}", cardToBeSummoned.getName());
 
+        }
+    }
+
+    private static void updateBattleZoneDependingOnPlayerOrOpponent(GameStateDto currentState, GameStateDto incomingState, CardsDto ownCards) {
+        if (isPlayer(currentState, incomingState)) {
+            currentState.setPlayerBattleZone(ownCards.getBattleZone());
+        } else {
+            currentState.setOpponentBattleZone(ownCards.getBattleZone());
         }
     }
 }
