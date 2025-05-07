@@ -2,12 +2,14 @@ package com.duel.masters.game.service;
 
 import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
-import com.duel.masters.game.effects.summoning.registry.CreatureRegistry;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static com.duel.masters.game.effects.summoning.registry.CreatureRegistry.getCreatureEffect;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
+import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoOpponentEndTurn;
+import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoPlayerEndTurn;
 
 @Slf4j
 @Service
@@ -47,13 +49,14 @@ public class TurnService {
                     .stream()
                     .filter(ownCard -> ownCard.getId().equals(2L))
                     .forEach(ownCard -> {
-                        var creatureEffect = CreatureRegistry
-                                .getCreatureEffect(ownCard.getName());
+                        var creatureEffect = getCreatureEffect(ownCard.getName());
                         creatureEffect.execute(currentState, incomingState, cardsUpdateService);
                     });
         }
 
+        var gameStatePlayer = getGameStateDtoPlayerEndTurn(currentState);
+        var gameStateOpponent = getGameStateDtoOpponentEndTurn(currentState);
 
-        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
+        topicService.sendGameStatesToTopics(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
     }
 }

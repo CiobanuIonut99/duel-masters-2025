@@ -25,26 +25,7 @@ public class TopicService {
         var gameStatePlayer = getGameStateDtoPlayer(currentState);
         var gameStateOpponent = getGameStateDtoOpponent(currentState);
 
-
-        WebSocketSession playerSession = webSocketHandler.getSessionForPlayer(currentState.getPlayerId());
-        WebSocketSession opponentSession = webSocketHandler.getSessionForPlayer(currentState.getOpponentId());
-
-        try {
-
-            String jsonPlayer = objectMapper.writeValueAsString(gameStatePlayer);
-            String jsonOpponent = objectMapper.writeValueAsString(gameStateOpponent);
-
-            if (playerSession != null && playerSession.isOpen()) {
-                playerSession.sendMessage(new TextMessage(jsonPlayer));
-            }
-            if (opponentSession != null && opponentSession.isOpen()) {
-                opponentSession.sendMessage(new TextMessage(jsonOpponent));
-            }
-
-            log.info("✅ Sent GameStateDto to both players.");
-        } catch (Exception e) {
-            log.error("❌ Failed to send game state via raw WebSocket: {}", e.getMessage());
-        }
+        sendStatesToSessions(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
 
     }
 
@@ -52,7 +33,11 @@ public class TopicService {
 
         gameStateStore.saveGameState(currentState);
 
+        sendStatesToSessions(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
 
+    }
+
+    private void sendStatesToSessions(GameStateDto currentState, GameWebSocketHandler webSocketHandler, GameStateDto gameStatePlayer, GameStateDto gameStateOpponent) {
         WebSocketSession playerSession = webSocketHandler.getSessionForPlayer(currentState.getPlayerId());
         WebSocketSession opponentSession = webSocketHandler.getSessionForPlayer(currentState.getOpponentId());
 
@@ -60,6 +45,8 @@ public class TopicService {
 
             String jsonPlayer = objectMapper.writeValueAsString(gameStatePlayer);
             String jsonOpponent = objectMapper.writeValueAsString(gameStateOpponent);
+            log.info("Json player: {}", jsonPlayer);
+            log.info("Json opponent: {}", jsonOpponent);
 
             if (playerSession != null && playerSession.isOpen()) {
                 playerSession.sendMessage(new TextMessage(jsonPlayer));
@@ -72,6 +59,5 @@ public class TopicService {
         } catch (Exception e) {
             log.error("❌ Failed to send game state via raw WebSocket: {}", e.getMessage());
         }
-
     }
 }

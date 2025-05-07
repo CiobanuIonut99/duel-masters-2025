@@ -139,8 +139,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     super.initState();
 
     wsHandler = GameWebSocketHandler(
-      // url: 'ws://localhost:8080/duel-masters-ws',
-      url: 'wss://b679-79-115-136-178.ngrok-free.app/duel-masters-ws',
+      url: 'ws://localhost:8080/duel-masters-ws',
+      // url: 'wss://b679-79-115-136-178.ngrok-free.app/duel-masters-ws',
       currentPlayerId: currentPlayerId,
       onGameStateUpdate: (data) {
         _updateGameState(data);
@@ -188,16 +188,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       opponentUnder4000Creatures = shieldFlags?.opponentUnder4000Creatures ?? [];
       playerCreatureDeck = shieldFlags?.playerCreatureDeck ?? [];
       playerCreatureGraveyard = shieldFlags?.playerCreatureGraveyard ?? [];
-    }
 
-    if (responseBody.containsKey('opponentHasBlocker')) {
-      opponentHasBlocker = responseBody['opponentHasBlocker'];
-    }
-
-    if (responseBody.containsKey('opponentSelectableCreatures')) {
-      opponentSelectableCreatures = (responseBody['opponentSelectableCreatures'] as List? ?? [])
-          .map((c) => CardModel.fromJson(c))
-          .toList();
     }
 
     final eachPlayerBattleZoneJson = shieldFlags?.eachPlayerBattleZone ?? {};
@@ -211,6 +202,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     spiralGateOpponentBattleZone = (eachPlayerBattleZoneJson[opponentIdStr] as List? ?? [])
         .map((c) => CardModel.fromJson(c))
         .toList();
+
+    if (responseBody.containsKey('opponentHasBlocker')) {
+      opponentHasBlocker = responseBody['opponentHasBlocker'];
+    }
+
+    if (responseBody.containsKey('opponentSelectableCreatures')) {
+      opponentSelectableCreatures = (responseBody['opponentSelectableCreatures'] as List? ?? [])
+          .map((c) => CardModel.fromJson(c))
+          .toList();
+    }
 
     if (opponentHasBlocker) {
       Future.microtask(() => _showBlockerSelectionDialog());

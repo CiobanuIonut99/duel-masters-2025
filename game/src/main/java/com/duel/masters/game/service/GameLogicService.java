@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -48,12 +46,15 @@ public class GameLogicService {
                     , incomingState.getAction(),
                     incomingState.getPlayerId());
             switch (incomingState.getAction()) {
-                case BLOCK -> actionsService.block(currentState, incomingState,webSocketHandler);
-                case ATTACK -> actionsService.attack(currentState, incomingState,webSocketHandler);
-                case END_TURN -> actionsService.endTurn(currentState, incomingState,webSocketHandler);
-                case SEND_CARD_TO_MANA -> actionsService.summonCardToManaZone(currentState, incomingState,webSocketHandler);
-                case SUMMON_TO_BATTLE_ZONE -> actionsService.summonToBattleZone(currentState, incomingState,webSocketHandler);
-                case CAST_SHIELD_TRIGGER -> actionsService.triggerShieldTriggerLogic(currentState, incomingState,webSocketHandler);
+                case BLOCK -> actionsService.block(currentState, incomingState, webSocketHandler);
+                case ATTACK -> actionsService.attack(currentState, incomingState, webSocketHandler);
+                case END_TURN -> actionsService.endTurn(currentState, incomingState, webSocketHandler);
+                case SEND_CARD_TO_MANA ->
+                        actionsService.summonCardToManaZone(currentState, incomingState, webSocketHandler);
+                case SUMMON_TO_BATTLE_ZONE ->
+                        actionsService.summonToBattleZone(currentState, incomingState, webSocketHandler);
+                case CAST_SHIELD_TRIGGER ->
+                        actionsService.triggerShieldTriggerLogic(currentState, incomingState, webSocketHandler);
             }
         }
     }
@@ -79,7 +80,8 @@ public class GameLogicService {
 
                             gameStateStore.saveGameState(gameStatePlayer);
 
-                            sendGameStatesToTopics(gameStatePlayer, gameStateOpponent, player, opponent,gameWebSocketHandler);
+                            log.info("GameStatPlayer at start game :  {}", gameStatePlayer);
+                            sendGameStatesToTopics(gameStatePlayer, gameStateOpponent, player, opponent, gameWebSocketHandler);
                         },
                         () -> {
                             log.info("🕒 No opponent yet, broadcasting waiting player {}", playerDto.getUsername());
@@ -105,31 +107,27 @@ public class GameLogicService {
                                         PlayerDto player,
                                         PlayerDto opponent,
                                         GameWebSocketHandler gameWebSocketHandler) {
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                WebSocketSession playerSession = gameWebSocketHandler.getSessionForPlayer(player.getId());
-                WebSocketSession opponentSession = gameWebSocketHandler.getSessionForPlayer(opponent.getId());
+        WebSocketSession playerSession = gameWebSocketHandler.getSessionForPlayer(player.getId());
+        WebSocketSession opponentSession = gameWebSocketHandler.getSessionForPlayer(opponent.getId());
 
-                try {
+        try {
 
-                    String jsonPlayer = objectMapper.writeValueAsString(gameStatePlayer);
-                    String jsonOpponent = objectMapper.writeValueAsString(gameStateOpponent);
+            String jsonPlayer = objectMapper.writeValueAsString(gameStatePlayer);
+            String jsonOpponent = objectMapper.writeValueAsString(gameStateOpponent);
 
-                    if (playerSession != null && playerSession.isOpen()) {
-                        playerSession.sendMessage(new TextMessage(jsonPlayer));
-                    }
-                    if (opponentSession != null && opponentSession.isOpen()) {
-                        opponentSession.sendMessage(new TextMessage(jsonOpponent));
-                    }
-
-                    log.info("✅ Sent GameStateDto to both players.");
-                } catch (Exception e) {
-                    log.error("❌ Failed to send game state via raw WebSocket: {}", e.getMessage());
-                }
-
-                log.info("🎮 Matched players {} vs {}", player.getId(), opponent.getId());
+            if (playerSession != null && playerSession.isOpen()) {
+                playerSession.sendMessage(new TextMessage(jsonPlayer));
             }
-        }, 200);
+            if (opponentSession != null && opponentSession.isOpen()) {
+                opponentSession.sendMessage(new TextMessage(jsonOpponent));
+            }
+
+            log.info("✅ Sent GameStateDto to both players.");
+        } catch (Exception e) {
+            log.error("❌ Failed to send game state via raw WebSocket: {}", e.getMessage());
+        }
+
+        log.info("🎮 Matched players {} vs {}", player.getId(), opponent.getId());
     }
+
 }

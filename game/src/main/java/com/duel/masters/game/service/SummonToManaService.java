@@ -32,6 +32,7 @@ public class SummonToManaService {
         } else {
             throw new AlreadyPlayedManaException();
         }
+
         var gameStatePlayer = getGameStateDtoPlayerSummonToManaZone(currentState);
         var gameStateOpponent = getGameStateDtoOpponentSummonToManaZone(currentState);
 
