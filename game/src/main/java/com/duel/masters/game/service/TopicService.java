@@ -31,7 +31,7 @@ public class TopicService {
 
     public void sendGameStatesToTopics(GameStateDto currentState, GameWebSocketHandler webSocketHandler, GameStateDto gameStatePlayer, GameStateDto gameStateOpponent) {
 
-        gameStateStore.saveGameState(currentState);
+//        gameStateStore.saveGameState(currentState);
 
         sendStatesToSessions(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
 

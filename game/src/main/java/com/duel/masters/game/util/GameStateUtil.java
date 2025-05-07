@@ -154,4 +154,41 @@ public class GameStateUtil {
                 .build();
     }
 
+
+    public static GameStateDto getGameStateDtoPlayerSummonBattleZone(GameStateDto gameStateDto) {
+        return GameStateDto
+                .builder()
+
+                .playedMana(gameStateDto.isPlayedMana())
+
+                .playerHand(gameStateDto.getPlayerHand())
+                .opponentHand(gameStateDto.getOpponentHand())
+
+                .playerBattleZone(gameStateDto.getPlayerBattleZone())
+                .opponentBattleZone(gameStateDto.getOpponentBattleZone())
+
+                .playerManaZone(gameStateDto.getPlayerManaZone())
+                .opponentManaZone(gameStateDto.getOpponentManaZone())
+
+                .build();
+    }
+
+    public static GameStateDto getGameStateDtoOpponentSummonBattleZone(GameStateDto gameStateDto) {
+        return GameStateDto
+                .builder()
+
+                .playedMana(gameStateDto.isPlayedMana())
+
+                .playerHand(gameStateDto.getOpponentHand())
+                .opponentHand(gameStateDto.getPlayerHand())
+
+                .playerBattleZone(gameStateDto.getOpponentBattleZone())
+                .opponentBattleZone(gameStateDto.getPlayerBattleZone())
+
+                .playerManaZone(gameStateDto.getOpponentManaZone())
+                .opponentManaZone(gameStateDto.getPlayerManaZone())
+
+                .build();
+    }
+
 }

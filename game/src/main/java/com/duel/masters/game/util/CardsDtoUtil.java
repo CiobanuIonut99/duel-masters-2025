@@ -37,25 +37,35 @@ public class CardsDtoUtil {
     }
 
     public static CardDto getCardDtoFromList(List<CardDto> cards, String cardId) {
-        return cards
-                .stream()
-                .filter(cardDto -> cardDto.getGameCardId().equals(cardId))
-                .findFirst()
-                .orElseThrow();
+        if (!cards.isEmpty()) {
+            return cards
+                    .stream()
+                    .filter(cardDto -> cardDto.getGameCardId().equals(cardId))
+                    .findFirst()
+                    .orElseThrow();
+        } else {
+            throw new RuntimeException("Card not found");
+        }
     }
+
 
     public static List<CardDto> getSelectedManaCards(List<CardDto> manaZone, List<String> selectedManaCardIds) {
         var selectedManaCards = new ArrayList<CardDto>();
 
-        for (CardDto manaCardDto : manaZone) {
-            for (String selectedManaCardId : selectedManaCardIds) {
-                if (manaCardDto.getGameCardId().equals(selectedManaCardId)) {
-                    selectedManaCards.add(manaCardDto);
+        if (!manaZone.isEmpty()) {
+            for (CardDto manaCardDto : manaZone) {
+                for (String selectedManaCardId : selectedManaCardIds) {
+                    if (manaCardDto.getGameCardId().equals(selectedManaCardId)) {
+                        selectedManaCards.add(manaCardDto);
+                    }
                 }
             }
+            return selectedManaCards;
+        } else {
+            throw new RuntimeException("ManaZone is empty");
         }
-        return selectedManaCards;
     }
+
 
     public static List<String> getCardIds(List<CardDto> cards) {
         return cards
@@ -117,13 +127,14 @@ public class CardsDtoUtil {
 
     public static void playCard(List<CardDto> source, String triggeredGameCardId, List<CardDto> destination) {
         source
-                .stream()
-                .filter(cardDto -> cardDto.getGameCardId().equals(triggeredGameCardId))
-                .findFirst()
-                .ifPresent(cardDto -> {
-                    destination.add(cardDto);
-                    source.remove(cardDto);
-                });
+                    .stream()
+                    .filter(cardDto -> cardDto.getGameCardId().equals(triggeredGameCardId))
+                    .findFirst()
+                    .ifPresent(cardDto -> {
+                        destination.add(cardDto);
+                        source.remove(cardDto);
+                    });
+
     }
 
     public static void drawCard(List<CardDto> deck, List<CardDto> hand) {
