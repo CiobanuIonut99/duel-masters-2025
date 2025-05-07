@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 
 import static com.duel.masters.game.effects.summoning.registry.CreatureRegistry.getCreatureEffect;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
-import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoOpponentEndTurn;
-import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoPlayerEndTurn;
 
 @Slf4j
 @Service
@@ -54,9 +52,10 @@ public class TurnService {
                     });
         }
 
-        var gameStatePlayer = getGameStateDtoPlayerEndTurn(currentState);
-        var gameStateOpponent = getGameStateDtoOpponentEndTurn(currentState);
+//        var gameStatePlayer = getGameStateDtoPlayerEndTurn(currentState);
+//        var gameStateOpponent = getGameStateDtoOpponentEndTurn(currentState);
+//        topicService.sendGameStatesToTopics(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
 
-        topicService.sendGameStatesToTopics(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
+        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
     }
 }

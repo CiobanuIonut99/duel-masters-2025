@@ -13,8 +13,6 @@ import static com.duel.masters.game.effects.summoning.registry.CreatureImmediate
 import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.getCreatureEffectNames;
 import static com.duel.masters.game.service.CardsUpdateService.isPlayer;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
-import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoOpponentSummonBattleZone;
-import static com.duel.masters.game.util.GameStateUtil.getGameStateDtoPlayerSummonBattleZone;
 import static com.duel.masters.game.util.ValidatorUtil.canSummon;
 
 @Slf4j
@@ -60,10 +58,11 @@ public class SummonToBattleZoneService {
             cardToBeSummoned.setSummoningSickness(true);
             setCardsSummonable(manaZone, hand);
 
-            var gameStatePlayer = getGameStateDtoPlayerSummonBattleZone(currentState);
-            var gameStateOpponent = getGameStateDtoOpponentSummonBattleZone(currentState);
+//            var gameStatePlayer = getGameStateDtoPlayerSummonBattleZone(currentState);
+//            var gameStateOpponent = getGameStateDtoOpponentSummonBattleZone(currentState);
+//            topicService.sendGameStatesToTopics(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
 
-            topicService.sendGameStatesToTopics(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
+            topicService.sendGameStatesToTopics(currentState, webSocketHandler);
             log.info("Card summoned to battle zone : {}", cardToBeSummoned.getName());
 
         }
