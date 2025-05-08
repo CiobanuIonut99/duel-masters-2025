@@ -147,7 +147,7 @@ public class CardsDtoUtil {
         card.setTapped(tapped);
         card.setCanAttack(canAttack);
         card.setCanBeAttacked(canBeAttacked);
-        card.setSummoningSickness(false);
+        card.setSummoningSickness(summoningSickness);
     }
 
     public static CardDto getChosenCard(String cardId, List<CardDto> cards) {

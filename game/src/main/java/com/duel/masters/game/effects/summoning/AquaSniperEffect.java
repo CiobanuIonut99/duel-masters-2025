@@ -23,36 +23,38 @@ public class AquaSniperEffect implements Effect {
         var ownBattleZone = ownCards.getBattleZone();
         var opponentBattleZone = opponentCards.getBattleZone();
 
-        var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
+        var incomingStateShieldTriggersFlagsDto = incomingState.getShieldTriggersFlagsDto();
+        var currentStateShieldTriggerFlagsDto = currentState.getShieldTriggersFlagsDto();
 
-        if (shieldTriggersFlags.isAquaSniperMustSelectCreature()) {
+        if (currentStateShieldTriggerFlagsDto.isAquaSniperMustSelectCreature()) {
 
             List<String> chosenCardIdsFromFe = new ArrayList<>();
-            if (shieldTriggersFlags.getCardsChosen() != null &&
-                    !shieldTriggersFlags.getCardsChosen().isEmpty()) {
-                chosenCardIdsFromFe = shieldTriggersFlags.getCardsChosen();
+            if (incomingStateShieldTriggersFlagsDto.getCardsChosen() != null &&
+                    !incomingStateShieldTriggersFlagsDto.getCardsChosen().isEmpty()) {
+                chosenCardIdsFromFe = incomingStateShieldTriggersFlagsDto.getCardsChosen();
             }
 
             for (var cardId : chosenCardIdsFromFe) {
 
                 var chosenCard = getChosenCard(cardId, ownBattleZone);
+                actIfChosenCardNotNull(chosenCard, ownBattleZone, ownCards);
                 chosenCard = null;
                 chosenCard = getChosenCard(cardId, opponentBattleZone);
-                actIfChosenCardNotNull(chosenCard, ownBattleZone, ownCards);
+                actIfChosenCardNotNull(chosenCard, opponentBattleZone, opponentCards);
             }
 
-            shieldTriggersFlags.setAquaSniperMustSelectCreature(false);
+            currentStateShieldTriggerFlagsDto.setAquaSniperMustSelectCreature(false);
 
         } else {
             if (ownBattleZone.isEmpty() && opponentBattleZone.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
             } else {
 
-                var eachPlayerBattleZone = shieldTriggersFlags.getEachPlayerBattleZone();
+                var eachPlayerBattleZone = currentStateShieldTriggerFlagsDto.getEachPlayerBattleZone();
                 eachPlayerBattleZone.put(currentState.getPlayerId().toString(), ownBattleZone);
                 eachPlayerBattleZone.put(currentState.getOpponentId().toString(), opponentBattleZone);
 
-                shieldTriggersFlags.setAquaSniperMustSelectCreature(true);
+                currentStateShieldTriggerFlagsDto.setAquaSniperMustSelectCreature(true);
             }
         }
 
@@ -61,7 +63,7 @@ public class AquaSniperEffect implements Effect {
     private static void actIfChosenCardNotNull(CardDto chosenCard, List<CardDto> ownBattleZone, CardsDto ownCards) {
         if (chosenCard != null) {
             playCard(ownBattleZone, chosenCard.getGameCardId(), ownCards.getHand());
-            chosenCard.setTapped(false);
+            changeCardState(chosenCard, false, false, false, false);
         }
     }
 }
