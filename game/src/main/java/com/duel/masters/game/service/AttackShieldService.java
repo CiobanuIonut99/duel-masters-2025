@@ -38,10 +38,11 @@ public class AttackShieldService implements AttackService {
 
         var blockerFlagsDto = currentState.getBlockerFlagsDto();
 
-        if (opponentBattleZone != null &&
-                battleZoneHasAtLeastOneBlocker(opponentBattleZone) &&
-                blockerFlagsDto != null &&
-                !blockerFlagsDto.isBlockerDecisionMade()) {
+        if (battleZoneHasAtLeastOneBlocker(opponentBattleZone) &&
+                !blockerFlagsDto.isBlockerDecisionMade() && (
+                !attackerCard.getAbility().equalsIgnoreCase("This creature cant be blocked") &&
+                        !(opponentBattleZone.size() > 1 && attackerCard.getAbility().contains("This creature cant be blocked while you have at least 2 other creatures in the battle zone")))
+        ) {
 
             currentState.setOpponentHasBlocker(true);
             blockerFlagsDto.setBlockerDecisionMade(true);
@@ -75,9 +76,6 @@ public class AttackShieldService implements AttackService {
     }
 
     private void attackShieldAsPlayerOrOpponent(GameStateDto currentState, CardDto attackerCard, CardDto targetCard, String targetId, BlockerFlagsDto blockerFlagsDto, CardsDto ownCards, List<CardDto> opponentShields, List<CardDto> opponentHand) {
-//        Daca ai selectat ca nu vrei sa blochezi cu blocker
-//        se executa primul IF dpdv oponent
-//        altfel se executa else dpdv player
         if (blockerFlagsDto.isBlockerDecisionMade()) {
             attackShield(
                     currentState,

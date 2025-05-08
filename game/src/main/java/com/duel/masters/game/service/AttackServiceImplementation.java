@@ -74,9 +74,6 @@ public class AttackServiceImplementation implements AttackService {
 
 
         topicService.sendGameStatesToTopics(currentState, webSocketHandler);
-//        var gameStatePlayer = getGameStateDtoPlayerAttack(currentState);
-//        var gameStateOpponent = getGameStateDtoOpponentAttack(currentState);
-//        topicService.sendGameStatesToTopics(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
 
     }
 }
