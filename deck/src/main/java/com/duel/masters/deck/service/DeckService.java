@@ -153,6 +153,19 @@ public class DeckService {
                 .findFirst()
                 .orElseThrow();
 
+
+        var deopticon = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 4)
+                .findFirst()
+                .orElseThrow();
+
+        var tropice = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 52)
+                .findFirst()
+                .orElseThrow();
+
 //        var crystalMemory = cardDtoList
 //                .stream()
 //                .filter(cardDto -> cardDto.getId() == 39)
@@ -163,25 +176,33 @@ public class DeckService {
 // These always get added later
 //        cardsToAdd.add(holyawe);
 //        cardsToAdd.add(solarRay);
-        cardsToAdd.add(brainSerum);
+//        cardsToAdd.add(brainSerum);
+        cardsToAdd.add(deopticon);
+        cardsToAdd.add(tropice);
 //        cardsToAdd.add(spiralGate);
 //        cardsToAdd.add(darkReversal);
 //        cardsToAdd.add(ghostTouch);
 //        cardsToAdd.add(crystalMemory);
-        cardsToAdd.add(terrorPit);
-        cardsToAdd.add(tornadoFlame);
-        cardsToAdd.add(dimensionGate);
-        cardsToAdd.add(naturalSnare);
+//        cardsToAdd.add(terrorPit);
+//        cardsToAdd.add(tornadoFlame);
+//        cardsToAdd.add(dimensionGate);
+//        cardsToAdd.add(naturalSnare);
         cardsToAdd.add(urth);
         cardsToAdd.add(aquaSniper);
 
 
-        deck.removeIf(c -> c.getId() == 37 ||
-                c.getId() == 50 ||
-                c.getId() == 62 ||
+        deck.removeIf(
+                c ->
+//                        c.getId() == 37
+//                        ||
+//                c.getId() == 50 ||
+//                c.getId() == 62 ||
+                c.getId() == 52 ||
                 c.getId() == 2 ||
                 c.getId() == 3 ||
-                c.getId() == 64
+                c.getId() == 4
+//                        ||
+//                c.getId() == 64
         );
         while (deck.size() + cardsToAdd.size() > 40) {
             deck.removeFirst(); // remove extras
