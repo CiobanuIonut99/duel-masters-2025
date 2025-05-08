@@ -10,6 +10,7 @@ import '../dialogs/blocker_selection_dialog.dart';
 import '../dialogs/creature_selection_destroy_under4000_dialog.dart';
 import '../dialogs/creature_selection_dialog.dart';
 import '../dialogs/creature_selection_put_in_mana_zone.dart';
+import '../dialogs/dual_creature_selection_list.dart';
 import '../dialogs/graveyard_creature_selection_dialog.dart';
 import '../dialogs/mana_selection_dialog.dart';
 import '../dialogs/select_card_count_dialog.dart';
@@ -56,11 +57,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   List<CardModel> opponentGraveyard = [];
   List<CardModel> opponentBattleZone = [];
 
-  List<CardModel> spiralGatePlayerBattleZone = [];
-  List<CardModel> spiralGateOpponentBattleZone = [];
+  List<CardModel> playerBattlezoneFromEachPlayerBattlezone = [];
+  List<CardModel> opponentBattlezoneFromEachPlayerBattlezone = [];
   List<CardModel> opponentUnder4000Creatures = [];
   List<CardModel> playerCreatureDeck = [];
   List<CardModel> playerCreatureGraveyard = [];
+  List<CardModel> selectedCreatures = [];
 
   Set<String> glowingManaCardIds = {};
   Set<String> glowAttackableShields = {};
@@ -117,6 +119,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool dimensionGateMustDrawCard = false;
   bool crystalMemoryMustDrawCard = false;
   bool darkReversalMustSelectCreature = false;
+  bool aquaSniperMustSelectCreature = false;
 
   List<CardModel> opponentSelectableCreatures = [];
   CardModel? selectedOpponentCreature;
@@ -175,42 +178,55 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     if (shieldTriggerFlagsJson != null) {
       shieldFlags = ShieldTriggersFlagsDto.fromJson(shieldTriggerFlagsJson);
 
-      solarRayMustSelectCreature = shieldFlags?.solarRayMustSelectCreature ?? false;
+      solarRayMustSelectCreature =
+          shieldFlags?.solarRayMustSelectCreature ?? false;
       brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
-      dimensionGateMustDrawCard = shieldFlags?.dimensionGateMustDrawCard ?? false;
-      crystalMemoryMustDrawCard = shieldFlags?.crystalMemoryMustDrawCard ?? false;
-      naturalSnareMustSelectCreature = shieldFlags?.naturalSnareMustSelectCreature ?? false;
-      spiralGateMustSelectCreature = shieldFlags?.spiralGateMustSelectCreature ?? false;
-      darkReversalMustSelectCreature = shieldFlags?.darkReversalMustSelectCreature ?? false;
-      terrorPitMustSelectCreature = shieldFlags?.terrorPitMustSelectCreature ?? false;
-      tornadoFlameMustSelectCreature = shieldFlags?.tornadoFlameMustSelectCreature ?? false;
+      dimensionGateMustDrawCard =
+          shieldFlags?.dimensionGateMustDrawCard ?? false;
+      crystalMemoryMustDrawCard =
+          shieldFlags?.crystalMemoryMustDrawCard ?? false;
+      naturalSnareMustSelectCreature =
+          shieldFlags?.naturalSnareMustSelectCreature ?? false;
+      spiralGateMustSelectCreature =
+          shieldFlags?.spiralGateMustSelectCreature ?? false;
+      aquaSniperMustSelectCreature =
+          shieldFlags?.aquaSniperMustSelectCreature ?? false;
+      darkReversalMustSelectCreature =
+          shieldFlags?.darkReversalMustSelectCreature ?? false;
+      terrorPitMustSelectCreature =
+          shieldFlags?.terrorPitMustSelectCreature ?? false;
+      tornadoFlameMustSelectCreature =
+          shieldFlags?.tornadoFlameMustSelectCreature ?? false;
       shieldTrigger = shieldFlags?.shieldTrigger ?? false;
-      opponentUnder4000Creatures = shieldFlags?.opponentUnder4000Creatures ?? [];
+      opponentUnder4000Creatures =
+          shieldFlags?.opponentUnder4000Creatures ?? [];
       playerCreatureDeck = shieldFlags?.playerCreatureDeck ?? [];
       playerCreatureGraveyard = shieldFlags?.playerCreatureGraveyard ?? [];
-
     }
 
     final eachPlayerBattleZoneJson = shieldFlags?.eachPlayerBattleZone ?? {};
     final playerIdStr = currentPlayerId.toString();
     final opponentIdStr = opponentId.toString();
 
-    spiralGatePlayerBattleZone = (eachPlayerBattleZoneJson[playerIdStr] as List? ?? [])
-        .map((c) => CardModel.fromJson(c))
-        .toList();
+    playerBattlezoneFromEachPlayerBattlezone =
+        (eachPlayerBattleZoneJson[playerIdStr] as List? ?? [])
+            .map((c) => CardModel.fromJson(c))
+            .toList();
 
-    spiralGateOpponentBattleZone = (eachPlayerBattleZoneJson[opponentIdStr] as List? ?? [])
-        .map((c) => CardModel.fromJson(c))
-        .toList();
+    opponentBattlezoneFromEachPlayerBattlezone =
+        (eachPlayerBattleZoneJson[opponentIdStr] as List? ?? [])
+            .map((c) => CardModel.fromJson(c))
+            .toList();
 
     if (responseBody.containsKey('opponentHasBlocker')) {
       opponentHasBlocker = responseBody['opponentHasBlocker'];
     }
 
     if (responseBody.containsKey('opponentSelectableCreatures')) {
-      opponentSelectableCreatures = (responseBody['opponentSelectableCreatures'] as List? ?? [])
-          .map((c) => CardModel.fromJson(c))
-          .toList();
+      opponentSelectableCreatures =
+          (responseBody['opponentSelectableCreatures'] as List? ?? [])
+              .map((c) => CardModel.fromJson(c))
+              .toList();
     }
 
     if (opponentHasBlocker) {
@@ -241,7 +257,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       Navigator.of(context).pop();
     }
 
-    if (previousTurnPlayerId != null && previousTurnPlayerId != newTurnPlayerId) {
+    if (previousTurnPlayerId != null &&
+        previousTurnPlayerId != newTurnPlayerId) {
       final isMyTurn = newTurnPlayerId == currentPlayerId;
 
       setState(() {
@@ -259,9 +276,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     if (shieldFlags?.lastSelectedCreatureFromDeck != null) {
       if (!hasDismissedChosenCard &&
           (lastSelectedCreatureFromDeck == null ||
-              lastSelectedCreatureFromDeck!.gameCardId != shieldFlags!.lastSelectedCreatureFromDeck!.gameCardId)) {
+              lastSelectedCreatureFromDeck!.gameCardId !=
+                  shieldFlags!.lastSelectedCreatureFromDeck!.gameCardId)) {
         setState(() {
-          lastSelectedCreatureFromDeck = shieldFlags!.lastSelectedCreatureFromDeck;
+          lastSelectedCreatureFromDeck =
+              shieldFlags!.lastSelectedCreatureFromDeck;
         });
       }
     } else {
@@ -291,28 +310,31 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       if (zones.playerDeck != null) playerDeck = zones.playerDeck!;
       if (zones.playerShields != null) playerShields = zones.playerShields!;
       if (zones.playerManaZone != null) playerManaZone = zones.playerManaZone!;
-      if (zones.playerBattleZone != null) playerBattleZone = zones.playerBattleZone!;
-      if (zones.playerGraveyard != null) playerGraveyard = zones.playerGraveyard!;
+      if (zones.playerBattleZone != null)
+        playerBattleZone = zones.playerBattleZone!;
+      if (zones.playerGraveyard != null)
+        playerGraveyard = zones.playerGraveyard!;
 
       if (zones.opponentHand != null) opponentHand = zones.opponentHand!;
       if (zones.opponentDeck != null) opponentDeck = zones.opponentDeck!;
-      if (zones.opponentShields != null) opponentShields = zones.opponentShields!;
-      if (zones.opponentManaZone != null) opponentManaZone = zones.opponentManaZone!;
-      if (zones.opponentBattleZone != null) opponentBattleZone = zones.opponentBattleZone!;
-      if (zones.opponentGraveyard != null) opponentGraveyard = zones.opponentGraveyard!;
-
-
+      if (zones.opponentShields != null)
+        opponentShields = zones.opponentShields!;
+      if (zones.opponentManaZone != null)
+        opponentManaZone = zones.opponentManaZone!;
+      if (zones.opponentBattleZone != null)
+        opponentBattleZone = zones.opponentBattleZone!;
+      if (zones.opponentGraveyard != null)
+        opponentGraveyard = zones.opponentGraveyard!;
 
       deckSize = playerDeck.length;
       opponentDeckSize = opponentDeck.length;
     });
   }
 
-
   Widget _showDualCreatureSelectionOverlay() {
     return DualCreatureSelectionOverlay(
-      playerCreatures: spiralGatePlayerBattleZone,
-      opponentCreatures: spiralGateOpponentBattleZone,
+      playerCreatures: playerBattlezoneFromEachPlayerBattlezone,
+      opponentCreatures: opponentBattlezoneFromEachPlayerBattlezone,
       selectedCreature: selectedCreature,
       onCardSelected: (card) {
         setState(() {
@@ -330,6 +352,43 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           usingShieldTrigger: true,
           triggeredGameCardId: selectedCreature!.gameCardId,
         );
+      },
+    );
+  }
+
+  Widget _showDualCreatureListSelectionOverlay() {
+    return DualCreatureListSelectionOverlay(
+      playerCreatures: playerBattlezoneFromEachPlayerBattlezone,
+      opponentCreatures: opponentBattlezoneFromEachPlayerBattlezone,
+      selectedCreatures: selectedCreatures,
+      onCardToggle: (card) {
+        setState(() {
+          if (selectedCreatures.any((c) => c.gameCardId == card.gameCardId)) {
+            selectedCreatures.removeWhere(
+              (c) => c.gameCardId == card.gameCardId,
+            );
+          } else {
+            if (selectedCreatures.length < 2) {
+              selectedCreatures.add(card);
+            }
+          }
+        });
+      },
+      onConfirm: () {
+        final selectedIds = selectedCreatures.map((c) => c.gameCardId).toList();
+        wsHandler.sendAquaSniperSelection(
+          gameId: currentGameId,
+          playerId: currentPlayerId,
+          currentTurnPlayerId: currentTurnPlayerId,
+          action: "CAST_SHIELD_TRIGGER",
+          cardsChosen: selectedIds,
+          shieldTriggerDecisionMade: true,
+          usingShieldTrigger: true,
+        );
+
+        setState(() {
+          selectedCreatures.clear();
+        });
       },
     );
   }
@@ -432,7 +491,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   opponentManaZone = zones.opponentManaZone ?? [];
                   opponentGraveyard = zones.opponentGraveyard ?? [];
                   opponentBattleZone = zones.opponentBattleZone ?? [];
-
 
                   deckSize = playerDeck.length;
                   opponentDeckSize = opponentDeck.length;
@@ -659,6 +717,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               _showGraveyardCreatureSelectionOverlay(),
             if (spiralGateMustSelectCreature)
               _showDualCreatureSelectionOverlay(),
+            if (aquaSniperMustSelectCreature)
+              _showDualCreatureListSelectionOverlay(),
             if (naturalSnareMustSelectCreature)
               _showCreatureSelectionForManaZoneOverlay(),
             if (lastSelectedCreatureFromDeck != null &&
@@ -1131,17 +1191,29 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               Positioned(
                 top: -10,
                 left: -10,
-                child: Icon(Icons.auto_awesome, color: Colors.blueAccent, size: 24),
+                child: Icon(
+                  Icons.auto_awesome,
+                  color: Colors.blueAccent,
+                  size: 24,
+                ),
               ),
               Positioned(
                 top: -10,
                 right: -10,
-                child: Icon(Icons.auto_awesome, color: Colors.purpleAccent, size: 20),
+                child: Icon(
+                  Icons.auto_awesome,
+                  color: Colors.purpleAccent,
+                  size: 20,
+                ),
               ),
               Positioned(
                 bottom: -10,
                 left: 0,
-                child: Icon(Icons.auto_awesome, color: Colors.cyanAccent, size: 18),
+                child: Icon(
+                  Icons.auto_awesome,
+                  color: Colors.cyanAccent,
+                  size: 18,
+                ),
               ),
               // Main content
               Column(
@@ -1170,7 +1242,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                         ),
                       ],
                     ),
-                    child: Image.asset(lastSelectedCreatureFromDeck!.imagePath, width: 120),
+                    child: Image.asset(
+                      lastSelectedCreatureFromDeck!.imagePath,
+                      width: 120,
+                    ),
                   ),
                   SizedBox(height: 8),
                   Text(
@@ -1198,7 +1273,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       ),
     );
   }
-
 
   Positioned _showTurnLabel() {
     return Positioned(

@@ -13,6 +13,7 @@ class ShieldTriggersFlagsDto {
   final bool tornadoFlameMustSelectCreature;
   final bool dimensionGateMustDrawCard;
   final bool naturalSnareMustSelectCreature;
+  final bool aquaSniperMustSelectCreature;
   final CardModel? lastSelectedCreatureFromDeck;
   final int cardsDrawn;
 
@@ -38,6 +39,7 @@ class ShieldTriggersFlagsDto {
     required this.playerCreatureDeck,
     required this.playerCreatureGraveyard,
     required this.lastSelectedCreatureFromDeck,
+    required this.aquaSniperMustSelectCreature,
     required this.cardsDrawn,
   });
 
@@ -54,6 +56,7 @@ class ShieldTriggersFlagsDto {
       tornadoFlameMustSelectCreature: json['tornadoFlameMustSelectCreature'] ?? false,
       dimensionGateMustDrawCard: json['dimensionGateMustDrawCard'] ?? false,
       naturalSnareMustSelectCreature: json['naturalSnareMustSelectCreature'] ?? false,
+      aquaSniperMustSelectCreature: json['aquaSniperMustSelectCreature'] ?? false,
       eachPlayerBattleZone: json['eachPlayerBattleZone'] ?? {},
       lastSelectedCreatureFromDeck: json['lastSelectedCreatureFromDeck'] != null
           ? CardModel.fromJson(json['lastSelectedCreatureFromDeck'])
