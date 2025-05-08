@@ -25,7 +25,7 @@ public class AquaSniperEffect implements Effect {
 
         var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
 
-        if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
+        if (shieldTriggersFlags.isAquaSniperMustSelectCreature()) {
 
             List<String> chosenCardIdsFromFe = new ArrayList<>();
             if (shieldTriggersFlags.getCardsChosen() != null &&
@@ -42,7 +42,6 @@ public class AquaSniperEffect implements Effect {
             }
 
             shieldTriggersFlags.setAquaSniperMustSelectCreature(false);
-            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 
         } else {
             if (ownBattleZone.isEmpty() && opponentBattleZone.isEmpty()) {
@@ -54,8 +53,6 @@ public class AquaSniperEffect implements Effect {
                 eachPlayerBattleZone.put(currentState.getOpponentId().toString(), opponentBattleZone);
 
                 shieldTriggersFlags.setAquaSniperMustSelectCreature(true);
-                shieldTriggersFlags.setShieldTriggerDecisionMade(true);
-                shieldTriggersFlags.setShieldTrigger(false);
             }
         }
 
