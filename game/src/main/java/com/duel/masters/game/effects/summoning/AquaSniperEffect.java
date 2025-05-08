@@ -63,6 +63,7 @@ public class AquaSniperEffect implements Effect {
     private static void actIfChosenCardNotNull(CardDto chosenCard, List<CardDto> ownBattleZone, CardsDto ownCards) {
         if (chosenCard != null) {
             playCard(ownBattleZone, chosenCard.getGameCardId(), ownCards.getHand());
+            setCardsSummonable(ownCards.getManaZone(), ownCards.getHand());
             changeCardState(chosenCard, false, false, false, false);
         }
     }

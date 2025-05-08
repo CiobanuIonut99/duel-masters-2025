@@ -51,6 +51,8 @@ public class GameStateDto {
     private String action;
 
     @Builder.Default
+    private EffectsDto effectsDto = new EffectsDto();
+    @Builder.Default
     private BlockerFlagsDto blockerFlagsDto = new BlockerFlagsDto();
     @Builder.Default
     private ShieldTriggersFlagsDto shieldTriggersFlagsDto = new ShieldTriggersFlagsDto();
