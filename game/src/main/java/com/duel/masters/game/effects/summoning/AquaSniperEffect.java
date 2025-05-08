@@ -23,9 +23,6 @@ public class AquaSniperEffect implements Effect {
         var ownBattleZone = ownCards.getBattleZone();
         var opponentBattleZone = opponentCards.getBattleZone();
 
-        var attackerId = currentState.getAttackerId();
-        var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
-
         var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
 
         if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
@@ -39,10 +36,9 @@ public class AquaSniperEffect implements Effect {
             for (var cardId : chosenCardIdsFromFe) {
 
                 var chosenCard = getChosenCard(cardId, ownBattleZone);
-                actIfChosenCardNotNull(chosenCard, ownBattleZone, ownCards, attackerCard);
                 chosenCard = null;
                 chosenCard = getChosenCard(cardId, opponentBattleZone);
-                actIfChosenCardNotNull(chosenCard, ownBattleZone, ownCards, attackerCard);
+                actIfChosenCardNotNull(chosenCard, ownBattleZone, ownCards);
             }
 
             shieldTriggersFlags.setAquaSniperMustSelectCreature(false);
@@ -51,7 +47,6 @@ public class AquaSniperEffect implements Effect {
         } else {
             if (ownBattleZone.isEmpty() && opponentBattleZone.isEmpty()) {
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
-                changeCardState(attackerCard, true, false, true, false);
             } else {
 
                 var eachPlayerBattleZone = shieldTriggersFlags.getEachPlayerBattleZone();
@@ -66,13 +61,10 @@ public class AquaSniperEffect implements Effect {
 
     }
 
-    private static void actIfChosenCardNotNull(CardDto chosenCard, List<CardDto> ownBattleZone, CardsDto ownCards, CardDto attackerCard) {
+    private static void actIfChosenCardNotNull(CardDto chosenCard, List<CardDto> ownBattleZone, CardsDto ownCards) {
         if (chosenCard != null) {
             playCard(ownBattleZone, chosenCard.getGameCardId(), ownCards.getHand());
             chosenCard.setTapped(false);
-            if (attackerCard.equals(chosenCard)) {
-                attackerCard.setTapped(false);
-            }
         }
     }
 }

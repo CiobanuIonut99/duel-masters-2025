@@ -380,7 +380,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           gameId: currentGameId,
           playerId: currentPlayerId,
           currentTurnPlayerId: currentTurnPlayerId,
-          action: "CAST_SHIELD_TRIGGER",
+          action: "SUMMON_TO_BATTLE_ZONE",
           cardsChosen: selectedIds,
           shieldTriggerDecisionMade: true,
           usingShieldTrigger: true,
