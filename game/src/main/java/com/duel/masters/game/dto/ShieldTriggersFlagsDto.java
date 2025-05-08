@@ -35,6 +35,7 @@ public class ShieldTriggersFlagsDto {
     private boolean tornadoFlameMustSelectCreature;
     private boolean dimensionGateMustDrawCard;
     private boolean naturalSnareMustSelectCreature;
+    private boolean aquaSniperMustSelectCreature;
 
     private CardDto lastSelectedCreatureFromDeck;
 

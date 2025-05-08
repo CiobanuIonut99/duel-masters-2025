@@ -150,5 +150,12 @@ public class CardsDtoUtil {
         card.setSummoningSickness(false);
     }
 
+    public static CardDto getChosenCard(String cardId, List<CardDto> cards) {
+        return cards
+                .stream()
+                .filter(ownCard -> ownCard.getGameCardId().equalsIgnoreCase(cardId))
+                .findFirst()
+                .orElse(null);
+    }
 
 }

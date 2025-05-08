@@ -9,7 +9,7 @@ import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 public class SpiralGateEffect implements Effect {
 
-//    Choose 1 creature in the battle zone and return it to its owners hand
+//    Choose 1 creature in the battle zone and return it to its owners hand (any battle Zone)
 // NEED TEST!
 
     @Override
@@ -26,24 +26,16 @@ public class SpiralGateEffect implements Effect {
         var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
 
         var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
-        var newTriggerGameCardId = incomingState.getTriggeredGameCardId();
+        var triggeredGameCardId = incomingState.getTriggeredGameCardId();
 
         if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
             var chosenCard = new CardDto();
-            chosenCard = ownBattleZone
-                    .stream()
-                    .filter(ownCard -> ownCard.getGameCardId().equalsIgnoreCase(newTriggerGameCardId))
-                    .findFirst()
-                    .orElse(null);
+            chosenCard = getChosenCard(triggeredGameCardId, ownBattleZone);
 
             if (chosenCard != null) {
                 playCard(ownBattleZone, chosenCard.getGameCardId(), ownHand);
             } else {
-                chosenCard = opponentBattleZone
-                        .stream()
-                        .filter(opponentCard -> opponentCard.getGameCardId().equalsIgnoreCase(newTriggerGameCardId))
-                        .findFirst()
-                        .orElseThrow();
+                chosenCard = getChosenCard(triggeredGameCardId, opponentBattleZone);
                 playCard(opponentBattleZone, chosenCard.getGameCardId(), opponentHand);
 
             }
