@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.getCreaturePowerAttackerEffect;
+import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.getPowerAttackerAbility;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 import static com.duel.masters.game.util.ValidatorUtil.battleZoneHasAtLeastOneBlocker;
 
@@ -56,6 +58,7 @@ public class AttackCreatureService implements AttackService {
                     ownBattleZone,
                     ownGraveyard,
                     currentState,
+                    incomingState,
                     websocketHandler
             );
             currentState.setOpponentHasBlocker(false);
@@ -70,14 +73,17 @@ public class AttackCreatureService implements AttackService {
                                List<CardDto> ownBattleZone,
                                List<CardDto> ownGraveyard,
                                GameStateDto currentState,
+                               GameStateDto incomingState,
                                GameWebSocketHandler webSocketHandler) {
-
 
         var attackerPower = attackerCard.getPower();
         var targetPower = targetCard.getPower();
+        if (getPowerAttackerAbility().contains(attackerCard.getAbility())) {
+            getCreaturePowerAttackerEffect(attackerCard.getAbility()).execute(currentState, incomingState, cardsUpdateService);
+        }
 
         if (attackerPower > targetPower) {
-//            aici
+
             targetCard.setDestroyed(true);
 
             Executors
@@ -92,14 +98,13 @@ public class AttackCreatureService implements AttackService {
                                 targetCard.setDestroyed(false);
 
                                 playCardByAbility(currentState.getLastCardsMovedInGraveyard(), currentState);
-                                topicService.sendGameStatesToTopics(currentState,webSocketHandler);
+                                topicService.sendGameStatesToTopics(currentState, webSocketHandler);
                             }
                             , 2000, TimeUnit.MILLISECONDS);
 
         }
 
         if (attackerPower == targetPower) {
-//si aici
             targetCard.setDestroyed(true);
             attackerCard.setDestroyed(true);
 
@@ -118,7 +123,7 @@ public class AttackCreatureService implements AttackService {
                                 log.info("Both lost");
 
                                 playCardByAbility(currentState.getLastCardsMovedInGraveyard(), currentState);
-                                topicService.sendGameStatesToTopics(currentState,webSocketHandler);
+                                topicService.sendGameStatesToTopics(currentState, webSocketHandler);
                             },
                             2000, TimeUnit.MILLISECONDS
                     );
@@ -126,7 +131,6 @@ public class AttackCreatureService implements AttackService {
         }
 
         if (attackerPower < targetPower) {
-//si aici
             attackerCard.setDestroyed(true);
 
             Executors
@@ -145,7 +149,7 @@ public class AttackCreatureService implements AttackService {
                             2000, TimeUnit.MILLISECONDS);
 
         }
-
+        attackerCard.setPower(attackerPower);
         currentState.getBlockerFlagsDto().setBlockerDecisionMade(false);
     }
 

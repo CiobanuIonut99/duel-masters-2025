@@ -50,8 +50,6 @@ public class AttackServiceImplementation implements AttackService {
                 :
                 getCardDtoFromList(opponentCards.getBattleZone(), targetId);
 
-        var attackerCardPower = attackerCard.getPower();
-
         if (!attackerCard.isCanAttack() || !targetCard.isCanBeAttacked()) {
             return;
         }
@@ -70,20 +68,11 @@ public class AttackServiceImplementation implements AttackService {
         currentState.setAttackerId(attackerId);
         currentState.setTargetId(targetId);
 
-        var attackerAbility = attackerCard.getAbility();
-
-        if (getPowerAttackerAbility().contains(attackerAbility)) {
-            getCreaturePowerAttackerEffect(attackerAbility).execute(currentState, incomingState, cardsUpdateService);
-        }
-
         if (targetCard.isShield()) {
             attackShieldService.attack(currentState, incomingState, attackerCard, targetCard, targetId, webSocketHandler);
         } else {
             attackCreatureService.attack(currentState, incomingState, attackerCard, targetCard, targetId, webSocketHandler);
         }
-
-        attackerCard.setPower(attackerCardPower);
         topicService.sendGameStatesToTopics(currentState, webSocketHandler);
-
     }
 }
