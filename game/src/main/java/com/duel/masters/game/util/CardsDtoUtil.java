@@ -1,12 +1,15 @@
 package com.duel.masters.game.util;
 
 import com.duel.masters.game.dto.CardsDto;
+import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.duel.masters.game.constant.Constant.ON_DESTROY_GO_TO_HAND;
+import static com.duel.masters.game.constant.Constant.ON_DESTROY_GO_TO_MANA;
 import static com.duel.masters.game.util.ValidatorUtil.isSummonable;
 
 @Slf4j
@@ -127,14 +130,48 @@ public class CardsDtoUtil {
 
     public static void playCard(List<CardDto> source, String triggeredGameCardId, List<CardDto> destination) {
         source
-                    .stream()
-                    .filter(cardDto -> cardDto.getGameCardId().equals(triggeredGameCardId))
-                    .findFirst()
-                    .ifPresent(cardDto -> {
-                        destination.add(cardDto);
-                        source.remove(cardDto);
-                    });
+                .stream()
+                .filter(cardDto -> cardDto.getGameCardId().equals(triggeredGameCardId))
+                .findFirst()
+                .ifPresent(cardDto -> {
+                    destination.add(cardDto);
+                    source.remove(cardDto);
+                });
 
+    }
+
+    public static void playCardByAbility(List<CardDto> cards, GameStateDto currentState) {
+        cards
+                .forEach(
+                        cardDto -> {
+                            var foundInPlayerGraveyard = currentState
+                                    .getPlayerGraveyard()
+                                    .stream()
+                                    .anyMatch(cardDto1 -> cardDto1.getGameCardId().equals(cardDto.getGameCardId()));
+
+                            if (foundInPlayerGraveyard) {
+                                switch (cardDto.getAbility()) {
+                                    case ON_DESTROY_GO_TO_HAND ->
+                                            playCard(currentState.getPlayerGraveyard(), cardDto.getGameCardId(), currentState.getPlayerHand());
+                                    case ON_DESTROY_GO_TO_MANA ->
+                                            playCard(currentState.getPlayerGraveyard(), cardDto.getGameCardId(), currentState.getPlayerManaZone());
+                                    default -> {
+                                    }
+                                }
+                            } else {
+                                switch (cardDto.getAbility()) {
+                                    case ON_DESTROY_GO_TO_HAND ->
+                                            playCard(currentState.getOpponentGraveyard(), cardDto.getGameCardId(), currentState.getOpponentHand());
+                                    case ON_DESTROY_GO_TO_MANA ->
+                                            playCard(currentState.getOpponentGraveyard(), cardDto.getGameCardId(), currentState.getOpponentManaZone());
+                                    default -> {
+                                    }
+                                }
+
+                            }
+
+                        }
+                );
     }
 
     public static void drawCard(List<CardDto> deck, List<CardDto> hand) {
@@ -157,5 +194,6 @@ public class CardsDtoUtil {
                 .findFirst()
                 .orElse(null);
     }
+
 
 }

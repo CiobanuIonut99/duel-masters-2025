@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.duel.masters.game.util.CardsDtoUtil.changeCardState;
-import static com.duel.masters.game.util.CardsDtoUtil.playCard;
+import static com.duel.masters.game.util.CardsDtoUtil.*;
 import static com.duel.masters.game.util.ValidatorUtil.battleZoneHasAtLeastOneBlocker;
 
 @Slf4j
@@ -85,10 +84,13 @@ public class AttackCreatureService implements AttackService {
                     .schedule(
                             () -> {
                                 playCard(opponentBattleZone, targetCard.getGameCardId(), opponentGraveyard);
+                                currentState.getLastCardsMovedInGraveyard().add(targetCard);
                                 changeCardState(attackerCard, true, false, true, false);
                                 changeCardState(targetCard, false, false, false, false);
                                 log.info("{} won", attackerCard.getName());
                                 targetCard.setDestroyed(false);
+
+                                playCardByAbility(currentState.getLastCardsMovedInGraveyard(), currentState);
                                 topicService.sendGameStatesToTopics(currentState,webSocketHandler);
                             }
                             , 2000, TimeUnit.MILLISECONDS);
@@ -106,13 +108,15 @@ public class AttackCreatureService implements AttackService {
                             () -> {
                                 playCard(opponentBattleZone, targetCard.getGameCardId(), opponentGraveyard);
                                 playCard(ownBattleZone, attackerCard.getGameCardId(), ownGraveyard);
-
+                                currentState.getLastCardsMovedInGraveyard().add(targetCard);
+                                currentState.getLastCardsMovedInGraveyard().add(attackerCard);
                                 changeCardState(attackerCard, false, false, false, false);
                                 changeCardState(targetCard, false, false, false, false);
                                 targetCard.setDestroyed(false);
                                 attackerCard.setDestroyed(false);
                                 log.info("Both lost");
 
+                                playCardByAbility(currentState.getLastCardsMovedInGraveyard(), currentState);
                                 topicService.sendGameStatesToTopics(currentState,webSocketHandler);
                             },
                             2000, TimeUnit.MILLISECONDS
@@ -128,11 +132,13 @@ public class AttackCreatureService implements AttackService {
                     .newSingleThreadScheduledExecutor()
                     .schedule(() -> {
                                 playCard(ownBattleZone, attackerCard.getGameCardId(), ownGraveyard);
+                                currentState.getLastCardsMovedInGraveyard().add(attackerCard);
                                 changeCardState(attackerCard, false, false, false, false);
                                 changeCardState(targetCard, true, false, true, false);
                                 log.info("{} lost", attackerCard.getName());
                                 attackerCard.setDestroyed(false);
 
+                                playCardByAbility(currentState.getLastCardsMovedInGraveyard(), currentState);
                                 topicService.sendGameStatesToTopics(currentState, webSocketHandler);
                             },
                             2000, TimeUnit.MILLISECONDS);

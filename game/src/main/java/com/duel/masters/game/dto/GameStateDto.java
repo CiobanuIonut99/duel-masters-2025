@@ -20,7 +20,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GameStateDto {
 
-    //added for unity raw websocket
     private String type;
     private PlayerDto playerDto;
 
@@ -49,6 +48,9 @@ public class GameStateDto {
     private boolean hasSelectedBlocker;
 
     private String action;
+
+    @Builder.Default
+    private List<CardDto> lastCardsMovedInGraveyard= new CopyOnWriteArrayList<>();
 
     @Builder.Default
     private EffectsDto effectsDto = new EffectsDto();
