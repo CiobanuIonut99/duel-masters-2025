@@ -10,7 +10,7 @@ public class CreaturePA2K implements Effect {
 
     @Override
     public void execute(GameStateDto currentState, GameStateDto incomingState, CardsUpdateService cardsUpdateService) {
-        var ownCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
+        var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
 
         var attackerId = incomingState.getAttackerId();
         var attackerCard = getCardDtoFromList(ownCards.getBattleZone(), attackerId);

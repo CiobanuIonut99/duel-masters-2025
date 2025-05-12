@@ -172,45 +172,24 @@ public class DeckService {
                 .findFirst()
                 .orElseThrow();
 
-//        var crystalMemory = cardDtoList
-//                .stream()
-//                .filter(cardDto -> cardDto.getId() == 39)
-//                .findFirst()
-//                .orElseThrow();
+        var brawler = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 80)
+                .findFirst()
+                .orElseThrow();
+
         List<CardDto> cardsToAdd = new ArrayList<>();
 
-// These always get added later
-//        cardsToAdd.add(holyawe);
-//        cardsToAdd.add(solarRay);
-//        cardsToAdd.add(brainSerum);
-        cardsToAdd.add(deopticon);
-        cardsToAdd.add(tropice);
-//        cardsToAdd.add(spiralGate);
-//        cardsToAdd.add(darkReversal);
-//        cardsToAdd.add(ghostTouch);
-//        cardsToAdd.add(crystalMemory);
-//        cardsToAdd.add(terrorPit);
-//        cardsToAdd.add(tornadoFlame);
-//        cardsToAdd.add(dimensionGate);
-//        cardsToAdd.add(naturalSnare);
-        cardsToAdd.add(urth);
         cardsToAdd.add(aquaSniper);
         cardsToAdd.add(scarlet);
+        cardsToAdd.add(brawler);
 
 
         deck.removeIf(
                 c ->
-//                        c.getId() == 37
-//                        ||
-//                c.getId() == 50 ||
-//                c.getId() == 62 ||
-                c.getId() == 52 ||
-                c.getId() == 2 ||
                 c.getId() == 3 ||
                 c.getId() == 7 ||
-                c.getId() == 4
-//                        ||
-//                c.getId() == 64
+                c.getId() ==80
         );
         while (deck.size() + cardsToAdd.size() > 40) {
             deck.removeFirst(); // remove extras
