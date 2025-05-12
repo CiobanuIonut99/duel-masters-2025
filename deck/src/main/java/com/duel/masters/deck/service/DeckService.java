@@ -188,6 +188,17 @@ public class DeckService {
                 .findFirst()
                 .orElseThrow();
 
+        var a = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 12)
+                .findFirst()
+                .orElseThrow();
+        var b = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 13)
+                .findFirst()
+                .orElseThrow();
+
         List<CardDto> cardsToAdd = new ArrayList<>();
 
         cardsToAdd.add(aquaSniper);
@@ -196,6 +207,8 @@ public class DeckService {
         cardsToAdd.add(chilias);
         cardsToAdd.add(chilias);
         cardsToAdd.add(aqua);
+        cardsToAdd.add(a);
+        cardsToAdd.add(b);
 
 
         deck.removeIf(

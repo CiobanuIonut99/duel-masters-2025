@@ -79,6 +79,7 @@ public class AttackCreatureService implements AttackService {
         var attackerPower = attackerCard.getPower();
         var targetPower = targetCard.getPower();
         if (getPowerAttackerAbility().contains(attackerCard.getAbility())) {
+
             getCreaturePowerAttackerEffect(attackerCard.getAbility()).execute(currentState, incomingState, cardsUpdateService);
         }
 
