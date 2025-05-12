@@ -1,6 +1,7 @@
 package com.duel.masters.game.effects.summoning.registry;
 
 import com.duel.masters.game.effects.Effect;
+import com.duel.masters.game.effects.summoning.ScarletSkyterrorEffect;
 import com.duel.masters.game.effects.summoning.UrthPurifyingElemental;
 
 import java.util.Map;

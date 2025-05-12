@@ -73,6 +73,7 @@ public class InitialStateService {
         mockService.mockHand(deck, hand, 2L);
         mockService.mockHand(deck, hand, 3L);
         mockService.mockHand(deck, hand, 4L);
+        mockService.mockHand(deck, hand, 7L);
         mockService.mockHand(deck, hand, 52L);
 
         return InitialStateDto.builder()

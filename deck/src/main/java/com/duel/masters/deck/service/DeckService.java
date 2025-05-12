@@ -166,6 +166,12 @@ public class DeckService {
                 .findFirst()
                 .orElseThrow();
 
+        var scarlet = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 7)
+                .findFirst()
+                .orElseThrow();
+
 //        var crystalMemory = cardDtoList
 //                .stream()
 //                .filter(cardDto -> cardDto.getId() == 39)
@@ -189,6 +195,7 @@ public class DeckService {
 //        cardsToAdd.add(naturalSnare);
         cardsToAdd.add(urth);
         cardsToAdd.add(aquaSniper);
+        cardsToAdd.add(scarlet);
 
 
         deck.removeIf(
@@ -200,6 +207,7 @@ public class DeckService {
                 c.getId() == 52 ||
                 c.getId() == 2 ||
                 c.getId() == 3 ||
+                c.getId() == 7 ||
                 c.getId() == 4
 //                        ||
 //                c.getId() == 64
