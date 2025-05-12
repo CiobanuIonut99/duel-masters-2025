@@ -1,8 +1,11 @@
 package com.duel.masters.game.effects.summoning;
 
 import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.dto.card.service.CardDto;
 import com.duel.masters.game.effects.Effect;
 import com.duel.masters.game.service.CardsUpdateService;
+
+import java.util.List;
 
 import static com.duel.masters.game.constant.Constant.BLOCKER;
 import static com.duel.masters.game.util.CardsDtoUtil.playCard;
@@ -14,22 +17,15 @@ public class ScarletSkyterrorEffect implements Effect {
         var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
         var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
 
-        var ownBattlezone = ownCards.getBattleZone();
-        var ownGraveyard = ownCards.getGraveyard();
+        processBlockers(ownCards.getBattleZone(), ownCards.getGraveyard());
+        processBlockers(opponentCards.getBattleZone(), opponentCards.getGraveyard());
 
-        var opponentBattlezone = opponentCards.getBattleZone();
-        var opponentGraveyard = opponentCards.getGraveyard();
+    }
 
-        ownBattlezone
+    private void processBlockers(List<CardDto> battlezone, List<CardDto> graveyard) {
+        battlezone
                 .stream()
                 .filter(card -> BLOCKER.equalsIgnoreCase(card.getSpecialAbility()))
-                .forEach(card -> playCard(ownBattlezone, card.getGameCardId(), ownGraveyard));
-
-        opponentBattlezone
-                .stream()
-                .filter(card -> BLOCKER.equalsIgnoreCase(card.getSpecialAbility()))
-                .forEach(card -> playCard(opponentBattlezone, card.getGameCardId(), opponentGraveyard));
-
-
+                .forEach(card -> playCard(battlezone, card.getGameCardId(), graveyard));
     }
 }
