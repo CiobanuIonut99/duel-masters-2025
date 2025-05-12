@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.getCreaturePowerAttackerEffect;
+import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.getPowerAttackerAbility;
 import static com.duel.masters.game.util.CardsDtoUtil.getCardDtoFromList;
 
 @Slf4j
@@ -48,6 +50,11 @@ public class AttackServiceImplementation implements AttackService {
                 :
                 getCardDtoFromList(opponentCards.getBattleZone(), targetId);
 
+        var attackerCardPower = attackerCard.getPower();
+
+        if (!attackerCard.isCanAttack() || !targetCard.isCanBeAttacked()) {
+            return;
+        }
 
         if (currentState.getShieldTriggersFlagsDto() != null) {
             currentState
@@ -59,11 +66,14 @@ public class AttackServiceImplementation implements AttackService {
                     incomingState.getShieldTriggersFlagsDto().isTargetShield()
             );
         }
+
         currentState.setAttackerId(attackerId);
         currentState.setTargetId(targetId);
 
-        if (!attackerCard.isCanAttack() || !targetCard.isCanBeAttacked()) {
-            return;
+        var attackerAbility = attackerCard.getAbility();
+
+        if (getPowerAttackerAbility().contains(attackerAbility)) {
+            getCreaturePowerAttackerEffect(attackerAbility).execute(currentState, incomingState, cardsUpdateService);
         }
 
         if (targetCard.isShield()) {
@@ -72,7 +82,7 @@ public class AttackServiceImplementation implements AttackService {
             attackCreatureService.attack(currentState, incomingState, attackerCard, targetCard, targetId, webSocketHandler);
         }
 
-
+        attackerCard.setPower(attackerCardPower);
         topicService.sendGameStatesToTopics(currentState, webSocketHandler);
 
     }

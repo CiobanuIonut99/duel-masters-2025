@@ -23,7 +23,6 @@ public class DarkReversalEffect implements Effect {
         var attackerId = currentState.getAttackerId();
         var attackerCard = getCardDtoFromList(opponentCards.getBattleZone(), attackerId);
 
-
         var shieldTriggersFlags = currentState.getShieldTriggersFlagsDto();
 
         if (shieldTriggersFlags.isShieldTriggerDecisionMade()) {
