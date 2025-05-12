@@ -77,6 +77,7 @@ public class AttackCreatureService implements AttackService {
         var targetPower = targetCard.getPower();
 
         if (attackerPower > targetPower) {
+//            aici
             targetCard.setDestroyed(true);
 
             Executors
@@ -98,7 +99,7 @@ public class AttackCreatureService implements AttackService {
         }
 
         if (attackerPower == targetPower) {
-
+//si aici
             targetCard.setDestroyed(true);
             attackerCard.setDestroyed(true);
 
@@ -125,7 +126,7 @@ public class AttackCreatureService implements AttackService {
         }
 
         if (attackerPower < targetPower) {
-
+//si aici
             attackerCard.setDestroyed(true);
 
             Executors
