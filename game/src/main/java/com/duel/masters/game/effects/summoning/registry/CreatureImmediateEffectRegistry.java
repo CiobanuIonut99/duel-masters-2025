@@ -2,6 +2,8 @@ package com.duel.masters.game.effects.summoning.registry;
 
 import com.duel.masters.game.effects.Effect;
 import com.duel.masters.game.effects.summoning.AquaSniperEffect;
+import com.duel.masters.game.effects.passive.CreaturePA2K;
+import com.duel.masters.game.effects.passive.CreaturePA4K;
 import com.duel.masters.game.effects.summoning.ScarletSkyterrorEffect;
 
 import java.util.Map;

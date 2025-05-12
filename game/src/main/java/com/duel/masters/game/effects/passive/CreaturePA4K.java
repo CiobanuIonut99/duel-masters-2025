@@ -1,4 +1,4 @@
-package com.duel.masters.game.effects.summoning.registry;
+package com.duel.masters.game.effects.passive;
 
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.effects.Effect;

@@ -177,18 +177,33 @@ public class DeckService {
                 .filter(cardDto -> cardDto.getId() == 80)
                 .findFirst()
                 .orElseThrow();
+        var chilias = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 11)
+                .findFirst()
+                .orElseThrow();
+        var aqua = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 34)
+                .findFirst()
+                .orElseThrow();
 
         List<CardDto> cardsToAdd = new ArrayList<>();
 
         cardsToAdd.add(aquaSniper);
         cardsToAdd.add(scarlet);
         cardsToAdd.add(brawler);
+        cardsToAdd.add(chilias);
+        cardsToAdd.add(chilias);
+        cardsToAdd.add(aqua);
 
 
         deck.removeIf(
                 c ->
                 c.getId() == 3 ||
                 c.getId() == 7 ||
+                c.getId() == 11 ||
+                c.getId() == 34 ||
                 c.getId() ==80
         );
         while (deck.size() + cardsToAdd.size() > 40) {
