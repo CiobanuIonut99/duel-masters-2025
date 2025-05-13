@@ -562,7 +562,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void _startAttackSelection(CardModel attacker) {
     if (!isMyTurn) return;
 
-    final hasCAP = attacker.specialAbility == 'CAP';
+    final hasCAP = attacker.ability == 'CAP';
 
     setState(() {
       selectedAttacker = attacker;
