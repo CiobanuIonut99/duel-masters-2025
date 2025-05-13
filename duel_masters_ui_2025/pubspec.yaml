@@ -24,11 +24,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/icons/graveyard.png
+    - assets/icons/tombstone.png
     - assets/shield/shield_0.png
     - assets/shield/shield_1.png
     - assets/animations/shield/
     - assets/backgrounds/forest_board.png
+    - assets/backgrounds/ice_board.png
+    - assets/cards/70-mini.png
     - assets/cards/0.jpg
     - assets/cards/1.jpg
     - assets/cards/2.jpg

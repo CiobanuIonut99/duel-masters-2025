@@ -1,6 +1,7 @@
 package com.duel.masters.game.dto;
 
 import com.duel.masters.game.dto.card.service.CardDto;
+import com.duel.masters.game.dto.player.service.PlayerDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GameStateDto {
+
+    private String type;
+    private PlayerDto playerDto;
 
     private String gameId;
     private String targetId;
@@ -46,6 +50,11 @@ public class GameStateDto {
     private String action;
 
     @Builder.Default
+    private List<CardDto> lastCardsMovedInGraveyard= new CopyOnWriteArrayList<>();
+
+    @Builder.Default
+    private EffectsDto effectsDto = new EffectsDto();
+    @Builder.Default
     private BlockerFlagsDto blockerFlagsDto = new BlockerFlagsDto();
     @Builder.Default
     private ShieldTriggersFlagsDto shieldTriggersFlagsDto = new ShieldTriggersFlagsDto();
@@ -64,7 +73,6 @@ public class GameStateDto {
     @Builder.Default
     private List<CardDto> playerDeck = new CopyOnWriteArrayList<>();
     @Builder.Default
-
     private List<CardDto> opponentHand = new CopyOnWriteArrayList<>();
     @Builder.Default
     private List<CardDto> opponentShields = new CopyOnWriteArrayList<>();

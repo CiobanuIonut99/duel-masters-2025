@@ -1,5 +1,6 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.BlockerFlagsDto;
 import com.duel.masters.game.dto.CardsDto;
 import com.duel.masters.game.dto.GameStateDto;
@@ -26,7 +27,8 @@ public class AttackShieldService implements AttackService {
                        GameStateDto incomingState,
                        CardDto attackerCard,
                        CardDto targetCard,
-                       String targetId) {
+                       String targetId,
+                       GameWebSocketHandler webSocketHandler) {
 
         var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
         var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
@@ -37,7 +39,10 @@ public class AttackShieldService implements AttackService {
         var blockerFlagsDto = currentState.getBlockerFlagsDto();
 
         if (battleZoneHasAtLeastOneBlocker(opponentBattleZone) &&
-                !blockerFlagsDto.isBlockerDecisionMade()) {
+                !blockerFlagsDto.isBlockerDecisionMade() && (
+                !attackerCard.getAbility().equalsIgnoreCase("This creature cant be blocked") &&
+                        !(ownCards.getBattleZone().size() > 2 && attackerCard.getAbility().contains("This creature cant be blocked while you have at least 2 other creatures in the battle zone")))
+        ) {
 
             currentState.setOpponentHasBlocker(true);
             blockerFlagsDto.setBlockerDecisionMade(true);
@@ -46,12 +51,10 @@ public class AttackShieldService implements AttackService {
 
 
             if (SHIELD_TRIGGER.equalsIgnoreCase(targetCard.getSpecialAbility())) {
-                if (blockerFlagsDto.isBlockerDecisionMade()) {
-                    currentState.setShieldTriggerCard(targetCard);
-                } else {
-                    currentState.setShieldTriggerCard(targetCard);
+                if (blockerFlagsDto == null) {
+                    currentState.setBlockerFlagsDto(new BlockerFlagsDto());
                 }
-
+                currentState.setShieldTriggerCard(targetCard);
                 currentState.getShieldTriggersFlagsDto().setShieldTrigger(true);
                 currentState.setOpponentHasBlocker(false);
 
@@ -73,9 +76,6 @@ public class AttackShieldService implements AttackService {
     }
 
     private void attackShieldAsPlayerOrOpponent(GameStateDto currentState, CardDto attackerCard, CardDto targetCard, String targetId, BlockerFlagsDto blockerFlagsDto, CardsDto ownCards, List<CardDto> opponentShields, List<CardDto> opponentHand) {
-//        Daca ai selectat ca nu vrei sa blochezi cu blocker
-//        se executa primul IF dpdv oponent
-//        altfel se executa else dpdv player
         if (blockerFlagsDto.isBlockerDecisionMade()) {
             attackShield(
                     currentState,
@@ -116,7 +116,7 @@ public class AttackShieldService implements AttackService {
 
 
     @Override
-    public void attack(GameStateDto currentState, GameStateDto incomingState) {
+    public void attack(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
     }
 
 }

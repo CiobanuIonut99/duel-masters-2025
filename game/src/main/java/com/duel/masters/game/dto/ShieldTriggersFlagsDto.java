@@ -33,11 +33,18 @@ public class ShieldTriggersFlagsDto {
     private boolean ghostTouchMustSelectCreature;
     private boolean terrorPitMustSelectCreature;
     private boolean tornadoFlameMustSelectCreature;
-    private boolean dimensionalGateMustDrawCard;
+    private boolean dimensionGateMustDrawCard;
     private boolean naturalSnareMustSelectCreature;
+    private boolean aquaSniperMustSelectCreature;
+
+    private CardDto lastSelectedCreatureFromDeck;
 
     private boolean shieldTriggerDecisionMade;
     private Map<String, List<CardDto>> eachPlayerBattleZone = new ConcurrentHashMap<>();
     private List<String> cardsChosen = new CopyOnWriteArrayList<>();
+    private List<CardDto> opponentUnder4000Creatures = new CopyOnWriteArrayList<>();
+    private List<CardDto> playerCreatureDeck = new CopyOnWriteArrayList<>();
+    private List<CardDto> playerCreatureGraveyard = new CopyOnWriteArrayList<>();
 
+    private int cardsDrawn;
 }

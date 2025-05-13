@@ -1,18 +1,17 @@
-package com.duel.masters.game.effects;
+package com.duel.masters.game.effects.triggers;
 
 import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.effects.Effect;
 import com.duel.masters.game.service.CardsUpdateService;
 
-import static com.duel.masters.game.constant.Constant.CREATURE;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
-public class SolarRayEffect implements ShieldTriggerEffect {
+public class SolarRayEffect implements Effect {
 
 //    Choose 1 of your opponents creatures in the battlezone and tap it
 
     @Override
     public void execute(GameStateDto currentState, GameStateDto incomingState, CardsUpdateService cardsUpdateService) {
-
         var opponentCards = getOpponentCards(currentState, incomingState, cardsUpdateService);
         var ownCards = getOwnCards(currentState, incomingState, cardsUpdateService);
 
@@ -30,36 +29,24 @@ public class SolarRayEffect implements ShieldTriggerEffect {
             currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(false);
 
             changeCardState(attackerCard, true, false, true, false);
-
         } else {
-
             var opponentSelectableCreatures = currentState.getOpponentSelectableCreatures();
             opponentSelectableCreatures.clear();
             opponentCards
                     .getBattleZone()
                     .stream()
-                    .filter(cardDto -> CREATURE.equalsIgnoreCase(cardDto.getType())
+                    .filter(cardDto -> !cardDto.isTapped()
                             &&
-                            !cardDto.isTapped()
-                            &&
-                            !cardDto.getGameCardId().equals(attackerCard.getGameCardId())
-                    )
+                            !cardDto.getGameCardId().equals(attackerCard.getGameCardId()))
                     .forEach(opponentSelectableCreatures::add);
-
             if (opponentSelectableCreatures.isEmpty()) {
-
                 playCard(ownCards.getShields(), currentState.getTargetId(), ownCards.getHand());
-
-                currentState.getShieldTriggersFlagsDto().setSolarRayMustSelectCreature(false);
-
-
                 changeCardState(attackerCard, true, false, true, false);
-
             } else {
                 currentState.getShieldTriggersFlagsDto().setSolarRayMustSelectCreature(true);
+                currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(true);
+                currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
             }
-            currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
-            currentState.getShieldTriggersFlagsDto().setShieldTriggerDecisionMade(true);
         }
     }
 }

@@ -1,12 +1,15 @@
 package com.duel.masters.game.util;
 
 import com.duel.masters.game.dto.CardsDto;
+import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.duel.masters.game.constant.Constant.ON_DESTROY_GO_TO_HAND;
+import static com.duel.masters.game.constant.Constant.ON_DESTROY_GO_TO_MANA;
 import static com.duel.masters.game.util.ValidatorUtil.isSummonable;
 
 @Slf4j
@@ -37,25 +40,35 @@ public class CardsDtoUtil {
     }
 
     public static CardDto getCardDtoFromList(List<CardDto> cards, String cardId) {
-        return cards
-                .stream()
-                .filter(cardDto -> cardDto.getGameCardId().equals(cardId))
-                .findFirst()
-                .orElseThrow();
+        if (!cards.isEmpty()) {
+            return cards
+                    .stream()
+                    .filter(cardDto -> cardDto.getGameCardId().equals(cardId))
+                    .findFirst()
+                    .orElseThrow();
+        } else {
+            throw new RuntimeException("Card not found");
+        }
     }
+
 
     public static List<CardDto> getSelectedManaCards(List<CardDto> manaZone, List<String> selectedManaCardIds) {
         var selectedManaCards = new ArrayList<CardDto>();
 
-        for (CardDto manaCardDto : manaZone) {
-            for (String selectedManaCardId : selectedManaCardIds) {
-                if (manaCardDto.getGameCardId().equals(selectedManaCardId)) {
-                    selectedManaCards.add(manaCardDto);
+        if (!manaZone.isEmpty()) {
+            for (CardDto manaCardDto : manaZone) {
+                for (String selectedManaCardId : selectedManaCardIds) {
+                    if (manaCardDto.getGameCardId().equals(selectedManaCardId)) {
+                        selectedManaCards.add(manaCardDto);
+                    }
                 }
             }
+            return selectedManaCards;
+        } else {
+            throw new RuntimeException("ManaZone is empty");
         }
-        return selectedManaCards;
     }
+
 
     public static List<String> getCardIds(List<CardDto> cards) {
         return cards
@@ -65,14 +78,27 @@ public class CardsDtoUtil {
     }
 
     public static void setOpponentsCreaturesAttackable(List<CardDto> cards) {
+        if (cards == null || cards.isEmpty()) {
+            return;
+        }
         cards.stream().filter(CardDto::isTapped).forEach(cardDto -> cardDto.setCanBeAttacked(true));
     }
 
     public static void setOpponentsCreaturesCanAttack(List<CardDto> cards) {
+        if (cards == null || cards.isEmpty()) {
+            return;
+        }
         cards.forEach(cardDto -> cardDto.setCanAttack(true));
     }
 
+    public static void setOpponentsCreaturesCanNotAttack(List<CardDto> cards) {
+        cards.forEach(cardDto -> cardDto.setCanAttack(false));
+    }
+
     public static void untapOpponentsCards(List<CardDto> cards) {
+        if (cards == null || cards.isEmpty()) {
+            return;
+        }
         cards.forEach(card -> card.setTapped(false));
     }
 
@@ -81,6 +107,9 @@ public class CardsDtoUtil {
     }
 
     public static void cureOpponentsCreaturesSickness(List<CardDto> cards) {
+        if (cards == null || cards.isEmpty()) {
+            return;
+        }
         cards
                 .stream()
                 .filter(CardDto::isSummoningSickness)
@@ -88,10 +117,14 @@ public class CardsDtoUtil {
     }
 
     public static void setCardsSummonable(List<CardDto> manaZone, List<CardDto> hand) {
-        if (!manaZone.isEmpty()) {
-            for (CardDto cardDto : hand) {
-                cardDto.setSummonable(isSummonable(manaZone, cardDto));
-            }
+        if (manaZone == null || manaZone.isEmpty()) {
+            return;
+        }
+        if (hand == null || hand.isEmpty()) {
+            return;
+        }
+        for (CardDto cardDto : hand) {
+            cardDto.setSummonable(isSummonable(manaZone, cardDto));
         }
     }
 
@@ -104,6 +137,41 @@ public class CardsDtoUtil {
                     destination.add(cardDto);
                     source.remove(cardDto);
                 });
+
+    }
+
+    public static void playCardByAbility(List<CardDto> cards, GameStateDto currentState) {
+        cards
+                .forEach(
+                        cardDto -> {
+                            var foundInPlayerGraveyard = currentState
+                                    .getPlayerGraveyard()
+                                    .stream()
+                                    .anyMatch(cardDto1 -> cardDto1.getGameCardId().equals(cardDto.getGameCardId()));
+
+                            if (foundInPlayerGraveyard) {
+                                switch (cardDto.getAbility()) {
+                                    case ON_DESTROY_GO_TO_HAND ->
+                                            playCard(currentState.getPlayerGraveyard(), cardDto.getGameCardId(), currentState.getPlayerHand());
+                                    case ON_DESTROY_GO_TO_MANA ->
+                                            playCard(currentState.getPlayerGraveyard(), cardDto.getGameCardId(), currentState.getPlayerManaZone());
+                                    default -> {
+                                    }
+                                }
+                            } else {
+                                switch (cardDto.getAbility()) {
+                                    case ON_DESTROY_GO_TO_HAND ->
+                                            playCard(currentState.getOpponentGraveyard(), cardDto.getGameCardId(), currentState.getOpponentHand());
+                                    case ON_DESTROY_GO_TO_MANA ->
+                                            playCard(currentState.getOpponentGraveyard(), cardDto.getGameCardId(), currentState.getOpponentManaZone());
+                                    default -> {
+                                    }
+                                }
+
+                            }
+
+                        }
+                );
     }
 
     public static void drawCard(List<CardDto> deck, List<CardDto> hand) {
@@ -116,7 +184,15 @@ public class CardsDtoUtil {
         card.setTapped(tapped);
         card.setCanAttack(canAttack);
         card.setCanBeAttacked(canBeAttacked);
-        card.setSummoningSickness(false);
+        card.setSummoningSickness(summoningSickness);
+    }
+
+    public static CardDto getChosenCard(String cardId, List<CardDto> cards) {
+        return cards
+                .stream()
+                .filter(ownCard -> ownCard.getGameCardId().equalsIgnoreCase(cardId))
+                .findFirst()
+                .orElse(null);
     }
 
 

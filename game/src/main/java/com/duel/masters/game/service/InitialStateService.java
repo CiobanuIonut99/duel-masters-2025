@@ -47,10 +47,17 @@ public class InitialStateService {
         var shields = get5Cards(deck);
         var hand = get5Cards(deck);
 
-        mockService.mockShields(deck, shields, hand, 16L);
-        mockService.mockShields(deck, shields, hand, 29L);
-        mockService.mockShields(deck, shields, hand, 37L);
-        mockService.mockShields(deck, shields, hand, 39L);
+//        mockService.mockShields(deck, shields, hand, 16L);
+//        mockService.mockShields(deck, shields, hand, 29L);
+//        mockService.mockShields(deck, shields, hand, 50L);
+//        mockService.mockShields(deck, shields, hand, 62L);
+//        mockService.mockShields(deck, shields, hand, 64L);
+//        mockService.mockShields(deck, shields, hand, 39L);
+//        mockService.mockShields(deck, shields, hand, 37L);
+//        mockService.mockShields(deck, shields, hand, 73L);
+//        mockService.mockShields(deck, shields, hand, 98L);
+//        mockService.mockShields(deck, shields, hand, 103L);
+//        mockService.mockShields(deck, shields, hand, 109L);
 
         log.info("Deck has {} cards", deck.size());
         log.info("Shields has {} cards", shields.size());
@@ -61,6 +68,15 @@ public class InitialStateService {
                     shield.setShield(true);
                 }
         );
+
+
+        mockService.mockHand(deck, hand, 3L);
+        mockService.mockHand(deck, hand, 7L);
+        mockService.mockHand(deck, hand, 80L);
+        mockService.mockHand(deck, hand, 11L);
+        mockService.mockHand(deck, hand, 12L);
+        mockService.mockHand(deck, hand, 13L);
+        mockService.mockHand(deck, hand, 34L);
 
         return InitialStateDto.builder()
                 .deck(deck)

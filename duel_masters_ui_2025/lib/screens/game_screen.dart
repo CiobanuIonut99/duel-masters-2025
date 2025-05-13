@@ -7,11 +7,18 @@ import 'package:stomp_dart_client/stomp_frame.dart';
 import 'package:stomp_dart_client/stomp_handler.dart';
 
 import '../dialogs/blocker_selection_dialog.dart';
+import '../dialogs/creature_selection_destroy_under4000_dialog.dart';
 import '../dialogs/creature_selection_dialog.dart';
+import '../dialogs/creature_selection_put_in_mana_zone.dart';
+import '../dialogs/dual_creature_selection_list.dart';
+import '../dialogs/graveyard_creature_selection_dialog.dart';
 import '../dialogs/mana_selection_dialog.dart';
+import '../dialogs/select_card_count_dialog.dart';
 import '../dialogs/select_cards_from_deck_dialog.dart';
+import '../dialogs/select_creature_from_deck_dialog.dart';
 import '../dialogs/shield_trigger_dialog.dart';
 import '../dialogs/styled_dialog_container.dart';
+import '../dialogs/two_rows_selection_creature.dart';
 import '../models/card_model.dart';
 import '../models/shiel_trigger_flags_dto.dart';
 import '../network/game_state_parse.dart';
@@ -30,6 +37,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool opponentHasBlocker = false;
   bool shieldTrigger = false;
   CardModel? selectedBlocker;
+  CardModel? selectedCreature;
 
   ShieldTriggersFlagsDto? shieldFlags;
 
@@ -48,6 +56,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   List<CardModel> opponentManaZone = [];
   List<CardModel> opponentGraveyard = [];
   List<CardModel> opponentBattleZone = [];
+
+  List<CardModel> playerBattlezoneFromEachPlayerBattlezone = [];
+  List<CardModel> opponentBattlezoneFromEachPlayerBattlezone = [];
+  List<CardModel> opponentUnder4000Creatures = [];
+  List<CardModel> playerCreatureDeck = [];
+  List<CardModel> playerCreatureGraveyard = [];
+  List<CardModel> selectedCreatures = [];
 
   Set<String> glowingManaCardIds = {};
   Set<String> glowAttackableShields = {};
@@ -77,7 +92,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   CardModel? hoveredCard;
   CardModel? shieldTriggerCard;
 
+  CardModel? lastSelectedCreatureFromDeck;
+
   bool isConnected = false;
+  bool hasDismissedChosenCard = false;
 
   late AnimationController shieldMoveController;
   late Animation<Offset> shieldOffsetAnimation;
@@ -93,11 +111,19 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   bool tapped = false;
 
   bool solarRayMustSelectCreature = false;
+  bool terrorPitMustSelectCreature = false;
+  bool tornadoFlameMustSelectCreature = false;
+  bool spiralGateMustSelectCreature = false;
+  bool naturalSnareMustSelectCreature = false;
   bool brainSerumMustDrawCards = false;
+  bool dimensionGateMustDrawCard = false;
   bool crystalMemoryMustDrawCard = false;
+  bool darkReversalMustSelectCreature = false;
+  bool aquaSniperMustSelectCreature = false;
 
   List<CardModel> opponentSelectableCreatures = [];
   CardModel? selectedOpponentCreature;
+  CardModel? selectCreatureFromGraveyard;
 
   double hoverScale = 1.0;
 
@@ -107,6 +133,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   late StompClient stompClient;
   late final GameWebSocketHandler wsHandler;
 
+  bool isTurnBannerVisible = false;
+
   bool get isMyTurn => currentPlayerId == currentTurnPlayerId;
 
   @override
@@ -114,22 +142,22 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     super.initState();
 
     wsHandler = GameWebSocketHandler(
-      url: 'ws://localhost:8080/duel-masters-ws',
+      // url: 'ws://localhost:8080/duel-masters-ws',
+      url: 'wss://f63a-79-115-136-178.ngrok-free.app/duel-masters-ws',
       currentPlayerId: currentPlayerId,
-      onMatchFound: (gameId, playerTopic) {
-        setState(() {
-          currentGameId = gameId;
-          myPlayerTopic = playerTopic;
-          hasJoinedMatch = true;
-        });
+      onGameStateUpdate: (data) {
+        _updateGameState(data);
       },
       onConnected: () {
         setState(() {
           isConnected = true;
         });
       },
-      onGameStateUpdate: (data) {
-        _updateGameState(data);
+      onMatchFound: (gameId) {
+        setState(() {
+          currentGameId = gameId;
+          hasJoinedMatch = true;
+        });
       },
     );
 
@@ -145,24 +173,61 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void _updateGameState(Map<String, dynamic> responseBody) {
     final newTurnPlayerId = responseBody['currentTurnPlayerId'];
-    final shieldTriggerFlagsJson = responseBody['shieldTriggersFlagsDto'] ?? {};
+    final shieldTriggerFlagsJson = responseBody['shieldTriggersFlagsDto'];
 
-    shieldFlags = ShieldTriggersFlagsDto.fromJson(shieldTriggerFlagsJson);
+    if (shieldTriggerFlagsJson != null) {
+      shieldFlags = ShieldTriggersFlagsDto.fromJson(shieldTriggerFlagsJson);
 
-    solarRayMustSelectCreature =
-        shieldFlags?.solarRayMustSelectCreature ?? false;
+      solarRayMustSelectCreature =
+          shieldFlags?.solarRayMustSelectCreature ?? false;
+      brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
+      dimensionGateMustDrawCard =
+          shieldFlags?.dimensionGateMustDrawCard ?? false;
+      crystalMemoryMustDrawCard =
+          shieldFlags?.crystalMemoryMustDrawCard ?? false;
+      naturalSnareMustSelectCreature =
+          shieldFlags?.naturalSnareMustSelectCreature ?? false;
+      spiralGateMustSelectCreature =
+          shieldFlags?.spiralGateMustSelectCreature ?? false;
+      aquaSniperMustSelectCreature =
+          shieldFlags?.aquaSniperMustSelectCreature ?? false;
+      darkReversalMustSelectCreature =
+          shieldFlags?.darkReversalMustSelectCreature ?? false;
+      terrorPitMustSelectCreature =
+          shieldFlags?.terrorPitMustSelectCreature ?? false;
+      tornadoFlameMustSelectCreature =
+          shieldFlags?.tornadoFlameMustSelectCreature ?? false;
+      shieldTrigger = shieldFlags?.shieldTrigger ?? false;
+      opponentUnder4000Creatures =
+          shieldFlags?.opponentUnder4000Creatures ?? [];
+      playerCreatureDeck = shieldFlags?.playerCreatureDeck ?? [];
+      playerCreatureGraveyard = shieldFlags?.playerCreatureGraveyard ?? [];
+    }
 
-    brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
-    crystalMemoryMustDrawCard = shieldFlags?.crystalMemoryMustDrawCard ?? false;
+    final eachPlayerBattleZoneJson = shieldFlags?.eachPlayerBattleZone ?? {};
+    final playerIdStr = currentPlayerId.toString();
+    final opponentIdStr = opponentId.toString();
 
-    shieldTrigger = shieldFlags?.shieldTrigger ?? false;
-
-    opponentHasBlocker = responseBody['opponentHasBlocker'];
-
-    opponentSelectableCreatures =
-        (responseBody['opponentSelectableCreatures'] as List? ?? [])
+    playerBattlezoneFromEachPlayerBattlezone =
+        (eachPlayerBattleZoneJson[playerIdStr] as List? ?? [])
             .map((c) => CardModel.fromJson(c))
             .toList();
+
+    opponentBattlezoneFromEachPlayerBattlezone =
+        (eachPlayerBattleZoneJson[opponentIdStr] as List? ?? [])
+            .map((c) => CardModel.fromJson(c))
+            .toList();
+
+    if (responseBody.containsKey('opponentHasBlocker')) {
+      opponentHasBlocker = responseBody['opponentHasBlocker'];
+    }
+
+    if (responseBody.containsKey('opponentSelectableCreatures')) {
+      opponentSelectableCreatures =
+          (responseBody['opponentSelectableCreatures'] as List? ?? [])
+              .map((c) => CardModel.fromJson(c))
+              .toList();
+    }
 
     if (opponentHasBlocker) {
       Future.microtask(() => _showBlockerSelectionDialog());
@@ -172,8 +237,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       Future.microtask(() => _showShieldTriggerDialog());
     }
 
+    if (dimensionGateMustDrawCard) {
+      Future.microtask(() => _showDrawCreatureFromDeckDialog());
+    }
+
     if (brainSerumMustDrawCards) {
-      Future.microtask(() => _showDrawFromDeckDialog(1, 2));
+      Future.microtask(() => _showCountCardDialog());
     }
 
     if (crystalMemoryMustDrawCard) {
@@ -181,58 +250,153 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     }
 
     if (!shieldTrigger && Navigator.canPop(context)) {
-      Navigator.of(context).pop(); //dismiss for opponent
+      Navigator.of(context).pop();
     }
 
     if (!opponentHasBlocker && Navigator.canPop(context)) {
-      Navigator.of(context).pop(); //dismiss for opponent
+      Navigator.of(context).pop();
     }
 
     if (previousTurnPlayerId != null &&
         previousTurnPlayerId != newTurnPlayerId) {
       final isMyTurn = newTurnPlayerId == currentPlayerId;
+
+      setState(() {
+        lastSelectedCreatureFromDeck = null;
+      });
+
       _showTurnBanner(isMyTurn ? "Your Turn" : "Opponent's Turn");
     }
 
-    if (responseBody['shieldTriggerCard'] != null) {
+    if (responseBody.containsKey('shieldTriggerCard')) {
       shieldTriggerCard = CardModel.fromJson(responseBody['shieldTriggerCard']);
       shieldTrigger = true;
     }
 
-    final zones = GameStateParser.parse(responseBody);
+    if (shieldFlags?.lastSelectedCreatureFromDeck != null) {
+      if (!hasDismissedChosenCard &&
+          (lastSelectedCreatureFromDeck == null ||
+              lastSelectedCreatureFromDeck!.gameCardId !=
+                  shieldFlags!.lastSelectedCreatureFromDeck!.gameCardId)) {
+        setState(() {
+          lastSelectedCreatureFromDeck =
+              shieldFlags!.lastSelectedCreatureFromDeck;
+        });
+      }
+    } else {
+      setState(() {
+        lastSelectedCreatureFromDeck = null;
+        hasDismissedChosenCard = false;
+      });
+    }
 
     setState(() {
-      currentTurnPlayerId = newTurnPlayerId;
-      previousTurnPlayerId = newTurnPlayerId;
-      opponentId = responseBody['opponentId'];
-      playedMana = responseBody['playedMana'];
-      opponentHasBlocker = responseBody['opponentHasBlocker'];
-      shieldTrigger = shieldFlags?.shieldTrigger ?? false;
-      brainSerumMustDrawCards = shieldFlags?.brainSerumMustDrawCards ?? false;
-      crystalMemoryMustDrawCard =
-          shieldFlags?.crystalMemoryMustDrawCard ?? false;
+      if (responseBody.containsKey('currentTurnPlayerId')) {
+        currentTurnPlayerId = newTurnPlayerId;
+        previousTurnPlayerId = newTurnPlayerId;
+      }
 
-      playerHand = zones.playerHand;
-      playerDeck = zones.playerDeck;
-      playerShields = zones.playerShields;
-      playerManaZone = zones.playerManaZone;
-      playerBattleZone = zones.playerBattleZone;
-      playerGraveyard = zones.playerGraveyard;
+      if (responseBody.containsKey('opponentId')) {
+        opponentId = responseBody['opponentId'];
+      }
 
-      opponentHand = zones.opponentHand;
-      opponentDeck = zones.opponentDeck;
-      opponentShields = zones.opponentShields;
-      opponentManaZone = zones.opponentManaZone;
-      opponentBattleZone = zones.opponentBattleZone;
-      opponentGraveyard = zones.opponentGraveyard;
+      if (responseBody.containsKey('playedMana')) {
+        playedMana = responseBody['playedMana'];
+      }
+
+      final zones = GameStateParser.parse(responseBody);
+
+      if (zones.playerHand != null) playerHand = zones.playerHand!;
+      if (zones.playerDeck != null) playerDeck = zones.playerDeck!;
+      if (zones.playerShields != null) playerShields = zones.playerShields!;
+      if (zones.playerManaZone != null) playerManaZone = zones.playerManaZone!;
+      if (zones.playerBattleZone != null)
+        playerBattleZone = zones.playerBattleZone!;
+      if (zones.playerGraveyard != null)
+        playerGraveyard = zones.playerGraveyard!;
+
+      if (zones.opponentHand != null) opponentHand = zones.opponentHand!;
+      if (zones.opponentDeck != null) opponentDeck = zones.opponentDeck!;
+      if (zones.opponentShields != null)
+        opponentShields = zones.opponentShields!;
+      if (zones.opponentManaZone != null)
+        opponentManaZone = zones.opponentManaZone!;
+      if (zones.opponentBattleZone != null)
+        opponentBattleZone = zones.opponentBattleZone!;
+      if (zones.opponentGraveyard != null)
+        opponentGraveyard = zones.opponentGraveyard!;
 
       deckSize = playerDeck.length;
       opponentDeckSize = opponentDeck.length;
     });
   }
 
+  Widget _showDualCreatureSelectionOverlay() {
+    return DualCreatureSelectionOverlay(
+      playerCreatures: playerBattlezoneFromEachPlayerBattlezone,
+      opponentCreatures: opponentBattlezoneFromEachPlayerBattlezone,
+      selectedCreature: selectedCreature,
+      onCardSelected: (card) {
+        setState(() {
+          selectedCreature = card;
+        });
+      },
+      onConfirm: () {
+        if (selectedCreature == null) return;
+
+        wsHandler.useShieldTriggerCard(
+          gameId: currentGameId,
+          playerId: currentPlayerId,
+          currentTurnPlayerId: currentTurnPlayerId,
+          action: "CAST_SHIELD_TRIGGER",
+          usingShieldTrigger: true,
+          triggeredGameCardId: selectedCreature!.gameCardId,
+        );
+      },
+    );
+  }
+
+  Widget _showDualCreatureListSelectionOverlay() {
+    return DualCreatureListSelectionOverlay(
+      playerCreatures: playerBattlezoneFromEachPlayerBattlezone,
+      opponentCreatures: opponentBattlezoneFromEachPlayerBattlezone,
+      selectedCreatures: selectedCreatures,
+      onCardToggle: (card) {
+        setState(() {
+          if (selectedCreatures.any((c) => c.gameCardId == card.gameCardId)) {
+            selectedCreatures.removeWhere(
+              (c) => c.gameCardId == card.gameCardId,
+            );
+          } else {
+            if (selectedCreatures.length < 2) {
+              selectedCreatures.add(card);
+            }
+          }
+        });
+      },
+      onConfirm: () {
+        final selectedIds = selectedCreatures.map((c) => c.gameCardId).toList();
+        wsHandler.sendAquaSniperSelection(
+          gameId: currentGameId,
+          playerId: currentPlayerId,
+          currentTurnPlayerId: currentTurnPlayerId,
+          action: "SUMMON_TO_BATTLE_ZONE",
+          cardsChosen: selectedIds,
+          shieldTriggerDecisionMade: true,
+          usingShieldTrigger: true,
+        );
+
+        setState(() {
+          selectedCreatures.clear();
+        });
+      },
+    );
+  }
+
   void _showTurnBanner(String text) {
-    // final isMyTurn = text == "Your Turn";
+    setState(() {
+      isTurnBannerVisible = true;
+    });
 
     final overlay = OverlayEntry(
       builder:
@@ -242,10 +406,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 opacity: 1,
                 duration: Duration(milliseconds: 500),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isMyTurn ? Colors.greenAccent : Colors.redAccent,
                       width: 2,
@@ -255,8 +419,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     text,
                     style: TextStyle(
                       color: isMyTurn ? Colors.greenAccent : Colors.redAccent,
-                      fontSize: 32,
+                      fontSize: 20, // smaller font
                       fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.none,
                     ),
                   ),
                 ),
@@ -269,6 +434,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     Future.delayed(Duration(seconds: 2), () {
       overlay.remove();
+      setState(() {
+        isTurnBannerVisible = false;
+      });
     });
   }
 
@@ -310,20 +478,19 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
                 setState(() {
                   // Your zones
-                  playerHand = zones.playerHand;
-                  playerDeck = zones.playerDeck;
-                  playerShields = zones.playerShields;
-                  playerManaZone = zones.playerManaZone;
-                  playerGraveyard = zones.playerGraveyard;
-                  playerBattleZone = zones.playerBattleZone;
+                  playerHand = zones.playerHand ?? [];
+                  playerDeck = zones.playerDeck ?? [];
+                  playerShields = zones.playerShields ?? [];
+                  playerManaZone = zones.playerManaZone ?? [];
+                  playerGraveyard = zones.playerGraveyard ?? [];
+                  playerBattleZone = zones.playerBattleZone ?? [];
 
-                  // Opponent zones
-                  opponentHand = zones.opponentHand;
-                  opponentDeck = zones.opponentDeck;
-                  opponentShields = zones.opponentShields;
-                  opponentManaZone = zones.opponentManaZone;
-                  opponentGraveyard = zones.opponentGraveyard;
-                  opponentBattleZone = zones.opponentBattleZone;
+                  opponentHand = zones.opponentHand ?? [];
+                  opponentDeck = zones.opponentDeck ?? [];
+                  opponentShields = zones.opponentShields ?? [];
+                  opponentManaZone = zones.opponentManaZone ?? [];
+                  opponentGraveyard = zones.opponentGraveyard ?? [];
+                  opponentBattleZone = zones.opponentBattleZone ?? [];
 
                   deckSize = playerDeck.length;
                   opponentDeckSize = opponentDeck.length;
@@ -340,19 +507,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _searchForMatch() {
-    wsHandler.waitAndSearchForMatch(
-      hand: playerHand,
-      shields: playerShields,
-      deck: playerDeck,
-      onSearching: () {
-        setState(() {
-          hasJoinedMatch = true;
-        });
-      },
-    );
-  }
-
   void sendToMana(CardModel card) {
     if (!isMyTurn) {
       return;
@@ -364,16 +518,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     wsHandler.sendCardToMana(
       gameId: currentGameId,
       playerId: currentPlayerId,
-      playerTopic: myPlayerTopic,
       triggeredGameCardId: card.gameCardId,
-      onAlreadyPlayedMana: () {
-        showSnackBar("You can only send one card to mana per turn.");
-      },
-      onSucces: () {
-        setState(() {
-          glowingManaCardIds.add(card.gameCardId);
-        });
-      },
     );
     Future.delayed(Duration(seconds: 2), () {
       setState(() {
@@ -395,15 +540,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       gameId: currentGameId,
       playerId: currentPlayerId,
       currentTurnPlayerId: currentTurnPlayerId,
-      action: "ATTACK",
       attackerId: attacker.gameCardId,
       targetId: target.gameCardId,
       targetShield: targetShield,
-      onSucces: () {
-        setState(() {
-          _cancelAttackSelection();
-        });
-      },
     );
   }
 
@@ -413,29 +552,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       playerId: currentPlayerId,
       currentTurnPlayerId: currentTurnPlayerId,
       opponentId: opponentId,
-      action: "END_TURN",
-      onSuccess: () {
-        setState(() {
-          playerHand =
-              playerHand.map((card) {
-                return CardModel(
-                  id: card.id,
-                  power: card.power,
-                  gameCardId: card.gameCardId,
-                  name: card.name,
-                  type: card.type,
-                  civilization: card.civilization,
-                  race: card.race,
-                  manaCost: card.manaCost,
-                  manaNumber: card.manaNumber,
-                  ability: card.ability,
-                  specialAbility: card.specialAbility,
-                  tapped: card.tapped,
-                  summonable: true, // or apply your condition here
-                );
-              }).toList();
-        });
-      },
     );
   }
 
@@ -477,54 +593,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.green.shade900,
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Duel Masters - Match Start"),
-            if (currentTurnPlayerId != null)
-              Text(
-                currentTurnPlayerId == currentPlayerId
-                    ? "Your Turn"
-                    : "Opponent's Turn",
-                style: TextStyle(
-                  color:
-                      currentTurnPlayerId == currentPlayerId
-                          ? Colors.greenAccent
-                          : Colors.redAccent,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed:
-                      isConnected
-                          ? () {
-                            _searchForMatch();
-                            showSnackBar("🔍 Looking for opponent...");
-                          }
-                          : null,
-                  icon: Icon(Icons.person_search),
-                  label: Text("Search Match"),
-                ),
-                SizedBox(width: 12),
-                ElevatedButton.icon(
-                  onPressed: isMyTurn ? endTurn : null,
-                  icon: Icon(Icons.refresh),
-                  label: Text("End Turn"),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
@@ -536,7 +604,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           children: [
             Positioned.fill(
               child: Image.asset(
-                'assets/backgrounds/forest_board.png',
+                'assets/backgrounds/ice_board.png',
+                // 'assets/backgrounds/forest_board.png',
                 fit: BoxFit.cover,
               ),
             ),
@@ -547,80 +616,117 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 ),
                 child: IntrinsicHeight(
                   child: Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        OpponentField(
-                          hand: opponentHand,
-                          shields: opponentShields,
-                          manaZone: opponentManaZone,
-                          graveyard: opponentGraveyard,
-                          deckSize: opponentDeckSize,
-                          opponentBattleZone: opponentBattleZone,
-                          isSelectingAttackTarget: isSelectingAttackTarget,
-                          selectedAttacker: selectedAttacker,
-                          onTapManaZone:
-                              () => _showCardZoneDialog(
-                                "Opponent Mana",
-                                opponentManaZone,
-                                true,
-                              ),
-                          onTapHandCard:
-                              (card) => _showFullScreenCardPreview(card),
-                          onTapGraveyard:
-                              () => _showCardZoneDialog(
-                                "Opponent Graveyard",
-                                opponentGraveyard,
-                                true,
-                              ),
-                          glowAttackableShields: glowAttackableShields,
-                          glowAttackableCreatures: glowAttackableCreatures,
-                          // ✅
-                          onAttack: (card) => _startAttackSelection(card),
-                          // <- ADD THIS
-                          onConfirmAttack: (targetCard) {
-                            if (selectedAttacker == null) return;
-                            _attackShieldOrCreature(
-                              selectedAttacker!,
-                              targetCard,
-                            );
-                          },
-                        ),
-
-                        SizedBox(height: 16),
-                        SizedBox(height: 16),
-                        PlayerField(
-                          isMyTurn: isMyTurn,
-                          hand: playerHand,
-                          shields: playerShields,
-                          manaZone: playerManaZone,
-                          graveyard: playerGraveyard,
-                          deckSize: deckSize,
-                          onTapHandCard:
-                              (card) => _showFullScreenCardPreview(card),
-                          onTapManaCard:
-                              (card) => _showFullScreenCardPreview(card),
-                          onTapGraveyard:
-                              () => _showCardZoneDialog(
-                                "Graveyard",
-                                playerGraveyard,
-                              ),
-                          onSummonHandCard:
-                              (card) => _showManaSelectionDialog(card),
-                          onSendToManaHandCard: (card) => sendToMana(card),
-                          onAttack: (card) => _startAttackSelection(card),
-                          playedMana: playedMana,
-                          playerBattleZone: playerBattleZone,
-                        ),
-                        SizedBox(height: 16),
-                      ],
+                    padding: EdgeInsets.only(
+                      top: 8,
+                      bottom: 8,
+                      left: 12,
+                      right: 12,
+                    ),
+                    child: Transform(
+                      transform:
+                          Matrix4.identity()
+                            ..setEntry(3, 2, 0.0015)
+                            // ..setEntry(0, 2, 0.0015)
+                            ..rotateX(-0.15), // slight tilt
+                      // ..rotateX(-0.15), // slight tilt
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Transform.scale(
+                            scale: 0.85,
+                            child: OpponentField(
+                              hand: opponentHand,
+                              shields: opponentShields,
+                              manaZone: opponentManaZone,
+                              graveyard: opponentGraveyard,
+                              deckSize: opponentDeckSize,
+                              opponentBattleZone: opponentBattleZone,
+                              isSelectingAttackTarget: isSelectingAttackTarget,
+                              selectedAttacker: selectedAttacker,
+                              onTapManaZone:
+                                  () => _showCardZoneDialog(
+                                    "Opponent Mana",
+                                    opponentManaZone,
+                                    true,
+                                  ),
+                              onTapHandCard:
+                                  (card) => _showFullScreenCardPreview(card),
+                              onTapGraveyard:
+                                  () => _showCardZoneDialog(
+                                    "Opponent Graveyard",
+                                    opponentGraveyard,
+                                    true,
+                                  ),
+                              glowAttackableShields: glowAttackableShields,
+                              glowAttackableCreatures: glowAttackableCreatures,
+                              // ✅
+                              onAttack: (card) => _startAttackSelection(card),
+                              // <- ADD THIS
+                              onConfirmAttack: (targetCard) {
+                                if (selectedAttacker == null) return;
+                                _attackShieldOrCreature(
+                                  selectedAttacker!,
+                                  targetCard,
+                                );
+                              },
+                            ),
+                          ),
+                          Spacer(),
+                          SizedBox(height: 16),
+                          Transform.scale(
+                            scale: 0.85,
+                            child: PlayerField(
+                              isMyTurn: isMyTurn,
+                              hand: playerHand,
+                              shields: playerShields,
+                              manaZone: playerManaZone,
+                              graveyard: playerGraveyard,
+                              deckSize: deckSize,
+                              onTapHandCard:
+                                  (card) => _showFullScreenCardPreview(card),
+                              onTapManaCard:
+                                  (card) => _showFullScreenCardPreview(card),
+                              onTapGraveyard:
+                                  () => _showCardZoneDialog(
+                                    "Graveyard",
+                                    playerGraveyard,
+                                  ),
+                              onSummonHandCard:
+                                  (card) => _showManaSelectionDialog(card),
+                              onSendToManaHandCard: (card) => sendToMana(card),
+                              onAttack: (card) => _startAttackSelection(card),
+                              playedMana: playedMana,
+                              playerBattleZone: playerBattleZone,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
             if (solarRayMustSelectCreature) _showCreatureSelectionOverlay(),
+            if (terrorPitMustSelectCreature)
+              _showDestroyCreatureSelectionOverlay(),
+            if (tornadoFlameMustSelectCreature)
+              _showDestroyCreatureUnder4000SelectionOverlay(),
+            if (darkReversalMustSelectCreature)
+              _showGraveyardCreatureSelectionOverlay(),
+            if (spiralGateMustSelectCreature)
+              _showDualCreatureSelectionOverlay(),
+            if (aquaSniperMustSelectCreature)
+              _showDualCreatureListSelectionOverlay(),
+            if (naturalSnareMustSelectCreature)
+              _showCreatureSelectionForManaZoneOverlay(),
+            if (lastSelectedCreatureFromDeck != null &&
+                currentTurnPlayerId == currentPlayerId &&
+                !hasDismissedChosenCard)
+              _showChosenCard(),
+
+            _showTurnLabel(),
           ],
         ),
       ),
@@ -650,12 +756,117 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           action: "CAST_SHIELD_TRIGGER",
           usingShieldTrigger: true,
           triggeredGameCardId: selectedOpponentCreature!.gameCardId,
-          onSuccess: () {
-            setState(() {
-              shieldTrigger = false;
-              shieldTriggerCard = null;
-            });
-          },
+        );
+      },
+    );
+  }
+
+  Widget _showDestroyCreatureSelectionOverlay() {
+    final isMyCreature = currentTurnPlayerId != currentPlayerId;
+
+    return CreatureSelectionOverlay(
+      isMyCreature: isMyCreature,
+      shieldTriggerCard: shieldTriggerCard,
+      opponentSelectableCreatures: opponentBattleZone,
+      selectedOpponentCreature: selectedOpponentCreature,
+      onCardSelected: (card) {
+        setState(() {
+          selectedOpponentCreature = card;
+        });
+      },
+      onConfirm: () {
+        if (selectedOpponentCreature == null) return;
+
+        wsHandler.useShieldTriggerCard(
+          gameId: currentGameId,
+          playerId: currentPlayerId,
+          currentTurnPlayerId: currentTurnPlayerId,
+          action: "CAST_SHIELD_TRIGGER",
+          usingShieldTrigger: true,
+          triggeredGameCardId: selectedOpponentCreature!.gameCardId,
+        );
+      },
+    );
+  }
+
+  Widget _showCreatureSelectionForManaZoneOverlay() {
+    final isMyCreature = currentTurnPlayerId != currentPlayerId;
+
+    return CreatureSelectionForManaZoneOverlay(
+      isMyCreature: isMyCreature,
+      shieldTriggerCard: shieldTriggerCard,
+      opponentSelectableCreatures: opponentBattleZone,
+      selectedOpponentCreature: selectedOpponentCreature,
+      onCardSelected: (card) {
+        setState(() {
+          selectedOpponentCreature = card;
+        });
+      },
+      onConfirm: () {
+        if (selectedOpponentCreature == null) return;
+        wsHandler.useShieldTriggerCard(
+          gameId: currentGameId,
+          playerId: currentPlayerId,
+          currentTurnPlayerId: currentTurnPlayerId,
+          action: "CAST_SHIELD_TRIGGER",
+          usingShieldTrigger: true,
+          triggeredGameCardId: selectedOpponentCreature!.gameCardId,
+        );
+      },
+    );
+  }
+
+  Widget _showDestroyCreatureUnder4000SelectionOverlay() {
+    final isMyCreature = currentTurnPlayerId != currentPlayerId;
+
+    return DestroyCreatureUnder4000SelectionOverlay(
+      isMyCreature: isMyCreature,
+      shieldTriggerCard: shieldTriggerCard,
+      opponentUnder4000Creatures: opponentUnder4000Creatures,
+      selectedOpponentCreature: selectedOpponentCreature,
+      onCardSelected: (card) {
+        setState(() {
+          selectedOpponentCreature = card;
+        });
+      },
+      onConfirm: () {
+        if (selectedOpponentCreature == null) return;
+
+        wsHandler.useShieldTriggerCard(
+          gameId: currentGameId,
+          playerId: currentPlayerId,
+          currentTurnPlayerId: currentTurnPlayerId,
+          action: "CAST_SHIELD_TRIGGER",
+          usingShieldTrigger: true,
+          triggeredGameCardId: selectedOpponentCreature!.gameCardId,
+        );
+      },
+    );
+  }
+
+  Widget _showGraveyardCreatureSelectionOverlay() {
+    final isMyCreature = currentTurnPlayerId != currentPlayerId;
+
+    return GraveyardCreatureSelectionOverlay(
+      isMyCreature: isMyCreature,
+      shieldTriggerCard: shieldTriggerCard,
+      opponentSelectableCreatures: playerCreatureGraveyard,
+      selectedOpponentCreature: selectCreatureFromGraveyard,
+      onCardSelected: (card) {
+        setState(() {
+          selectCreatureFromGraveyard = card;
+        });
+      },
+      onConfirm: () {
+        if (selectCreatureFromGraveyard == null) return;
+
+        wsHandler.useShieldTriggerCard(
+          gameId: currentGameId,
+          playerId: currentPlayerId,
+          currentTurnPlayerId: currentTurnPlayerId,
+          action: "CAST_SHIELD_TRIGGER",
+          usingShieldTrigger: true,
+          triggeredGameCardId: selectCreatureFromGraveyard!.gameCardId,
         );
       },
     );
@@ -664,7 +875,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   void _showBlockerSelectionDialog() {
     final isDefendingPlayer = currentTurnPlayerId != currentPlayerId;
     final blockers =
-        playerBattleZone.where((c) => c.specialAbility == 'BLOCKER').toList();
+        playerBattleZone
+            .where((c) => c.specialAbility == 'BLOCKER' && !c.tapped)
+            .toList();
 
     showDialog(
       context: context,
@@ -683,13 +896,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 attackerId: "",
                 targetId: selected.gameCardId,
                 targetShield: false,
-                onSuccess: () {
-                  setState(() {
-                    _cancelAttackSelection();
-                    opponentHasBlocker = false;
-                  });
-                  Navigator.pop(context);
-                },
               );
             },
             onSkip: () {
@@ -698,13 +904,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 playerId: currentPlayerId,
                 currentTurnPlayerId: currentTurnPlayerId,
                 action: "BLOCK",
-                onSuccess: () {
-                  setState(() {
-                    _cancelAttackSelection();
-                    opponentHasBlocker = false;
-                  });
-                  Navigator.pop(context);
-                },
               );
             },
           );
@@ -764,15 +963,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   currentTurnPlayerId: currentTurnPlayerId,
                   action: "CAST_SHIELD_TRIGGER",
                   usingShieldTrigger: true,
-                  onSuccess: () {
-                    setState(() {
-                      shieldTrigger = false;
-                      shieldTriggerCard = null;
-                    });
-                    Navigator.pop(
-                      context,
-                    ); // ✅ Close it here after backend success
-                  },
                 );
               },
               onSkip: () {
@@ -782,13 +972,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   currentTurnPlayerId: currentTurnPlayerId,
                   action: "CAST_SHIELD_TRIGGER",
                   usingShieldTrigger: false,
-                  onSuccess: () {
-                    setState(() {
-                      shieldTrigger = false;
-                      shieldTriggerCard = null;
-                    });
-                    Navigator.pop(context);
-                  },
                 );
               },
             ),
@@ -815,12 +998,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     wsHandler.summonWithMana(
       gameId: currentGameId,
       playerId: currentPlayerId,
-      playerTopic: myPlayerTopic,
       triggeredGameCardId: card.gameCardId,
       selectedManaCardIds: selectedManaIds,
-      onSucces: () {
-        setState(() {});
-      },
     );
   }
 
@@ -924,17 +1103,220 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                 currentTurnPlayerId: currentTurnPlayerId,
                 action: "CAST_SHIELD_TRIGGER",
                 cardsChosen: selectedIds,
+                cardsDrawn: selectedIds.length,
                 shieldTriggerDecisionMade: true,
                 usingShieldTrigger: true,
-                onSuccess: () {
-                  setState(() {
-                    shieldTrigger = false;
-                    shieldTriggerCard = null;
-                  });
-                },
               );
             },
           ),
+    );
+  }
+
+  void _showCountCardDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => SelectCardCountDialog(
+            onConfirm: (count) {
+              wsHandler.sendDrawCardsFromDeck(
+                gameId: currentGameId,
+                playerId: currentPlayerId,
+                currentTurnPlayerId: currentTurnPlayerId,
+                action: "CAST_SHIELD_TRIGGER",
+                cardsChosen: ["nonemptylist"],
+                cardsDrawn: count,
+                shieldTriggerDecisionMade: true,
+                usingShieldTrigger: true,
+              );
+            },
+            onCancel: () {
+              // Optional: handle cancel, or do nothing
+            },
+          ),
+    );
+  }
+
+  void _showDrawCreatureFromDeckDialog() {
+    final isMyCreature = currentTurnPlayerId != currentPlayerId;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => SelectCreatureFromDeckDialog(
+            isMyCreature: isMyCreature,
+            deck: playerCreatureDeck,
+            onConfirm: (selectedIds) {
+              wsHandler.sendDrawCardsFromDeck(
+                gameId: currentGameId,
+                playerId: currentPlayerId,
+                currentTurnPlayerId: currentTurnPlayerId,
+                action: "CAST_SHIELD_TRIGGER",
+                cardsChosen: selectedIds,
+                cardsDrawn: selectedIds.length,
+                shieldTriggerDecisionMade: true,
+                usingShieldTrigger: true,
+              );
+            },
+          ),
+    );
+  }
+
+  Positioned _showChosenCard() {
+    return Positioned(
+      top: MediaQuery.of(context).size.height * 0.25,
+      left: MediaQuery.of(context).size.width * 0.5 - 100,
+      child: AnimatedOpacity(
+        opacity: 1,
+        duration: Duration(milliseconds: 500),
+        child: Container(
+          width: 220,
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white70, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blueAccent.withOpacity(0.6),
+                blurRadius: 20,
+                spreadRadius: 4,
+              ),
+            ],
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // ⭐ Sparkle particles
+              Positioned(
+                top: -10,
+                left: -10,
+                child: Icon(
+                  Icons.auto_awesome,
+                  color: Colors.blueAccent,
+                  size: 24,
+                ),
+              ),
+              Positioned(
+                top: -10,
+                right: -10,
+                child: Icon(
+                  Icons.auto_awesome,
+                  color: Colors.purpleAccent,
+                  size: 20,
+                ),
+              ),
+              Positioned(
+                bottom: -10,
+                left: 0,
+                child: Icon(
+                  Icons.auto_awesome,
+                  color: Colors.cyanAccent,
+                  size: 18,
+                ),
+              ),
+              // Main content
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Chosen Creature",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 800),
+                    curve: Curves.easeInOut,
+                    padding: EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blueAccent.withOpacity(0.8),
+                          blurRadius: 20,
+                          spreadRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: Image.asset(
+                      lastSelectedCreatureFromDeck!.imagePath,
+                      width: 120,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    lastSelectedCreatureFromDeck!.name,
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                  SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        hasDismissedChosenCard = true;
+                        lastSelectedCreatureFromDeck = null;
+                      });
+                    },
+                    child: Text(
+                      "Dismiss",
+                      style: TextStyle(color: Colors.redAccent),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Positioned _showTurnLabel() {
+    return Positioned(
+      top: MediaQuery.of(context).size.height / 2 - 30,
+      left: 16,
+      right: 16,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Left side: Turn label
+          !isTurnBannerVisible
+              ? Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  currentTurnPlayerId == currentPlayerId
+                      ? "Your Turn"
+                      : "Opponent's Turn",
+                  style: TextStyle(
+                    color:
+                        currentTurnPlayerId == currentPlayerId
+                            ? Colors.greenAccent
+                            : Colors.redAccent,
+                    fontSize: 14, // smaller font size
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+              : SizedBox(width: 0),
+
+          // Right side: End Turn button
+          ElevatedButton.icon(
+            onPressed: isMyTurn ? endTurn : null,
+            icon: Icon(Icons.refresh),
+            label: Text("End Turn"),
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

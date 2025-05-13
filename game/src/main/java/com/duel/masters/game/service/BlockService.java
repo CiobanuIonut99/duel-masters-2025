@@ -1,5 +1,6 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,7 @@ public class BlockService {
     private final AttackShieldService attackShieldService;
     private final AttackCreatureService attackCreatureService;
 
-    public void block(GameStateDto currentState, GameStateDto incomingState) {
+    public void block(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
 
         var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
         var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
@@ -43,11 +44,13 @@ public class BlockService {
                     ownGraveyard,
                     opponentBattleZone,
                     opponentGraveyard,
-                    currentState
+                    currentState,
+                    incomingState,
+                    webSocketHandler
             );
 
             currentState.setOpponentHasBlocker(false);
-            topicService.sendGameStatesToTopics(currentState);
+            topicService.sendGameStatesToTopics(currentState, webSocketHandler);
 
         } else {
 
@@ -64,7 +67,8 @@ public class BlockService {
                         incomingState,
                         attackerCard,
                         targetCard,
-                        attackerId
+                        attackerId,
+                        webSocketHandler
                 );
 
             } else {
@@ -76,13 +80,15 @@ public class BlockService {
                         ownGraveyard,
                         opponentBattleZone,
                         opponentGraveyard,
-                        currentState
+                        currentState,
+                        incomingState,
+                        webSocketHandler
                 );
                 currentState.setOpponentHasBlocker(false);
 
             }
 
-            topicService.sendGameStatesToTopics(currentState);
+            topicService.sendGameStatesToTopics(currentState, webSocketHandler);
         }
     }
 }

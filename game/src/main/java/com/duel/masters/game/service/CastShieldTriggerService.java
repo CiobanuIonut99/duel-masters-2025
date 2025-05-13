@@ -1,8 +1,9 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
-import com.duel.masters.game.effects.ShieldTriggerRegistry;
+import com.duel.masters.game.effects.triggers.ShieldTriggerRegistry;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,9 @@ public class CastShieldTriggerService {
     private final TopicService topicService;
     private final CardsUpdateService cardsUpdateService;
     private final AttackShieldService attackShieldService;
+    private final GameStateStore gameStateStore;
 
-    public void triggerShieldTriggerLogic(GameStateDto currentState, GameStateDto incomingState) {
+    public void triggerShieldTriggerLogic(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
 
         if (incomingState.isUsingShieldTrigger()) {
             useShieldTrigger(currentState, incomingState);
@@ -26,7 +28,9 @@ public class CastShieldTriggerService {
             doNotUseShieldTrigger(currentState, incomingState);
         }
         currentState.getShieldTriggersFlagsDto().setShieldTrigger(false);
-        topicService.sendGameStatesToTopics(currentState);
+        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
+        currentState.getShieldTriggersFlagsDto().setLastSelectedCreatureFromDeck(null);
+        gameStateStore.saveGameState(currentState);
     }
 
     private void useShieldTrigger(GameStateDto currentState, GameStateDto incomingState) {
@@ -36,8 +40,12 @@ public class CastShieldTriggerService {
         var trigerredShield = new CardDto();
 
         if (incomingState.getTriggeredGameCardId() == null &&
+                incomingState.getShieldTriggersFlagsDto() != null &&
+                incomingState.getShieldTriggersFlagsDto().getCardsChosen() != null &&
                 incomingState.getShieldTriggersFlagsDto().getCardsChosen().isEmpty()) {
+
             trigerredShield = getCardDtoFromList(ownCards.getShields(), triggeredShieldId);
+
         } else {
             trigerredShield = currentState.getShieldTriggerCard();
         }
@@ -46,7 +54,6 @@ public class CastShieldTriggerService {
                 .getShieldTriggerEffect(trigerredShield.getName());
 
         shieldTriggerEffect.execute(currentState, incomingState, cardsUpdateService);
-
     }
 
     private void doNotUseShieldTrigger(GameStateDto currentState, GameStateDto incomingState) {

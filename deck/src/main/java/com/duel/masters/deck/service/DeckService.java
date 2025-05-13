@@ -81,17 +81,17 @@ public class DeckService {
         shuffleCards(deck);
 
 
-        var holyawe = cardDtoList
-                .stream()
-                .filter(cardDto -> cardDto.getId() == 16)
-                .findFirst()
-                .orElseThrow();
-
-        var solarRay = cardDtoList
-                .stream()
-                .filter(cardDto -> cardDto.getId() == 29)
-                .findFirst()
-                .orElseThrow();
+//        var holyawe = cardDtoList
+//                .stream()
+//                .filter(cardDto -> cardDto.getId() == 16)
+//                .findFirst()
+//                .orElseThrow();
+//
+//        var solarRay = cardDtoList
+//                .stream()
+//                .filter(cardDto -> cardDto.getId() == 29)
+//                .findFirst()
+//                .orElseThrow();
 
         var brainSerum = cardDtoList
                 .stream()
@@ -99,21 +99,126 @@ public class DeckService {
                 .findFirst()
                 .orElseThrow();
 
-        var crystalMemory = cardDtoList
+        var spiralGate = cardDtoList
                 .stream()
-                .filter(cardDto -> cardDto.getId() == 39)
+                .filter(cardDto -> cardDto.getId() == 50)
                 .findFirst()
                 .orElseThrow();
+
+        var darkReversal = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 62)
+                .findFirst()
+                .orElseThrow();
+
+        var ghostTouch = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 64)
+                .findFirst()
+                .orElseThrow();
+
+        var terrorPit = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 73)
+                .findFirst()
+                .orElseThrow();
+
+        var tornadoFlame = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 98)
+                .findFirst()
+                .orElseThrow();
+
+        var dimensionGate = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 103)
+                .findFirst()
+                .orElseThrow();
+
+        var naturalSnare = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 109)
+                .findFirst()
+                .orElseThrow();
+
+        var urth = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 2)
+                .findFirst()
+                .orElseThrow();
+
+        var aquaSniper = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 3)
+                .findFirst()
+                .orElseThrow();
+
+
+        var deopticon = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 4)
+                .findFirst()
+                .orElseThrow();
+
+        var tropice = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 52)
+                .findFirst()
+                .orElseThrow();
+
+        var scarlet = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 7)
+                .findFirst()
+                .orElseThrow();
+
+        var brawler = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 80)
+                .findFirst()
+                .orElseThrow();
+        var chilias = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 11)
+                .findFirst()
+                .orElseThrow();
+        var aqua = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 34)
+                .findFirst()
+                .orElseThrow();
+
+        var a = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 12)
+                .findFirst()
+                .orElseThrow();
+        var b = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 13)
+                .findFirst()
+                .orElseThrow();
+
         List<CardDto> cardsToAdd = new ArrayList<>();
 
-// These always get added later
-        cardsToAdd.add(holyawe);
-        cardsToAdd.add(solarRay);
-        cardsToAdd.add(brainSerum);
-        cardsToAdd.add(crystalMemory);
+        cardsToAdd.add(aquaSniper);
+        cardsToAdd.add(scarlet);
+        cardsToAdd.add(brawler);
+        cardsToAdd.add(chilias);
+        cardsToAdd.add(chilias);
+        cardsToAdd.add(aqua);
+        cardsToAdd.add(a);
+        cardsToAdd.add(b);
 
-        deck.removeIf(c -> c.getId() == 16 || c.getId() == 29 || c.getId() == 37
-         || c.getId() == 39);
+
+        deck.removeIf(
+                c ->
+                c.getId() == 3 ||
+                c.getId() == 7 ||
+                c.getId() == 11 ||
+                c.getId() == 34 ||
+                c.getId() ==80
+        );
         while (deck.size() + cardsToAdd.size() > 40) {
             deck.removeFirst(); // remove extras
         }

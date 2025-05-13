@@ -1,10 +1,14 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.dto.card.service.CardDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.getCreatureEffect;
+import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.getCreatureEffectNames;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 import static com.duel.masters.game.util.ValidatorUtil.canSummon;
 
@@ -16,31 +20,58 @@ public class SummonToBattleZoneService {
     private final TopicService topicService;
     private final CardsUpdateService cardsUpdateService;
 
-    public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingState) {
+    public void summonToBattleZone(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
+
         var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
-        var hand = ownCards.getHand();
-        var battleZone = ownCards.getBattleZone();
-        var manaZone = ownCards.getManaZone();
 
-        var triggeredCardIds = incomingState.getTriggeredGameCardIds();
-        var cardToBeSummoned = getCardDtoFromList(hand, incomingState.getTriggeredGameCardId());
-        var selectedManaCards = getSelectedManaCards(manaZone, triggeredCardIds);
-        var canCardBeSummoned = canSummon(getCardIds(manaZone),
-                triggeredCardIds,
-                manaZone,
-                selectedManaCards,
-                cardToBeSummoned);
+        var ownhand = ownCards.getHand();
+        var ownManazone = ownCards.getManaZone();
+        var ownBattlezone = ownCards.getBattleZone();
 
-        if (canCardBeSummoned) {
-            tapCards(selectedManaCards);
+        var manaCardIds = incomingState.getTriggeredGameCardIds();
+        var incomingStateTriggeredGameCardId = incomingState.getTriggeredGameCardId();
+        CardDto cardToBeSummoned;
 
-            playCard(hand, cardToBeSummoned.getGameCardId(), battleZone);
-            log.info("Summoning {}", cardToBeSummoned.getName());
-            cardToBeSummoned.setSummoningSickness(true);
-            setCardsSummonable(manaZone, hand);
-            topicService.sendGameStatesToTopics(currentState);
-            log.info("Card summoned to battle zone : {}", battleZone);
+        if (!currentState.getEffectsDto().isHasEffect()) {
+
+            cardToBeSummoned = getCardDtoFromList(ownhand, incomingStateTriggeredGameCardId);
+            var selectedManaCards = getSelectedManaCards(ownManazone, manaCardIds);
+            var canCardBeSummoned = canSummon(getCardIds(ownManazone),
+                    manaCardIds,
+                    ownManazone,
+                    selectedManaCards,
+                    cardToBeSummoned);
+            if (canCardBeSummoned) {
+
+                tapCards(selectedManaCards);
+                playCard(ownhand, cardToBeSummoned.getGameCardId(), ownBattlezone);
+                cardToBeSummoned.setSummoningSickness(true);
+                setCardsSummonable(ownManazone, ownhand);
+
+                var creatureEffectNames = getCreatureEffectNames();
+                if (creatureEffectNames.contains(cardToBeSummoned.getName())) {
+                    currentState.setTriggeredGameCardId(incomingStateTriggeredGameCardId);
+                    var creatureImmediateEffect = getCreatureEffect(cardToBeSummoned.getName());
+                    creatureImmediateEffect.execute(currentState, incomingState, cardsUpdateService);
+                    currentState.getEffectsDto().setHasEffect(true);
+                }
+
+            }
+
+        } else {
+
+            cardToBeSummoned = getCardDtoFromList(ownBattlezone, currentState.getTriggeredGameCardId());
+            var creatureEffectNames = getCreatureEffectNames();
+            if (creatureEffectNames.contains(cardToBeSummoned.getName())) {
+                var creatureImmediateEffect = getCreatureEffect(cardToBeSummoned.getName());
+                creatureImmediateEffect.execute(currentState, incomingState, cardsUpdateService);
+                currentState.getEffectsDto().setHasEffect(false);
+            }
+
         }
+
+        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
+        log.info("Card summoned to battle zone : {}", cardToBeSummoned.getName());
     }
 
 }

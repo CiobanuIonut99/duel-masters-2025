@@ -1,10 +1,12 @@
-package com.duel.masters.game.effects;
+package com.duel.masters.game.effects.triggers;
+
+import com.duel.masters.game.effects.Effect;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ShieldTriggerRegistry {
-    private static final Map<String, ShieldTriggerEffect> shieldTriggerEffects = new ConcurrentHashMap<>();
+    private static final Map<String, Effect> shieldTriggerEffects = new ConcurrentHashMap<>();
 
     static {
         shieldTriggerEffects.put("Holy Awe", new HolyAweEffect());
@@ -20,7 +22,7 @@ public class ShieldTriggerRegistry {
         shieldTriggerEffects.put("Natural Snare", new NaturalSnareEffect());
     }
 
-    public static ShieldTriggerEffect getShieldTriggerEffect(String name) {
+    public static Effect getShieldTriggerEffect(String name) {
         return shieldTriggerEffects.get(name);
     }
 }

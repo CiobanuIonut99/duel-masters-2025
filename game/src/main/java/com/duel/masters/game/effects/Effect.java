@@ -4,7 +4,7 @@ import com.duel.masters.game.dto.CardsDto;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.service.CardsUpdateService;
 
-public interface ShieldTriggerEffect {
+public interface Effect {
     void execute(GameStateDto currentState,
                  GameStateDto incomingState,
                  CardsUpdateService cardsUpdateService);

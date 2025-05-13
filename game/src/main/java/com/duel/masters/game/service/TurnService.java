@@ -1,10 +1,12 @@
 package com.duel.masters.game.service;
 
+import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static com.duel.masters.game.effects.summoning.registry.CreatureRegistry.getCreatureEffect;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 @Slf4j
@@ -15,13 +17,17 @@ public class TurnService {
     private final TopicService topicService;
     private final CardsUpdateService cardsUpdateService;
 
-    public void endTurn(GameStateDto currentState, GameStateDto incomingState) {
+
+    public void endTurn(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
         log.info("Current player ends turn");
         var opponentCards = cardsUpdateService.getOpponentCards(currentState, incomingState);
         var opponentDeck = opponentCards.getDeck();
         var opponentHand = opponentCards.getHand();
         var opponentManaZone = opponentCards.getManaZone();
         var opponentBattleZone = opponentCards.getBattleZone();
+
+        var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
+        var ownBattleZone = ownCards.getBattleZone();
 
         currentState.setPlayedMana(false);
         currentState.setCurrentTurnPlayerId(incomingState.getOpponentId());
@@ -31,9 +37,25 @@ public class TurnService {
         setCardsSummonable(opponentManaZone, opponentHand);
         setOpponentsCreaturesCanAttack(opponentBattleZone);
         cureOpponentsCreaturesSickness(opponentBattleZone);
-        opponentBattleZone.forEach(cardDto -> cardDto.setCanBeAttacked(false));
+        if (opponentBattleZone != null) {
+            opponentBattleZone.forEach(cardDto -> cardDto.setCanBeAttacked(false));
+        }
         setOpponentsCreaturesAttackable(cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone());
 
-        topicService.sendGameStatesToTopics(currentState);
+        if (ownBattleZone != null) {
+            ownBattleZone
+                    .stream()
+                    .filter(ownCard -> ownCard.getId().equals(2L))
+                    .forEach(ownCard -> {
+                        var creatureEffect = getCreatureEffect(ownCard.getName());
+                        creatureEffect.execute(currentState, incomingState, cardsUpdateService);
+                    });
+        }
+
+//        var gameStatePlayer = getGameStateDtoPlayerEndTurn(currentState);
+//        var gameStateOpponent = getGameStateDtoOpponentEndTurn(currentState);
+//        topicService.sendGameStatesToTopics(currentState, webSocketHandler, gameStatePlayer, gameStateOpponent);
+
+        topicService.sendGameStatesToTopics(currentState, webSocketHandler);
     }
 }
