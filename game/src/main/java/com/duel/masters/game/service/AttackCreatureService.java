@@ -46,7 +46,10 @@ public class AttackCreatureService implements AttackService {
         var blockerFlagsDto = currentState.getBlockerFlagsDto();
 
         if (battleZoneHasAtLeastOneBlocker(opponentBattleZone) &&
-                !blockerFlagsDto.isBlockerDecisionMade()) {
+                !blockerFlagsDto.isBlockerDecisionMade() && (
+                !attackerCard.getAbility().equalsIgnoreCase("This creature cant be blocked") &&
+                        !(ownCards.getBattleZone().size() > 2 && attackerCard.getAbility().contains("This creature cant be blocked while you have at least 2 other creatures in the battle zone"))
+        )) {
 
             currentState.setOpponentHasBlocker(true);
             blockerFlagsDto.setBlockerDecisionMade(true);

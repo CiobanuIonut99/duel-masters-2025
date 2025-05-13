@@ -8,8 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.getCreaturePowerAttackerEffect;
-import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.getPowerAttackerAbility;
+import static com.duel.masters.game.constant.Constant.CAP;
 import static com.duel.masters.game.util.CardsDtoUtil.getCardDtoFromList;
 
 @Slf4j
@@ -69,7 +68,9 @@ public class AttackServiceImplementation implements AttackService {
         currentState.setTargetId(targetId);
 
         if (targetCard.isShield()) {
-            attackShieldService.attack(currentState, incomingState, attackerCard, targetCard, targetId, webSocketHandler);
+            if (!CAP.equalsIgnoreCase(attackerCard.getAbility())) {
+                attackShieldService.attack(currentState, incomingState, attackerCard, targetCard, targetId, webSocketHandler);
+            }
         } else {
             attackCreatureService.attack(currentState, incomingState, attackerCard, targetCard, targetId, webSocketHandler);
         }

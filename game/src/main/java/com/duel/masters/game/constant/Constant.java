@@ -12,4 +12,5 @@ public class Constant {
     public static final String SHIELD_TRIGGER = "SHIELD_TRIGGER";
     public static final String ON_DESTROY_GO_TO_MANA = "ON_DESTROY_GO_TO_MANA";
     public static final String ON_DESTROY_GO_TO_HAND = "ON_DESTROY_GO_TO_HAND";
+    public static final String CAP = "CAP";
 }
