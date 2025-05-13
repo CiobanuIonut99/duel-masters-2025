@@ -156,7 +156,6 @@ public class AttackCreatureService implements AttackService {
 
     @Override
     public void attack(GameStateDto currentState, GameStateDto incomingState, GameWebSocketHandler webSocketHandler) {
-
     }
 
 }
