@@ -3,6 +3,8 @@ package com.duel.masters.game.service;
 import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.card.service.CardDto;
+import com.duel.masters.game.effects.Effect;
+import com.duel.masters.game.effects.passive.CreaturePA2K;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -58,7 +60,6 @@ public class AttackCreatureService implements AttackService {
                     ownBattleZone,
                     ownGraveyard,
                     currentState,
-                    incomingState,
                     websocketHandler
             );
             currentState.setOpponentHasBlocker(false);
@@ -73,14 +74,19 @@ public class AttackCreatureService implements AttackService {
                                List<CardDto> ownBattleZone,
                                List<CardDto> ownGraveyard,
                                GameStateDto currentState,
-                               GameStateDto incomingState,
                                GameWebSocketHandler webSocketHandler) {
 
         var attackerPower = attackerCard.getPower();
         var targetPower = targetCard.getPower();
-        if (getPowerAttackerAbility().contains(attackerCard.getAbility())) {
+        Effect effect;
 
-            getCreaturePowerAttackerEffect(attackerCard.getAbility()).execute(currentState, incomingState, cardsUpdateService);
+        if (getPowerAttackerAbility().contains(attackerCard.getAbility())) {
+            effect = getCreaturePowerAttackerEffect(attackerCard.getAbility());
+            if (effect instanceof CreaturePA2K) {
+                attackerPower = attackerPower + 2000;
+            } else {
+                attackerPower = attackerPower + 4000;
+            }
         }
 
         if (attackerPower > targetPower) {
@@ -150,7 +156,6 @@ public class AttackCreatureService implements AttackService {
                             2000, TimeUnit.MILLISECONDS);
 
         }
-        attackerCard.setPower(attackerPower);
         currentState.getBlockerFlagsDto().setBlockerDecisionMade(false);
     }
 

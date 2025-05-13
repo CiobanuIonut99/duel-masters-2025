@@ -45,7 +45,6 @@ public class BlockService {
                     opponentBattleZone,
                     opponentGraveyard,
                     currentState,
-                    incomingState,
                     webSocketHandler
             );
 
@@ -81,7 +80,6 @@ public class BlockService {
                         opponentBattleZone,
                         opponentGraveyard,
                         currentState,
-                        incomingState,
                         webSocketHandler
                 );
                 currentState.setOpponentHasBlocker(false);
