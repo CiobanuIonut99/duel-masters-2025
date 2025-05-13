@@ -561,24 +561,29 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   void _startAttackSelection(CardModel attacker) {
     if (!isMyTurn) return;
+
+    final hasCAP = attacker.specialAbility == 'CAP';
+
     setState(() {
       selectedAttacker = attacker;
       isSelectingAttackTarget = true;
 
-      // Make opponent creatures glow (just like mana selection)
-      glowAttackableShields =
-          opponentShields
-              .where((c) => c.canBeAttacked)
-              .map((c) => c.gameCardId)
-              .toSet();
+      // Only glow shields if attacker does NOT have CAP
+      glowAttackableShields = hasCAP
+          ? {}
+          : opponentShields
+          .where((c) => c.canBeAttacked)
+          .map((c) => c.gameCardId)
+          .toSet();
 
-      glowAttackableCreatures =
-          opponentBattleZone
-              .where((c) => c.canBeAttacked)
-              .map((c) => c.gameCardId)
-              .toSet();
+      // Always allow attacking creatures regardless of CAP
+      glowAttackableCreatures = opponentBattleZone
+          .where((c) => c.canBeAttacked)
+          .map((c) => c.gameCardId)
+          .toSet();
     });
   }
+
 
   void _cancelAttackSelection() {
     setState(() {
