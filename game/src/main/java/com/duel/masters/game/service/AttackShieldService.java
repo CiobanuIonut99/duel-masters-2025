@@ -59,10 +59,10 @@ public class AttackShieldService implements AttackService {
                 currentState.setOpponentHasBlocker(false);
 
             } else {
-                attackShieldAsPlayerOrOpponent(currentState,
+                attackShieldAsPlayerOrOpponent(
+                        currentState,
                         attackerCard,
                         targetCard,
-                        targetId,
                         blockerFlagsDto,
                         ownCards,
                         opponentShields,
@@ -75,21 +75,19 @@ public class AttackShieldService implements AttackService {
         }
     }
 
-    private void attackShieldAsPlayerOrOpponent(GameStateDto currentState, CardDto attackerCard, CardDto targetCard, String targetId, BlockerFlagsDto blockerFlagsDto, CardsDto ownCards, List<CardDto> opponentShields, List<CardDto> opponentHand) {
+    private void attackShieldAsPlayerOrOpponent(GameStateDto currentState, CardDto attackerCard, CardDto targetCard, BlockerFlagsDto blockerFlagsDto, CardsDto ownCards, List<CardDto> opponentShields, List<CardDto> opponentHand) {
         if (blockerFlagsDto.isBlockerDecisionMade()) {
             attackShield(
                     currentState,
                     ownCards.getShields(),
-                    attackerCard.getGameCardId(),
                     ownCards.getHand(),
-                    attackerCard,
-                    targetCard
+                    targetCard,
+                    attackerCard
             );
         } else {
             attackShield(
                     currentState,
                     opponentShields,
-                    targetId,
                     opponentHand,
                     targetCard,
                     attackerCard);
@@ -98,12 +96,11 @@ public class AttackShieldService implements AttackService {
 
     public void attackShield(GameStateDto currentState,
                              List<CardDto> opponentShields,
-                             String targetId,
                              List<CardDto> opponentHand,
                              CardDto targetCard,
                              CardDto attackerCard) {
 
-        playCard(opponentShields, targetId, opponentHand);
+        playCard(opponentShields, targetCard.getGameCardId(), opponentHand);
 
         attackerCard.setTapped(true);
         attackerCard.setCanAttack(false);

@@ -66,7 +66,6 @@ public class CastShieldTriggerService {
                 .attackShield(
                         currentState,
                         ownCards.getShields(),
-                        currentState.getTargetId(),
                         ownCards.getHand(),
                         targetCard,
                         attackerCard

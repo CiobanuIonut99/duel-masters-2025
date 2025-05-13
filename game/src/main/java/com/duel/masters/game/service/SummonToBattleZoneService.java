@@ -7,8 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.getCreatureEffect;
-import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.getCreatureEffectNames;
+import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.*;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 import static com.duel.masters.game.util.ValidatorUtil.canSummon;
 
@@ -48,12 +47,18 @@ public class SummonToBattleZoneService {
                 cardToBeSummoned.setSummoningSickness(true);
                 setCardsSummonable(ownManazone, ownhand);
 
-                var creatureEffectNames = getCreatureEffectNames();
+                var creatureEffectNames = getCreatureImmediateEffectNames();
                 if (creatureEffectNames.contains(cardToBeSummoned.getName())) {
                     currentState.setTriggeredGameCardId(incomingStateTriggeredGameCardId);
-                    var creatureImmediateEffect = getCreatureEffect(cardToBeSummoned.getName());
+                    var creatureImmediateEffect = getCreatureImmediateEffect(cardToBeSummoned.getName());
                     creatureImmediateEffect.execute(currentState, incomingState, cardsUpdateService);
                     currentState.getEffectsDto().setHasEffect(true);
+                }
+                if (getCreatureImmediateEffectNamesNoUi()
+                        .contains(cardToBeSummoned.getName())) {
+                    currentState.setTriggeredGameCardId(incomingStateTriggeredGameCardId);
+                    var creatureImmediateEffectNoUi = getCreatureImmediateEffectNoUi(cardToBeSummoned.getName());
+                    creatureImmediateEffectNoUi.execute(currentState, incomingState, cardsUpdateService);
                 }
 
             }
@@ -61,9 +66,9 @@ public class SummonToBattleZoneService {
         } else {
 
             cardToBeSummoned = getCardDtoFromList(ownBattlezone, currentState.getTriggeredGameCardId());
-            var creatureEffectNames = getCreatureEffectNames();
+            var creatureEffectNames = getCreatureImmediateEffectNames();
             if (creatureEffectNames.contains(cardToBeSummoned.getName())) {
-                var creatureImmediateEffect = getCreatureEffect(cardToBeSummoned.getName());
+                var creatureImmediateEffect = getCreatureImmediateEffect(cardToBeSummoned.getName());
                 creatureImmediateEffect.execute(currentState, incomingState, cardsUpdateService);
                 currentState.getEffectsDto().setHasEffect(false);
             }

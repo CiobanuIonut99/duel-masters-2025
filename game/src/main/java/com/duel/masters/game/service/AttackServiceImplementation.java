@@ -69,10 +69,22 @@ public class AttackServiceImplementation implements AttackService {
 
         if (targetCard.isShield()) {
             if (!CAP.equalsIgnoreCase(attackerCard.getAbility())) {
-                attackShieldService.attack(currentState, incomingState, attackerCard, targetCard, targetId, webSocketHandler);
+                attackShieldService.attack(
+                        currentState,
+                        incomingState,
+                        attackerCard,
+                        targetCard,
+                        targetId,
+                        webSocketHandler);
             }
         } else {
-            attackCreatureService.attack(currentState, incomingState, attackerCard, targetCard, targetId, webSocketHandler);
+            attackCreatureService.attack(
+                    currentState,
+                    incomingState,
+                    attackerCard,
+                    targetCard,
+                    targetId,
+                    webSocketHandler);
         }
         topicService.sendGameStatesToTopics(currentState, webSocketHandler);
     }
