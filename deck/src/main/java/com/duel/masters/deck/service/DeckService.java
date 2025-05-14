@@ -199,6 +199,18 @@ public class DeckService {
                 .findFirst()
                 .orElseThrow();
 
+        var toel = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 32)
+                .findFirst()
+                .orElseThrow();
+
+        var iocant = cardDtoList
+                .stream()
+                .filter(cardDto -> cardDto.getId() == 18)
+                .findFirst()
+                .orElseThrow();
+
         List<CardDto> cardsToAdd = new ArrayList<>();
 
         cardsToAdd.add(aquaSniper);
@@ -210,6 +222,8 @@ public class DeckService {
         cardsToAdd.add(a);
         cardsToAdd.add(b);
         cardsToAdd.add(urth);
+        cardsToAdd.add(toel);
+        cardsToAdd.add(iocant);
 
         deck.removeIf(
                 c ->
@@ -217,6 +231,8 @@ public class DeckService {
                 c.getId() == 7 ||
                 c.getId() == 2 ||
                 c.getId() == 11 ||
+                c.getId() == 18 ||
+                c.getId() == 32 ||
                 c.getId() == 34 ||
                 c.getId() ==80
         );

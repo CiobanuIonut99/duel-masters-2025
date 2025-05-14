@@ -47,7 +47,7 @@ public class TurnService {
         ownBattleZone
                 .stream()
                 .filter(ownCard -> ownCard.getAbility().equals(END_TURN_UNTAP_OWN_CREATURE))
-                .forEach(ownCard -> ownCard.setTapped(false));
+                .forEach(ownCard -> changeCardState(ownCard, false, true, false, false));
 
         var ownBattleZoneCardsAbilities = ownBattleZone
                 .stream()
@@ -56,7 +56,7 @@ public class TurnService {
 
         if (ownBattleZoneCardsAbilities.contains(END_TURN_UNTAP_ALL_OWN_CREATURES)) {
             ownBattleZone
-                    .forEach(ownCard -> ownCard.setTapped(false));
+                    .forEach(ownCard -> changeCardState(ownCard, false, true, false, false));
         }
 
         var cardNames = getCreatureEffectNames();
