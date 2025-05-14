@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import static com.duel.masters.game.constant.Constant.END_TURN_UNTAP_ALL_OWN_CREATURES;
 import static com.duel.masters.game.constant.Constant.END_TURN_UNTAP_OWN_CREATURE;
-import static com.duel.masters.game.effects.summoning.registry.CreatureRegistry.getCreatureEffect;
-import static com.duel.masters.game.effects.summoning.registry.CreatureRegistry.getCreatureEffectNames;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 @Slf4j
@@ -44,29 +42,14 @@ public class TurnService {
         opponentBattleZone.forEach(cardDto -> cardDto.setCanBeAttacked(false));
         setOpponentsCreaturesAttackable(cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone());
 
-        ownBattleZone
-                .stream()
-                .filter(ownCard -> ownCard.getAbility().equals(END_TURN_UNTAP_OWN_CREATURE))
-                .forEach(ownCard -> changeCardState(ownCard, false, true, false, false));
+        ownBattleZone.stream().filter(ownCard -> ownCard.getAbility().equals(END_TURN_UNTAP_OWN_CREATURE)).forEach(ownCard -> changeCardState(ownCard, false, true, false, false));
 
-        var ownBattleZoneCardsAbilities = ownBattleZone
-                .stream()
-                .map(CardDto::getAbility)
-                .toList();
+        var ownBattleZoneCardsAbilities = ownBattleZone.stream().map(CardDto::getAbility).toList();
 
         if (ownBattleZoneCardsAbilities.contains(END_TURN_UNTAP_ALL_OWN_CREATURES)) {
-            ownBattleZone
-                    .forEach(ownCard -> changeCardState(ownCard, false, true, false, false));
+            ownBattleZone.forEach(ownCard -> changeCardState(ownCard, false, true, false, false));
         }
 
-        var cardNames = getCreatureEffectNames();
-
-        for (String creatureEffectName : cardNames) {
-            ownBattleZone
-                    .stream()
-                    .filter(ownCard -> ownCard.getName().equals(creatureEffectName))
-                    .forEach(ownCard -> getCreatureEffect(creatureEffectName).execute(currentState, incomingState, cardsUpdateService));
-        }
 
 //        var gameStatePlayer = getGameStateDtoPlayerEndTurn(currentState);
 //        var gameStateOpponent = getGameStateDtoOpponentEndTurn(currentState);

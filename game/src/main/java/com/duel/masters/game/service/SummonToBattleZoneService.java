@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import static com.duel.masters.game.effects.summoning.registry.CreatureImmediateEffectRegistry.*;
+import static com.duel.masters.game.effects.summoning.registry.CreatureRegistry.getCreatureEffect;
+import static com.duel.masters.game.effects.summoning.registry.CreatureRegistry.getCreatureEffectNames;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 import static com.duel.masters.game.util.ValidatorUtil.canSummon;
 
@@ -23,9 +25,9 @@ public class SummonToBattleZoneService {
 
         var ownCards = cardsUpdateService.getOwnCards(currentState, incomingState);
 
-        var ownhand = ownCards.getHand();
-        var ownManazone = ownCards.getManaZone();
-        var ownBattlezone = ownCards.getBattleZone();
+        var ownHand = ownCards.getHand();
+        var ownManaZone = ownCards.getManaZone();
+        var ownBattleZone = ownCards.getBattleZone();
 
         var manaCardIds = incomingState.getTriggeredGameCardIds();
         var incomingStateTriggeredGameCardId = incomingState.getTriggeredGameCardId();
@@ -33,19 +35,19 @@ public class SummonToBattleZoneService {
 
         if (!currentState.getEffectsDto().isHasEffect()) {
 
-            cardToBeSummoned = getCardDtoFromList(ownhand, incomingStateTriggeredGameCardId);
-            var selectedManaCards = getSelectedManaCards(ownManazone, manaCardIds);
-            var canCardBeSummoned = canSummon(getCardIds(ownManazone),
+            cardToBeSummoned = getCardDtoFromList(ownHand, incomingStateTriggeredGameCardId);
+            var selectedManaCards = getSelectedManaCards(ownManaZone, manaCardIds);
+            var canCardBeSummoned = canSummon(getCardIds(ownManaZone),
                     manaCardIds,
-                    ownManazone,
+                    ownManaZone,
                     selectedManaCards,
                     cardToBeSummoned);
             if (canCardBeSummoned) {
 
                 tapCards(selectedManaCards);
-                playCard(ownhand, cardToBeSummoned.getGameCardId(), ownBattlezone);
+                playCard(ownHand, cardToBeSummoned.getGameCardId(), ownBattleZone);
                 cardToBeSummoned.setSummoningSickness(true);
-                setCardsSummonable(ownManazone, ownhand);
+                setCardsSummonable(ownManaZone, ownHand);
 
                 var creatureEffectNames = getCreatureImmediateEffectNames();
                 if (creatureEffectNames.contains(cardToBeSummoned.getName())) {
@@ -61,11 +63,13 @@ public class SummonToBattleZoneService {
                     creatureImmediateEffectNoUi.execute(currentState, incomingState, cardsUpdateService);
                 }
 
+                if (getCreatureEffectNames().contains(cardToBeSummoned.getName())) {
+                    getCreatureEffect(cardToBeSummoned.getName()).execute(currentState, incomingState, cardsUpdateService);
+                }
             }
-
         } else {
 
-            cardToBeSummoned = getCardDtoFromList(ownBattlezone, currentState.getTriggeredGameCardId());
+            cardToBeSummoned = getCardDtoFromList(ownBattleZone, currentState.getTriggeredGameCardId());
             var creatureEffectNames = getCreatureImmediateEffectNames();
             if (creatureEffectNames.contains(cardToBeSummoned.getName())) {
                 var creatureImmediateEffect = getCreatureImmediateEffect(cardToBeSummoned.getName());
