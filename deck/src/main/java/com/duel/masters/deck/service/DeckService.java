@@ -209,12 +209,13 @@ public class DeckService {
         cardsToAdd.add(aqua);
         cardsToAdd.add(a);
         cardsToAdd.add(b);
-
+        cardsToAdd.add(urth);
 
         deck.removeIf(
                 c ->
                 c.getId() == 3 ||
                 c.getId() == 7 ||
+                c.getId() == 2 ||
                 c.getId() == 11 ||
                 c.getId() == 34 ||
                 c.getId() ==80
