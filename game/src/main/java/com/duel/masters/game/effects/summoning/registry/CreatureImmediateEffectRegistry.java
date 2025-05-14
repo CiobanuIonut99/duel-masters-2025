@@ -12,13 +12,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CreatureImmediateEffectRegistry {
     private static final Map<String, Effect> creatureImmediateEffects = new ConcurrentHashMap<>();
-    private static final Map<String, Effect> creatureImmediateEffectsNoUi = new ConcurrentHashMap<>();
+    private static final Map<String, Effect> creatureImmediateEffectsNoUI = new ConcurrentHashMap<>();
     private static final Map<String, Effect> powerAttacker = new ConcurrentHashMap<>();
 
     static {
         creatureImmediateEffects.put("Aqua Sniper", new AquaSniperEffect());
 
-        creatureImmediateEffectsNoUi.put("Scarlet Skyterror", new ScarletSkyterrorEffect());
+        creatureImmediateEffectsNoUI.put("Scarlet Skyterror", new ScarletSkyterrorEffect());
 
         powerAttacker.put("PA_2000", new CreaturePA2K());
         powerAttacker.put("PA_4000", new CreaturePA4K());
@@ -34,11 +34,11 @@ public class CreatureImmediateEffectRegistry {
 
 
     public static Effect getCreatureImmediateEffectNoUi(String name) {
-        return creatureImmediateEffectsNoUi.get(name);
+        return creatureImmediateEffectsNoUI.get(name);
     }
 
     public static Set<String> getCreatureImmediateEffectNamesNoUi() {
-        return creatureImmediateEffectsNoUi.keySet();
+        return creatureImmediateEffectsNoUI.keySet();
     }
 
     public static Effect getCreaturePowerAttackerEffect(String name) {

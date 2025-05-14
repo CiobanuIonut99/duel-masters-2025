@@ -68,7 +68,7 @@ public class AttackServiceImplementation implements AttackService {
         currentState.setTargetId(targetId);
 
         if (targetCard.isShield()) {
-            if (!CAP.equalsIgnoreCase(attackerCard.getAbility())) {
+            if (!attackerCard.getAbility().contains(CAP)) {
                 attackShieldService.attack(
                         currentState,
                         incomingState,

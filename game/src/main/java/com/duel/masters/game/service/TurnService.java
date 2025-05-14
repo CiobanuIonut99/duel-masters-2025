@@ -2,11 +2,15 @@ package com.duel.masters.game.service;
 
 import com.duel.masters.game.config.unity.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
+import com.duel.masters.game.dto.card.service.CardDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static com.duel.masters.game.constant.Constant.END_TURN_UNTAP_ALL_OWN_CREATURES;
+import static com.duel.masters.game.constant.Constant.END_TURN_UNTAP_OWN_CREATURE;
 import static com.duel.masters.game.effects.summoning.registry.CreatureRegistry.getCreatureEffect;
+import static com.duel.masters.game.effects.summoning.registry.CreatureRegistry.getCreatureEffectNames;
 import static com.duel.masters.game.util.CardsDtoUtil.*;
 
 @Slf4j
@@ -37,19 +41,31 @@ public class TurnService {
         setCardsSummonable(opponentManaZone, opponentHand);
         setOpponentsCreaturesCanAttack(opponentBattleZone);
         cureOpponentsCreaturesSickness(opponentBattleZone);
-        if (opponentBattleZone != null) {
-            opponentBattleZone.forEach(cardDto -> cardDto.setCanBeAttacked(false));
-        }
+        opponentBattleZone.forEach(cardDto -> cardDto.setCanBeAttacked(false));
         setOpponentsCreaturesAttackable(cardsUpdateService.getOwnCards(currentState, incomingState).getBattleZone());
 
-        if (ownBattleZone != null) {
+        ownBattleZone
+                .stream()
+                .filter(ownCard -> ownCard.getAbility().equals(END_TURN_UNTAP_OWN_CREATURE))
+                .forEach(ownCard -> ownCard.setTapped(false));
+
+        var ownBattleZoneCardsAbilities = ownBattleZone
+                .stream()
+                .map(CardDto::getAbility)
+                .toList();
+
+        if (ownBattleZoneCardsAbilities.contains(END_TURN_UNTAP_ALL_OWN_CREATURES)) {
+            ownBattleZone
+                    .forEach(ownCard -> ownCard.setTapped(false));
+        }
+
+        var cardNames = getCreatureEffectNames();
+
+        for (String creatureEffectName : cardNames) {
             ownBattleZone
                     .stream()
-                    .filter(ownCard -> ownCard.getId().equals(2L))
-                    .forEach(ownCard -> {
-                        var creatureEffect = getCreatureEffect(ownCard.getName());
-                        creatureEffect.execute(currentState, incomingState, cardsUpdateService);
-                    });
+                    .filter(ownCard -> ownCard.getName().equals(creatureEffectName))
+                    .forEach(ownCard -> getCreatureEffect(creatureEffectName).execute(currentState, incomingState, cardsUpdateService));
         }
 
 //        var gameStatePlayer = getGameStateDtoPlayerEndTurn(currentState);

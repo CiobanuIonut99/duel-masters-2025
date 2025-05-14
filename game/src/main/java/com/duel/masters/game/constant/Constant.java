@@ -13,4 +13,7 @@ public class Constant {
     public static final String ON_DESTROY_GO_TO_MANA = "ON_DESTROY_GO_TO_MANA";
     public static final String ON_DESTROY_GO_TO_HAND = "ON_DESTROY_GO_TO_HAND";
     public static final String CAP = "CAP";
+    public static final String END_TURN_UNTAP_OWN_CREATURE = "END_TURN_UNTAP_OWN_CREATURE";
+    public static final String END_TURN_UNTAP_ALL_OWN_CREATURES = "END_TURN_UNTAP_ALL_OWN_CREATURES";
+    public static final String ANGEL_COMMAND = "ANGEL_COMMAND";
 }
