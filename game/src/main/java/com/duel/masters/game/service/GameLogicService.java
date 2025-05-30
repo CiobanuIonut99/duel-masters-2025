@@ -1,6 +1,6 @@
 package com.duel.masters.game.service;
 
-import com.duel.masters.game.config.unity.GameWebSocketHandler;
+import com.duel.masters.game.config.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.dto.player.service.PlayerDto;
 import com.fasterxml.jackson.databind.ObjectMapper;

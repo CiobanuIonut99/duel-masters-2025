@@ -1,4 +1,4 @@
-package com.duel.masters.game.config.unity;
+package com.duel.masters.game.config;
 
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;

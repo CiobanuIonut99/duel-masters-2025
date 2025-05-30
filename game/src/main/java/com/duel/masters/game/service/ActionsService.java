@@ -1,6 +1,6 @@
 package com.duel.masters.game.service;
 
-import com.duel.masters.game.config.unity.GameWebSocketHandler;
+import com.duel.masters.game.config.GameWebSocketHandler;
 import com.duel.masters.game.dto.GameStateDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

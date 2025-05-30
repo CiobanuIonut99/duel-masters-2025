@@ -1,4 +1,4 @@
-package com.duel.masters.game.config.unity;
+package com.duel.masters.game.config;
 
 import com.duel.masters.game.dto.GameStateDto;
 import com.duel.masters.game.service.GameLogicService;
@@ -51,12 +51,6 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         log.info("❌ WebSocket disconnected: {}, status: {}", session.getId(), status);
         playerSessions.remove(session.getId());
-        // Remove from playerSessions if you track them later
-    }
-
-    private void sendToClient(WebSocketSession session, Object response) throws Exception {
-        String json = objectMapper.writeValueAsString(response);
-        session.sendMessage(new TextMessage(json));
     }
 
     public WebSocketSession getSessionForPlayer(Long playerId) {
