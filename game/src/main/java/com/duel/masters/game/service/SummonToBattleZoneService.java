@@ -66,6 +66,9 @@ public class SummonToBattleZoneService {
                 if (getCreatureEffectNames().contains(cardToBeSummoned.getName())) {
                     getCreatureEffect(cardToBeSummoned.getName()).execute(currentState, incomingState, cardsUpdateService);
                 }
+
+
+                log.info("Card summoned to battle zone : {}", cardToBeSummoned.getName());
             }
         } else {
 
@@ -80,7 +83,6 @@ public class SummonToBattleZoneService {
         }
 
         topicService.sendGameStatesToTopics(currentState, webSocketHandler);
-        log.info("Card summoned to battle zone : {}", cardToBeSummoned.getName());
     }
 
 }

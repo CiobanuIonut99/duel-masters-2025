@@ -32,7 +32,7 @@ public class GameLogicService {
         if (START.equalsIgnoreCase(incomingState.getAction())) {
 
             webSocketHandler.getPlayerSessions().putIfAbsent(incomingState.getPlayerDto().getId(), session);
-            startGame(incomingState.getPlayerDto(), webSocketHandler);
+             startGame(incomingState.getPlayerDto(), webSocketHandler);
 
         } else {
             var currentState = gameStateStore.getGameState(incomingState.getGameId());

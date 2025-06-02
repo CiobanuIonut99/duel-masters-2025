@@ -14,7 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Builder
 @Data
 public class PlayerDto {
-    private Long id;
+    private String id;
     private String username;
     private String password;
     private String country;

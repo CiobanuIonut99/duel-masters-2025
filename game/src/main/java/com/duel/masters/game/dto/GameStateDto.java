@@ -29,9 +29,9 @@ public class GameStateDto {
     private String triggeredGameCardId;
     private List<String> triggeredGameCardIds;
 
-    private Long playerId;
-    private Long opponentId;
-    private Long currentTurnPlayerId;
+    private String playerId;
+    private String opponentId;
+    private String currentTurnPlayerId;
 
     private String playerName;
     private String opponentName;

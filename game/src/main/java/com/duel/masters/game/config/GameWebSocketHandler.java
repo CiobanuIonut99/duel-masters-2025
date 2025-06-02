@@ -21,7 +21,7 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final GameLogicService gameLogicService;
 
-    private final Map<Long, WebSocketSession> playerSessions = new ConcurrentHashMap<>();
+    private final Map<String, WebSocketSession> playerSessions = new ConcurrentHashMap<>();
 
     public GameWebSocketHandler(GameLogicService gameLogicService) {
         this.gameLogicService = gameLogicService;
@@ -53,11 +53,11 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         playerSessions.remove(session.getId());
     }
 
-    public WebSocketSession getSessionForPlayer(Long playerId) {
+    public WebSocketSession getSessionForPlayer(String playerId) {
         return playerSessions.get(playerId);
     }
 
-    public synchronized  Map<Long, WebSocketSession> getPlayerSessions() {
+    public synchronized  Map<String, WebSocketSession> getPlayerSessions() {
         return playerSessions;
     }
 
